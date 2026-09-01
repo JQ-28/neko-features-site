@@ -187,13 +187,12 @@ const EMPTY_TEXT_LINES = [
   '没有链接就没法拆包裹了喵，粘一个过来嘛♪',
 ];
 const BILI_QR_TEXTS = {
-  blocked: 'B站把这个服务器的IP拦住了喵…用B站App扫下面的二维码授权一下，解析就能恢复啦（凭证只存在站点KV里）',
-  waiting: '等扫码中喵…掏出B站App扫一扫吧',
-  scanned: '扫到啦！在手机上点「确认登录」喵～',
-  success: '登录成功喵！把刚才的链接再发一遍，马上拆开它～',
-  expired: '二维码过期了喵，再触发一次解析就会重新生成',
-  genFail: '呜…二维码生成失败啦喵：',
-  pollFail: '呜…登录状态查询失败啦喵：',
+  blocked: 'B站把这个服务器的IP拦住了喵…需要你提供一次B站登录凭证来解锁解析（只存在站点KV里）',
+  cookieHint: '获取方法喵：电脑浏览器登录B站 → 按 F12 打开开发者工具 → 顶部 Application（应用）标签 → 左侧 Cookies → https://www.bilibili.com → 找到 SESSDATA 那一行，复制它的 Value 粘贴到下面：',
+  success: '凭证有效喵！登录成功～把刚才的链接再发一遍，马上拆开它！',
+  saved: '凭证已保存喵（线上没法校验有效性，但已经记录下来了）～把刚才的链接再发一遍试试吧',
+  genFail: '呜…凭证提交失败啦喵：',
+  pollFail: '呜…网络出错了喵：',
 };
 const pickArr = (arr) => arr[Math.floor(Math.random() * arr.length)] ?? arr[0];
 /* ────────────────────────────────────────────────

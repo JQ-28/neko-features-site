@@ -80,60 +80,32 @@
     }
   };
 
-  /* B站风控拉黑服务器 IP 时扫码登录解锁（凭证存站点 KV） */
-  const loadQrLib = () => new Promise((resolve, reject) => {
-    if (window.qrcode) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('qrcode lib load failed'));
-    document.head.appendChild(s);
-  });
+  /* B站风控拉黑服务器 IP 时，用户从浏览器复制 SESSDATA 提交解锁（凭证存站点 KV） */
+  window.biliCookieLogin = () => {
+    addMsg('neko', `${esc(BILI_QR_TEXTS.cookieHint)}<div class="pdl-row"><input id="bili-sess-input" placeholder="粘贴 SESSDATA…" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:inherit;font-size:13px" /><a class="dl-btn" href="javascript:;" onclick="biliCookieSubmit(this)">提交解锁</a></div>`);
+  };
 
-  window.biliQrLogin = async () => {
-    let start;
+  window.biliCookieSubmit = async (btn) => {
+    const input = document.getElementById('bili-sess-input');
+    const sessdata = input?.value.trim();
+    if (!sessdata) return;
+    btn.onclick = null;
+    btn.classList.add('busy');
     try {
-      start = await (await fetch('/api/parse/bili/login/start')).json();
+      const r = await (await fetch('/api/parse/bili/cookie', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessdata }),
+      })).json();
+      if (r.ok) return addMsg('neko', r.valid ? BILI_QR_TEXTS.success : BILI_QR_TEXTS.saved);
+      addMsg('neko', BILI_QR_TEXTS.genFail + esc(r.error || '未知错误'));
+      btn.onclick = () => window.biliCookieSubmit(btn);
     } catch (e) {
-      return addMsg('neko', BILI_QR_TEXTS.genFail + esc(e.message || String(e)));
+      addMsg('neko', BILI_QR_TEXTS.pollFail + esc(e.message || String(e)));
+      btn.onclick = () => window.biliCookieSubmit(btn);
+    } finally {
+      btn.classList.remove('busy');
     }
-    if (start.error) return addMsg('neko', BILI_QR_TEXTS.genFail + esc(start.error));
-    try {
-      await loadQrLib();
-    } catch {
-      return addMsg('neko', BILI_QR_TEXTS.genFail + '二维码库加载失败');
-    }
-    const qr = window.qrcode(0, 'M');
-    qr.addData(start.url);
-    qr.make();
-    const statusId = `bili-qr-status-${Date.now()}`;
-    addMsg('neko', `${qr.createSvgTag({ cellSize: 4, margin: 2 })}<div class="pdesc" id="${statusId}">${esc(BILI_QR_TEXTS.waiting)}</div>`);
-    const statusEl = document.getElementById(statusId);
-    const deadline = Date.now() + 180_000;
-    const timer = setInterval(async () => {
-      if (!document.getElementById(statusId)) return clearInterval(timer);
-      if (Date.now() > deadline) {
-        clearInterval(timer);
-        statusEl.textContent = BILI_QR_TEXTS.expired;
-        return;
-      }
-      let r;
-      try {
-        r = await (await fetch(`/api/parse/bili/login/poll?key=${encodeURIComponent(start.qrcodeKey)}`)).json();
-      } catch (e) {
-        clearInterval(timer);
-        return addMsg('neko', BILI_QR_TEXTS.pollFail + esc(e.message || String(e)));
-      }
-      if (r.code === 0) {
-        clearInterval(timer);
-        statusEl.textContent = BILI_QR_TEXTS.success;
-      } else if (r.code === 86090) {
-        statusEl.textContent = BILI_QR_TEXTS.scanned;
-      } else if (r.code === 86038 || r.code === -1) {
-        clearInterval(timer);
-        statusEl.textContent = BILI_QR_TEXTS.expired;
-      }
-    }, 2500);
   };
 
   window.__features.parser = {
@@ -160,7 +132,7 @@
       if (r.error) {
         if (/412|风控/.test(r.error)) {
           addMsg('neko', esc(BILI_QR_TEXTS.blocked));
-          return window.biliQrLogin();
+          return window.biliCookieLogin();
         }
         return addMsg('neko', '这条链接拆不开呀喵…' + esc(r.error));
       }
