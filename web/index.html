@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=15"></script>
+<script src="/texts.js?v=16"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -536,6 +536,13 @@ const EASTER_EGGS = [
   { test: /^(67|六七)$/, lines: SIX_SEVEN_LINES, emote: 'sixseven', egg: 'sixSeven' },
 ];
 const tryEasterEgg = (text) => {
+  if (/^(bababoi|巴巴博弈|巴巴博一)$/i.test(text)) {
+    addMsg('neko', esc(pickArr(BABABOI_LINES)));
+    addMsg('neko', '<img src="/images/bababoi.jpg" alt="bababoi" loading="lazy">');
+    new Audio('/images/bababoi.mp3').play().catch(() => {});
+    markEgg('bababoi');
+    return true;
+  }
   if (/(在吗|在不在)/.test(text)) {
     const [first, second] = pickArr(STILL_HERE_LINES);
     addEmote(addMsg('neko', esc(first)), 'question');

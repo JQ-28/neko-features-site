@@ -226,8 +226,12 @@ const EGGS = {
   scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
   numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
   longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失', footerTour: '全按钮巡礼',
-  copyNeko: '偷学台词', multiTab: '猫界捉奸', printNeko: 'neko海报', cinema: '影院模式',
+  copyNeko: '偷学台词', multiTab: '猫界捉奸', printNeko: 'neko海报', cinema: '影院模式', bababoi: 'bababoi!',
 };
+const BABABOI_LINES = [
+  'bababoi bababoi～neko也会跳喵！',
+  '你居然也懂 bababoi 喵？！接招！',
+];
 const EGG_HINTS = {
   night: '凌晨 0 点到 5 点之间打开任意功能窗口',
   logoTap: '快速连点左上角的 neko 头像 6 次（手速要快，间隔太久会重新计数喵）',
@@ -268,6 +272,7 @@ const EGG_HINTS = {
   fishFood: '在链接解析聊天里只发一个 🐟',
   shake: '手机用力摇晃，或电脑上快速左右甩动鼠标 7 个来回',
   sixSeven: '在链接解析聊天里只发 67 或 六七',
+  bababoi: '在链接解析聊天里发 bababoi 或 巴巴博弈',
   longPress: '在功能窗口里长按任意发送按钮（解析/来一张/生成/搜源这类）3 秒不松手',
   titleMeow: '切到别的标签页再切回来 2 次以上',
   offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
