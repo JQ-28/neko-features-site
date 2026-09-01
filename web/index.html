@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v7'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v8'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -518,25 +518,26 @@ const moyerLine = () => {
 };
 const EASTER_EGGS = [
   { test: /(喵|meow|nyaa)/i, lines: ['喵喵喵？你在叫我吗喵！✨', '听到有人喵喵叫了喵～我在这儿呢！', '喵呜～是要摸摸头吗呀？'] },
-  { test: /(摸摸头|摸摸|rua)/, lines: ['咕噜咕噜…被摸头了好舒服喵～', '尾巴卷住你的手了喵！别走呀！', '再摸一下下就好喵…就一下下！'] },
-  { test: /(老婆|嫁给我|喜欢你|爱你)/, lines: ['我是数据小猫，不是恋爱对象呀喵。叫我neko就好~', '呜哇！neko只是小猫咪喵，这种话要说给真人听呀！'] },
+  { test: /(摸摸头|摸摸|rua)/, lines: ['咕噜咕噜…被摸头了好舒服喵～', '尾巴卷住你的手了喵！别走呀！', '再摸一下下就好喵…就一下下！'], emote: 'pat' },
+  { test: /(老婆|嫁给我|喜欢你|爱你)/, lines: ['我是数据小猫，不是恋爱对象呀喵。叫我neko就好~', '呜哇！neko只是小猫咪喵，这种话要说给真人听呀！'], emote: 'shy' },
   { test: /(抹茶|冰淇淋|布丁|甜点)/, lines: ['抹茶冰淇淋是本命喵！你也喜欢吗呀？✨', '说到甜点尾巴就竖起来了喵！焦糖布丁也很好吃呀~', '要不要一起吃块抹茶冰淇淋喵？'] },
-  { test: /(你好|hello|\bhi\b|\b嗨\b)/i, lines: ['你好呀喵！今天过得怎么样喵~', '我在我在喵！有什么要帮忙的吗呀？', '嗨喵～尾巴摇摇欢迎你！'] },
-  { test: /(谢谢|感谢|thx|3q)/i, lines: THANKS_LINES, egg: 'thanks' },
+  { test: /(你好|hello|\bhi\b|\b嗨\b)/i, lines: ['你好呀喵！今天过得怎么样喵~', '我在我在喵！有什么要帮忙的吗呀？', '嗨喵～尾巴摇摇欢迎你！'], emote: 'greet' },
+  { test: /(谢谢|感谢|thx|3q)/i, lines: THANKS_LINES, egg: 'thanks', emote: 'love' },
   { test: /^[1１]+$/, lines: TEST_ONE_LINES, egg: 'testOne' },
-  { test: /(晚安|睡觉|困了|好梦)/, lines: ['晚安喵～记得盖好被子呀！', '困了就去休息嘛喵，我就在这里等你~', '晚安喵…呼噜呼噜…', '早点睡呀喵，熬夜会长黑眼圈的哦～', '晚安喵～梦里记得请neko吃小鱼干！', '去睡吧去睡吧喵，明天再来找我玩呀～'] },
+  { test: /(晚安|睡觉|困了|好梦)/, lines: ['晚安喵～记得盖好被子呀！', '困了就去休息嘛喵，我就在这里等你~', '晚安喵…呼噜呼噜…', '早点睡呀喵，熬夜会长黑眼圈的哦～', '晚安喵～梦里记得请neko吃小鱼干！', '去睡吧去睡吧喵，明天再来找我玩呀～'], emote: 'sleep' },
 ];
 const tryEasterEgg = (text) => {
   if (/(在吗|在不在)/.test(text)) {
     const [first, second] = pickArr(STILL_HERE_LINES);
-    addMsg('neko', esc(first));
+    addEmote(addMsg('neko', esc(first)), 'question');
     setTimeout(() => addMsg('neko', esc(second)), 2000);
     markEgg('stillHere');
     return true;
   }
   const hit = EASTER_EGGS.find((e) => e.test.test(text));
   if (!hit) return false;
-  addMsg('neko', esc(pickArr(hit.lines)));
+  const el = addMsg('neko', esc(pickArr(hit.lines)));
+  if (hit.emote) addEmote(el, hit.emote);
   if (hit.egg) markEgg(hit.egg);
   if (/(晚安|好梦)/.test(text) && isNight()) markEgg('nightGreet');
   return true;
@@ -546,9 +547,33 @@ const pickLine = (key) => {
   return arr.length ? pickArr(arr) : '收到喵，处理中...';
 };
 
+/* neko 表情包：按情绪关键词在回复气泡尾部追加 GIF（懒加载，命中才下载） */
+const emoteImg = (id) => `<img class="neko-emote" src="/emotes/${id}.gif" alt="${id}" loading="lazy" />`;
+const addEmote = (el, id) => {
+  if (!el?.querySelector?.('.chat-bubble')) return;
+  el.querySelector('.chat-bubble').insertAdjacentHTML('beforeend', emoteImg(id));
+  const box = $('m-chat');
+  box.scrollTop = box.scrollHeight;
+};
+/* 回复文本 → 情绪表情映射（命中即挂，可被调用方显式覆盖） */
+const EMOTE_BY_TEXT = [
+  [/(呜|失败|出错|错误|抱歉|对不起|没法|不行)/, 'cry'],
+  [/(成功|完成|搞定|搞定啦|收藏|彩蛋|恭喜|祝贺|✨.*！)/, 'celebrate'],
+  [/(慢一点|别急|稍等|等一下)/, 'sweat'],
+  [/(厉害|做得好|真棒|干得漂亮)/, 'thumbsup'],
+  [/(加油|坚持|努力)/, 'cheer'],
+  [/(魔法|施法|解析中|处理中|抽取中|翻找)/, 'magic'],
+  [/(吃瓜|看戏|围观|旁观)/, 'popcorn'],
+  [/(生气|气死|哼|恼|讨厌)/, 'angry'],
+  [/(开心|开心啦|太好了|好耶|♪|～$)/, 'laugh'],
+  [/(惊讶|天哪|哇|吓)/, 'exclaim'],
+  [/(笨蛋|傻|呆)/, 'daze'],
+];
+const emoteForText = (text) => EMOTE_BY_TEXT.find(([re]) => re.test(text))?.[1] ?? null;
+
 const busy = {};
 const guard = async (key, fn) => {
-  if (busy[key]) return addMsg('neko', '慢一点呀喵～上一条还没处理完呢！');
+  if (busy[key]) return addEmote(addMsg('neko', '慢一点呀喵～上一条还没处理完呢！'), 'sweat');
   busy[key] = true;
   const typing = addTyping();
   try { await fn(); } finally { busy[key] = false; typing.remove(); }
