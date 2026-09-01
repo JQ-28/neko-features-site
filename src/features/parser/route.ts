@@ -34,14 +34,49 @@ const resolveRedirect = async (url: string, headers: Record<string, string> = {}
   return current;
 };
 
+// Cloudflare 数据中心 IP 会被 B站风控拦（412 返回 HTML 挑战页），带 buvid Cookie 可绕过
+let biliCookieCache: { cookie: string; ts: number } | null = null;
+const BILI_COOKIE_TTL = 6 * 3600_000;
+
+const getBiliCookie = async (): Promise<string> => {
+  if (biliCookieCache && Date.now() - biliCookieCache.ts < BILI_COOKIE_TTL) return biliCookieCache.cookie;
+  try {
+    const res = await fetch('https://api.bilibili.com/x/frontend/finger/spi', {
+      headers: { 'User-Agent': UA, Referer: 'https://www.bilibili.com' },
+    });
+    const json = (await res.json()) as { data?: { b_3?: string; b_4?: string } };
+    const b3 = json.data?.b_3;
+    const b4 = json.data?.b_4;
+    if (b3 && b4) {
+      biliCookieCache = { cookie: `buvid3=${b3}; buvid4=${b4}`, ts: Date.now() };
+      return biliCookieCache.cookie;
+    }
+  } catch {
+    // 走随机生成兜底
+  }
+  const rand = () => `XY${crypto.randomUUID().replaceAll('-', '').slice(0, 30)}infoc`;
+  biliCookieCache = { cookie: `buvid3=${rand()}; buvid4=${rand()}`, ts: Date.now() };
+  return biliCookieCache.cookie;
+};
+
+const biliJson = async (res: Response): Promise<unknown> => {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`B站接口返回异常（HTTP ${res.status}，疑似风控拦截）`);
+  }
+};
+
 const parseBilibili = async (url: string): Promise<ParseResult> => {
   const bv = url.match(/BV[0-9A-Za-z]+/)?.[0];
   const avid = url.match(/av(\d+)/i)?.[1];
   if (!bv && !avid) throw new Error('未识别到 BV/av 号');
+  const cookie = await getBiliCookie();
   const res = await fetch(`https://api.bilibili.com/x/web-interface/view?${bv ? `bvid=${bv}` : `aid=${avid}`}`, {
-    headers: { 'User-Agent': UA, Referer: 'https://www.bilibili.com' },
+    headers: { 'User-Agent': UA, Referer: 'https://www.bilibili.com', Cookie: cookie },
   });
-  const json = (await res.json()) as {
+  const json = (await biliJson(res)) as {
     code?: number;
     message?: string;
     data?: {
@@ -65,9 +100,9 @@ const parseBilibili = async (url: string): Promise<ParseResult> => {
   // HTML5 模式无需 Wbi 签名和登录即可获取 MP4 直链
   const playRes = await fetch(
     `https://api.bilibili.com/x/player/playurl?bvid=${d.bvid ?? bv}&cid=${cid}&qn=64&platform=html5&high_quality=1`,
-    { headers: { 'User-Agent': UA, Referer: 'https://www.bilibili.com' } }
+    { headers: { 'User-Agent': UA, Referer: 'https://www.bilibili.com', Cookie: cookie } }
   );
-  const playJson = (await playRes.json()) as {
+  const playJson = (await biliJson(playRes)) as {
     data?: { durl?: Array<{ url?: string; size?: number }> };
   };
   const videos = (playJson.data?.durl ?? []).map((s) => s.url!).filter(Boolean);
