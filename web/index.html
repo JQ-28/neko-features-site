@@ -1085,7 +1085,9 @@ const renderEggPanel = () => {
   if (allDone && !eggFound.has('eggAll')) markEgg('eggAll', '彩蛋全收集达成喵！');
   $('egg-list').innerHTML =
     (allDone ? `<div class="egg-done-banner">${EGG_TROPHY_ICON}${esc(EGG_DONE_TEXT)}</div>` : '')
-    + Object.entries(EGGS).map(([id, name], i) => {
+    + Object.entries(EGGS)
+    .sort(([idA], [idB]) => Number(eggFound.has(idB)) - Number(eggFound.has(idA)))
+    .map(([id, name], i) => {
       const got = eggFound.has(id);
       const revealed = !got && eggRevealed.has(id);
       return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div><div class="egg-hint${got ? ' done' : ''}">${esc(EGG_HINTS[id] ?? '')}</div></div></div>`;
