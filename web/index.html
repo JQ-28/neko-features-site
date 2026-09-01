@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=5"></script>
+<script src="/texts.js?v=6"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -533,6 +533,7 @@ const EASTER_EGGS = [
   { test: /^(520|1314)$/, lines: ['呜哇！数字表白最浪漫了喵…可惜neko是小猫呀！', '1314…neko可以陪你一辈子喵！小鱼干管够的话～'], emote: 'love', egg: 'numberLove' },
   { test: /(饿了|好饿|肚子饿)/, lines: HUNGRY_LINES, emote: 'spray', egg: 'hungry' },
   { test: /^🐟+$/, lines: FISH_EMOJI_LINES, emote: 'nod', egg: 'fishFood' },
+  { test: /^(67|六七)$/, lines: SIX_SEVEN_LINES, emote: 'sixseven', egg: 'sixSeven' },
 ];
 const tryEasterEgg = (text) => {
   if (/(在吗|在不在)/.test(text)) {
