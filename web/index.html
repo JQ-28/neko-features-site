@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/style.css" />
+<link rel="stylesheet" href="/style.css?v=14" />
 <body>
 <div class="topbar">
   <button class="icon-btn menu-btn" id="menu-btn"></button>
@@ -870,6 +870,31 @@ const sixRain = () => {
   }
   sixRainTidy = setTimeout(() => { nodes.forEach((n) => n.remove()); sixRainTidy = null; }, 2600);
 };
+/* 喵气泡：猫爪+喵 从底部摇摆上浮（与 666 数字雨方向相反），中央喵呜挤压弹出 */
+let miaoBurstTidy = null;
+const miaoBurst = () => {
+  if (miaoBurstTidy) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const nodes = [];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('span');
+    el.className = 'miao-rise';
+    el.textContent = Math.random() < 0.5 ? '🐾' : '喵';
+    el.style.left = `${4 + Math.random() * 90}vw`;
+    el.style.setProperty('--flip', Math.random() < 0.5 ? '-1' : '1');
+    el.style.animationDuration = `${(1.6 + Math.random() * 1.1).toFixed(2)}s`;
+    el.style.animationDelay = `${(Math.random() * 0.8).toFixed(2)}s`;
+    el.style.fontSize = `${18 + Math.random() * 16 | 0}px`;
+    document.body.appendChild(el);
+    nodes.push(el);
+  }
+  const pop = document.createElement('span');
+  pop.className = 'miao-pop';
+  pop.textContent = '喵呜～';
+  document.body.appendChild(pop);
+  nodes.push(pop);
+  miaoBurstTidy = setTimeout(() => { nodes.forEach((n) => n.remove()); miaoBurstTidy = null; }, 3600);
+};
 const cmdMask = $('cmd-mask'), cmdInput = $('cmd-input'), cmdList = $('cmd-list');
 let cmdIndex = 0, cmdFiltered = [];
 const renderCmd = () => {
@@ -877,7 +902,7 @@ const renderCmd = () => {
   if (q === '666') { markEgg('s666'); sixRain(); }
   else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
   else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
-  else if (q === 'miao' || q === '喵') markEgg('sMiao');
+  else if (q === 'miao' || q === '喵') { markEgg('sMiao', pickArr(SMIAO_LINES)); miaoBurst(); }
   else if (q === 'neko' || q === '猫') markEgg('nekoSearch');
   else if (q === '彩蛋' || q === 'eggs') { closeCmd(); openEggPanel(); return; }
   cmdFiltered = FEATURES.filter((f) => !q || (f.name + f.desc).toLowerCase().includes(q));

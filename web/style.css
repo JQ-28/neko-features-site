@@ -1418,6 +1418,48 @@
     85% { opacity: .85; }
     100% { transform: translateY(105vh) rotate(24deg); opacity: 0; }
   }
+
+  /* 喵气泡：Pop in 后 Float 摇摆上浮（--flip 随机翻转摆动方向），中央喵呜 Squash & stretch 弹出 */
+  .miao-rise {
+    position: fixed;
+    bottom: -2.5em;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--brand);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 90;
+    animation: miao-float 2.2s var(--ease-in-out) forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes miao-float {
+    0% { transform: translate(0, 0) scale(.4); opacity: 0; }
+    12% { transform: translate(0, -8vh) scale(1); opacity: .9; }
+    30% { transform: translate(calc(26px * var(--flip, 1)), -32vh) rotate(8deg); }
+    55% { transform: translate(calc(-20px * var(--flip, 1)), -60vh) rotate(-6deg); }
+    78% { opacity: .85; }
+    100% { transform: translate(calc(14px * var(--flip, 1)), -105vh) rotate(10deg); opacity: 0; }
+  }
+  .miao-pop {
+    position: fixed;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--brand);
+    text-shadow: 0 2px 12px rgba(255, 105, 180, .35);
+    pointer-events: none;
+    z-index: 91;
+    animation: miao-squash 1.3s var(--ease-out) forwards;
+  }
+  @keyframes miao-squash {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-14deg); opacity: 0; }
+    45% { transform: translate(-50%, -50%) scale(1.18) rotate(4deg); opacity: 1; }
+    62% { transform: translate(-50%, -50%) scale(.94) rotate(-2deg); }
+    78% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.06) rotate(0deg); opacity: 0; }
+  }
   .egg-item .egg-hint {
     max-height: 0; opacity: 0; overflow: hidden; margin: 0;
     font-size: 12.5px; line-height: 1.6;
@@ -1713,6 +1755,7 @@
     .egg-item .egg-name.egg-poke { animation: none; }
     .egg-item .egg-hint { transition: none; }
     .six-rain { animation: none; display: none; }
+    .miao-rise, .miao-pop { animation: none; display: none; }
     .egg-item.show-hint .egg-hint { max-height: none; }
     .brand-logo:hover { animation: none; transform: scale(1.08); }
     .side-recent-item { animation: none; opacity: 1; }
