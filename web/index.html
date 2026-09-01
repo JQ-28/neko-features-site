@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=9"></script>
+<script src="/texts.js?v=10"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -1256,15 +1256,37 @@ const wakeLogo = () => {
   document.addEventListener(ev, wakeLogo, { passive: true }));
 idleTimer = setTimeout(sleepLogo, 120_000);
 
-/* 摇一摇彩蛋：手机端用力摇晃（devicemotion），抖动幅度够大触发 */
+/* 摇一摇彩蛋：手机端 devicemotion；电脑端快速左右甩鼠标 7 个来回 */
 let lastShake = 0;
+const SHAKE_LINES = ['别摇了别摇了喵！neko要被摇晕了！', '摇出什么了吗喵？只有猫毛…喵。', '停停停！尾巴打结了喵！！'];
 window.addEventListener('devicemotion', (e) => {
   const a = e.accelerationIncludingGravity;
   if (!a || a.x == null) return;
   const mag = Math.abs(a.x) + Math.abs(a.y) + Math.abs(a.z);
   if (mag < 34 || Date.now() - lastShake < 3000) return;
   lastShake = Date.now();
-  markEgg('shake', pickArr(['别摇了别摇了喵！neko要被摇晕了！', '摇出什么了吗喵？只有猫毛…喵。', '停停停！尾巴打结了喵！！']));
+  markEgg('shake', pickArr(SHAKE_LINES));
+}, { passive: true });
+/* 电脑端：检测鼠标水平快速折返（甩动），7 个来回算一次"摇" */
+let mxLast = null, mxDir = 0, mxTurns = 0, mxLastTurn = 0;
+document.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return;
+  if (mxLast === null) { mxLast = e.clientX; return; }
+  const dx = e.clientX - mxLast;
+  mxLast = e.clientX;
+  if (Math.abs(dx) < 15) return; /* 幅度太小忽略，过滤普通移动 */
+  const dir = dx > 0 ? 1 : -1;
+  if (dir === mxDir) return;
+  mxDir = dir;
+  const now = Date.now();
+  if (now - mxLastTurn < 500) mxTurns++;
+  else mxTurns = 1; /* 折返间隔太久，重新计数 */
+  mxLastTurn = now;
+  if (mxTurns >= 7 && now - lastShake > 3000) {
+    lastShake = now;
+    mxTurns = 0;
+    markEgg('shake', pickArr(SHAKE_LINES));
+  }
 }, { passive: true });
 
 /* 控制台召唤：输入 neko 看猫叫动画（彩蛋之外的小乐趣，手机端不依赖） */
