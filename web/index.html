@@ -1101,6 +1101,15 @@ const EGG_OK_ICON = svg('check', 16);
 const EGG_LOCK_ICON = svg('lock', 16);
 const EGG_TROPHY_ICON = svg('trophy', 18);
 const EGG_DONE_TEXT = '全部彩蛋收集完成喵！你是neko认证的资深铲屎官！';
+const getVisitStreak = () => {
+  try { return JSON.parse(localStorage.getItem('neko-visits') || '{"last":"","streak":0}').streak ?? 0; }
+  catch { return 0; }
+};
+const getEggHint = (id) => {
+  const hint = EGG_HINTS[id] ?? '';
+  if (id === 'visit3' && getVisitStreak() > 0) return `${hint}，已经连续来 ${getVisitStreak()} 天了喵`;
+  return hint;
+};
 const renderEggPanel = () => {
   const total = Object.keys(EGGS).length;
   const found = eggFound.size;
@@ -1115,7 +1124,7 @@ const renderEggPanel = () => {
     .map(([id, name], i) => {
       const got = eggFound.has(id);
       const revealed = !got && eggRevealed.has(id);
-      return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div><div class="egg-hint${got ? ' done' : ''}">${esc(EGG_HINTS[id] ?? '')}</div></div></div>`;
+      return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div><div class="egg-hint${got ? ' done' : ''}">${esc(getEggHint(id))}</div></div></div>`;
     }).join('');
 };
 /* 没收集的彩蛋可以戳：1 次抖一下，2 次 neko 吐槽，3 次欲言又止，4 次揭晓答案 */
