@@ -1391,7 +1391,7 @@ const MEDIA_HOST_ALLOWLIST = /^(?:[\w-]+\.)*(?:bilivideo\.com|hdslb\.com|akamaiz
 export const parser: Feature = {
   id: 'parser',
   name: '链接解析',
-  desc: '解析B站/抖音/小红书/快手/微博/X等22个平台的分享链接',
+  desc: '解析B站/抖音/小红书/快手/微博/X等22个平台的分享链接（因技术原因，部分平台解析有极大概率出错）',
   icon: 'link',
   category: 'shiyong',
   group: '媒体解析',
