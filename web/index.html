@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v10'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v11'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -1290,6 +1290,20 @@ document.addEventListener('pointermove', (e) => {
     markEgg('shake', pickArr(SHAKE_LINES));
   }
 }, { passive: true });
+
+/* 全按钮巡礼彩蛋：把功能窗口底部那排 6 个工具按钮（麦克风/图片/相机等）挨个点一遍 */
+const footerTapped = new Set(
+  (() => { try { return JSON.parse(localStorage.getItem('neko-footer-tour') || '[]'); } catch { return []; } })()
+);
+document.querySelector('.qq-footer')?.addEventListener('click', (e) => {
+  const idx = [...e.currentTarget.children].indexOf(e.target.closest('div'));
+  if (idx < 0 || !FOOTER_TAP_LINES[idx]) return;
+  if (footerTapped.has(idx)) { toast(FOOTER_TAP_LINES[idx]); return; }
+  footerTapped.add(idx);
+  try { localStorage.setItem('neko-footer-tour', JSON.stringify([...footerTapped])); } catch { /* 隐私模式忽略 */ }
+  if (footerTapped.size >= 6) markEgg('footerTour', pickArr(FOOTER_TOUR_LINES));
+  else toast(`${FOOTER_TAP_LINES[idx]}（${footerTapped.size}/6 喵）`);
+});
 
 /* 控制台召唤：输入 neko 看猫叫动画（彩蛋之外的小乐趣，手机端不依赖） */
 Object.defineProperty(window, 'neko', {

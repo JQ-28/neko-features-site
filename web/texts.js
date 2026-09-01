@@ -225,7 +225,7 @@ const EGGS = {
   healthPig: '猪还是人', newsFan: '资讯达人', randPick: '选择困难晚期', accentTen: '彩虹收藏家',
   scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
   numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
-  longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失',
+  longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失', footerTour: '全按钮巡礼',
 };
 const EGG_HINTS = {
   night: '凌晨 0 点到 5 点之间打开任意功能窗口',
@@ -270,6 +270,7 @@ const EGG_HINTS = {
   longPress: '按住任意按钮不松手，坚持 3 秒',
   titleMeow: '切到别的标签页再切回来 2 次以上',
   offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
+  footerTour: '把功能窗口底部那排工具按钮（麦克风/图片/相机等 6 个）挨个点一遍',
 };
 const eggFound = new Set(
   (() => { try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; } })()
@@ -299,6 +300,19 @@ const DL_TEN_LINES = [
   '下载达人成就达成喵 🏆 第10次下载成功！',
   '第10次下载喵！颁发neko牌小鱼干奖章一枚～🏆',
   '你是下载大户呀喵！硬盘还装得下吗喵？🏆',
+];
+const FOOTER_TAP_LINES = [
+  '喵？neko是文字猫，不会说话喵～🎤',
+  '图片按钮是装饰喵，要看neko写真请戳收集册～🖼',
+  '相机也拍不到neko喵，本猫是像素构成的！📷',
+  '文件夹里只有neko藏的小鱼干，不外借喵！📂',
+  '这个笑脸…是在笑neko吗喵？😊',
+  '加号是加不了小鱼干的喵，neko已经吃饱啦～➕',
+];
+const FOOTER_TOUR_LINES = [
+  '六个按钮全戳了一遍喵！好奇心满分，授予「全按钮巡礼」称号！🎉',
+  '居然把装饰按钮全点完了喵…neko承认你是探索家了！🗺',
+  '巡礼完成喵！这些按钮其实都是neko的零食开关哦（骗你的喵）🐾',
 ];
 const THEME_TEN_LINES = [
   '换衣服也换累啦，歇歇喵～',
