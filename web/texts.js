@@ -223,6 +223,8 @@ const EGGS = {
   visit3: '一日不见', fabingNeko: '对neko发病', explorer: '到处逛逛', eggAll: '全彩蛋达成',
   thanks: '道谢的乖孩子', testOne: '灵敏测试', stillHere: '在的喵', s404: '搜索 404', sMiao: '搜索喵叫',
   healthPig: '猪还是人', newsFan: '资讯达人', randPick: '选择困难晚期', accentTen: '彩虹收藏家',
+  scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
+  numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
 };
 const EGG_HINTS = {
   night: '凌晨 0 点到 5 点之间打开任意功能窗口',
@@ -253,6 +255,17 @@ const EGG_HINTS = {
   newsFan: '同一天里把 10 种日报全部看一遍',
   randPick: '短时间内连点侧栏「随机来一个」8 次',
   accentTen: '在偏好设置里切换主题色 10 次',
+  scolded: '在链接解析聊天里骂 neko（笨蛋、蠢猫之类的话）',
+  sing: '在链接解析聊天里说 唱歌 或 来一首',
+  joke: '在链接解析聊天里说 讲个笑话',
+  soulAsk: '在链接解析聊天里问 neko 是猫吗 / 你是AI吗',
+  jail996: '在链接解析聊天里发 996',
+  numberLove: '在链接解析聊天里只发 520 或 1314',
+  hungry: '在链接解析聊天里说 饿了',
+  longText: '在链接解析输入框里粘贴超过 500 字的长文本',
+  fishFood: '在链接解析聊天里只发一个 🐟',
+  shake: '手机端用力摇晃手机（需要 HTTPS 且授权了传感器权限）',
+  sixSeven: '在链接解析聊天里只发 67 或 六七',
 };
 const eggFound = new Set(
   (() => { try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; } })()
