@@ -266,9 +266,22 @@ const EXClimbWuzhiPayload = (uuid: string): Record<string, unknown> => ({
   'db46': 0,
 });
 
+// 从 BILI_COOKIE 提取登录态字段。设备指纹字段（buvid3/buvid4/buvid_fp/_uuid/b_nut/b_lsid）
+// 绑定获取时的出口 IP，从数据中心 IP 带家庭 IP 激活的指纹反而触发 412，必须现场重新激活。
+const BILI_AUTH_FIELDS = ['SESSDATA', 'bili_jct', 'DedeUserID', 'DedeUserID__ckMd5', 'bili_ticket', 'bili_ticket_expires', 'sid', 'ac_time_value'];
+
+const extractAuthCookie = (raw: string): string => {
+  const picked: string[] = [];
+  for (const pair of raw.split(';')) {
+    const eq = pair.indexOf('=');
+    if (eq <= 0) continue;
+    const name = pair.slice(0, eq).trim();
+    if (BILI_AUTH_FIELDS.includes(name)) picked.push(pair.trim());
+  }
+  return picked.join('; ');
+};
+
 const getBiliCookie = async (force = false): Promise<string> => {
-  // 后台配置的完整 Cookie（含 SESSDATA）优先级最高，可直接过风控
-  if (biliEnvCookie) return biliEnvCookie;
   if (!force && biliCookieCache && Date.now() - biliCookieCache.ts < BILI_COOKIE_TTL) return biliCookieCache.cookie;
   const jar: Record<string, string> = {};
   try {
@@ -305,6 +318,10 @@ const getBiliCookie = async (force = false): Promise<string> => {
   if (sess.sessdata) parts.push(`SESSDATA=${sess.sessdata}`);
   if (sess.bili_jct) parts.push(`bili_jct=${sess.bili_jct}`);
   if (sess.dedeuserid) parts.push(`DedeUserID=${sess.dedeuserid}`);
+  if (biliEnvCookie) {
+    const auth = extractAuthCookie(biliEnvCookie);
+    if (auth) parts.push(auth);
+  }
   const cookie = parts.join('; ');
   try {
     await fetch('https://api.bilibili.com/x/internal/gaia-gateway/ExClimbWuzhi', {
