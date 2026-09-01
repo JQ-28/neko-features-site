@@ -1444,11 +1444,21 @@ try {
 } catch { loadHitokoto(); }
 $('hitokoto').onclick = loadHitokoto;
 
+/* ─────────────── 跨天检测：常驻页面过了 00:00 自动重算按日卡片 ───────────────
+   30s 轮询兜底 + visibilitychange 补查（后台标签定时器被节流，切回瞬间必须补查） */
+let nekoCurDay = new Date().toDateString();
+const fireDayChange = () => {
+  const d = new Date().toDateString();
+  if (d === nekoCurDay) return;
+  nekoCurDay = d;
+  window.dispatchEvent(new CustomEvent('neko-daychange'));
+};
+setInterval(fireDayChange, 30_000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) fireDayChange(); });
+
 /* ─────────────── 摸鱼日历卡：今日进度 + 距周末/节假日 ─────────────── */
 {
   const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const today = new Date();
-  const todayStr = fmt(today);
   const holidayMap = new Map(HOLIDAYS.map((h) => [h.date, h]));
   const isRestDay = (d) => {
     const h = holidayMap.get(fmt(d));
@@ -1456,59 +1466,65 @@ $('hitokoto').onclick = loadHitokoto;
     const day = d.getDay();
     return day === 0 || day === 6;
   };
-  const daysUntil = (pred) => {
-    for (let i = 0; i <= 400; i++) {
-      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-      if (i > 0 && pred(d)) return i;
-    }
-    return null;
-  };
+  let dayPct = 0;
+  const renderMoyuCard = () => {
+    const today = new Date();
+    const todayStr = fmt(today);
+    const daysUntil = (pred) => {
+      for (let i = 0; i <= 400; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+        if (i > 0 && pred(d)) return i;
+      }
+      return null;
+    };
 
-  const nowMins = today.getHours() * 60 + today.getMinutes();
-  const dayPct = Math.round(((nowMins / 1440) * 100));
-  const restToday = isRestDay(today);
-  const lines = [];
-  const curHoliday = holidayMap.get(todayStr);
-  if (curHoliday && !curHoliday.work) {
-    /* 连续假期：算出假期剩余天数 */
-    let end = new Date(today);
-    while (isRestDay(new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1))) end = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
-    const left = Math.round((end - today) / 864e5);
-    lines.push(`今天${curHoliday.name}还放 ${left} 天喵`);
-  } else {
-    if (restToday) lines.push('今天是休息日喵～');
-    else {
-      const toWeekend = daysUntil((d) => isRestDay(d));
-      if (toWeekend !== null) lines.push(`距周末还有 ${toWeekend} 天`);
-      const toNextHoliday = daysUntil((d) => holidayMap.get(fmt(d)) && !holidayMap.get(fmt(d)).work);
-      const nextHoliday = HOLIDAYS.find((h) => h.date > todayStr && !h.work);
-      if (toNextHoliday !== null && nextHoliday) {
-        lines.push(`距${nextHoliday.name}还有 ${toNextHoliday} 天（${nextHoliday.date.slice(5).replace('-', '.')}）`);
+    const nowMins = today.getHours() * 60 + today.getMinutes();
+    dayPct = Math.round(((nowMins / 1440) * 100));
+    const restToday = isRestDay(today);
+    const lines = [];
+    const curHoliday = holidayMap.get(todayStr);
+    if (curHoliday && !curHoliday.work) {
+      /* 连续假期：算出假期剩余天数 */
+      let end = new Date(today);
+      while (isRestDay(new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1))) end = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
+      const left = Math.round((end - today) / 864e5);
+      lines.push(`今天${curHoliday.name}还放 ${left} 天喵`);
+    } else {
+      if (restToday) lines.push('今天是休息日喵～');
+      else {
+        const toWeekend = daysUntil((d) => isRestDay(d));
+        if (toWeekend !== null) lines.push(`距周末还有 ${toWeekend} 天`);
+        const toNextHoliday = daysUntil((d) => holidayMap.get(fmt(d)) && !holidayMap.get(fmt(d)).work);
+        const nextHoliday = HOLIDAYS.find((h) => h.date > todayStr && !h.work);
+        if (toNextHoliday !== null && nextHoliday) {
+          lines.push(`距${nextHoliday.name}还有 ${toNextHoliday} 天（${nextHoliday.date.slice(5).replace('-', '.')}）`);
+        }
       }
     }
-  }
-  const el = $('moyu-card');
-  el.innerHTML = `<div class="moyu-aurora"></div>
-    <div class="moyu-glass"></div>
-    <div class="side-info-head">摸鱼日历</div>
-    <div class="moyu-pct">今天已过 <b>0%</b></div>
-    <div class="moyu-progress"><i style="width:${dayPct}%"></i></div>
-    ${lines.map((l) => `<div class="side-info-line">${esc(l)}</div>`).join('')}`;
-  el.hidden = false;
-  /* 百分比数字从 0 涨到目标值（Number ticker，ease-out cubic） */
-  const b = el.querySelector('.moyu-pct b');
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    b.textContent = dayPct + '%';
-  } else {
-    const start = performance.now();
-    const dur = 800;
-    const tick = (now) => {
-      const t = Math.min((now - start) / dur, 1);
-      b.textContent = Math.round((1 - Math.pow(1 - t, 3)) * dayPct) + '%';
-      if (t < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
+    const el = $('moyu-card');
+    el.innerHTML = `<div class="moyu-aurora"></div>
+      <div class="moyu-glass"></div>
+      <div class="side-info-head">摸鱼日历</div>
+      <div class="moyu-pct">今天已过 <b>0%</b></div>
+      <div class="moyu-progress"><i style="width:${dayPct}%"></i></div>
+      ${lines.map((l) => `<div class="side-info-line">${esc(l)}</div>`).join('')}`;
+    el.hidden = false;
+    /* 百分比数字从 0 涨到目标值（Number ticker，ease-out cubic） */
+    const b = el.querySelector('.moyu-pct b');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      b.textContent = dayPct + '%';
+    } else {
+      const start = performance.now();
+      const dur = 800;
+      const tick = (now) => {
+        const t = Math.min((now - start) / dur, 1);
+        b.textContent = Math.round((1 - Math.pow(1 - t, 3)) * dayPct) + '%';
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  };
+  renderMoyuCard();
   /* 每分钟刷新进度条 */
   setInterval(() => {
     const n = new Date();
@@ -1519,6 +1535,7 @@ $('hitokoto').onclick = loadHitokoto;
       document.querySelectorAll('#moyu-card .moyu-progress i').forEach((i) => { i.style.width = pct + '%'; });
     }
   }, 60_000);
+  window.addEventListener('neko-daychange', renderMoyuCard);
 }
 
 /* ─────────────── 今日人品卡：种子 = uid + 日期，每天固定 ─────────────── */
@@ -1538,21 +1555,24 @@ $('hitokoto').onclick = loadHitokoto;
     for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
     return h >>> 0;
   };
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  const score = hashStr(uid + ':' + dateStr) % 101;
-  const r = JRRP_RANGES.find((x) => score >= x.min && score <= x.max) ?? JRRP_RANGES[0];
   const el = $('jrrp-card');
-  el.innerHTML = `<div class="jrrp-aurora"></div>
-    <div class="jrrp-glass"></div>
-    <div class="side-info-head">今日人品</div>
-    <div class="jrrp-row"><div class="jrrp-main"><b>${score}</b></div><span class="jrrp-level-big">${esc(r.level)}</span></div>`;
-  el.hidden = false;
-
   const bubble = document.createElement('div');
   bubble.className = 'luck-bubble';
-  bubble.innerHTML = `<span class="luck-level">${esc(r.level)}</span><span class="luck-desc">${esc(r.desc)}</span><img src="${encodeURI(r.img)}" alt="${esc(r.level)}">`;
   document.body.appendChild(bubble);
+  const renderJrrpCard = () => {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    const score = hashStr(uid + ':' + dateStr) % 101;
+    const r = JRRP_RANGES.find((x) => score >= x.min && score <= x.max) ?? JRRP_RANGES[0];
+    el.innerHTML = `<div class="jrrp-aurora"></div>
+      <div class="jrrp-glass"></div>
+      <div class="side-info-head">今日人品</div>
+      <div class="jrrp-row"><div class="jrrp-main"><b>${score}</b></div><span class="jrrp-level-big">${esc(r.level)}</span></div>`;
+    el.hidden = false;
+    bubble.innerHTML = `<span class="luck-level">${esc(r.level)}</span><span class="luck-desc">${esc(r.desc)}</span><img src="${encodeURI(r.img)}" alt="${esc(r.level)}">`;
+  };
+  renderJrrpCard();
+  window.addEventListener('neko-daychange', renderJrrpCard);
   const isMobile = window.matchMedia('(max-width: 780px)').matches;
   const placeBubble = (clientY) => {
     const rect = el.getBoundingClientRect();
