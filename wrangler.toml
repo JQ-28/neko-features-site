@@ -1,0 +1,24 @@
+name = "neko-features"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./web"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_KV_ID"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "neko-features"
+
+# Secrets (set via: wrangler secret put <NAME>)
+# YOUDAO_APP_KEY, YOUDAO_APP_SECRET
+# BAIDU_APP_ID, BAIDU_APP_SECRET
+# HUOSHAN_ACCESS_KEY, HUOSHAN_SECRET_KEY
+# REMOVE_BG_KEY
+# SAUCENAO_KEY
+# EXHENTAI_COOKIE

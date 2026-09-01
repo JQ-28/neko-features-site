@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<!--
+  　　　 /\_/\
+  　　　( o.o )  喵？你在看源码喵？
+  　　　 > ^ <
+  竟然翻neko的抽屉…算你有好奇心喵！
+  彩蛋提示：控制台输入 neko 和 eggStatus()
+  看到这里的，都是neko认可的开发者喵～
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="Neko 功能站：链接解析、以图搜源、漫画翻译、智能抠图等一站式小工具，支持 B站/抖音/小红书/微博等 21 个平台" />
+<meta name="theme-color" content="#096dd9" />
+<meta property="og:title" content="Neko 功能站" />
+<meta property="og:description" content="链接解析、以图搜源、漫画翻译、智能抠图等一站式小工具" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://tools.nekodayo.top/images/neko.webp" />
+<meta name="twitter:card" content="summary" />
+<title>Neko 功能站</title>
+<link rel="icon" href="/images/neko.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/style.css" />
+<body>
+<div class="topbar">
+  <button class="icon-btn menu-btn" id="menu-btn"></button>
+  <div class="brand" id="brand">
+    <span class="brand-logo" id="brand-logo"></span>
+    <span class="brand-text">Neko 功能站</span>
+  </div>
+  <div class="search-box">
+    <div class="gooey-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob-bridge"></div>
+    </div>
+    <div class="search-inner">
+      <span id="search-ico"></span>
+      <input id="search" placeholder="搜索功能…" autocomplete="off" readonly />
+      <div class="search-history" id="search-history" hidden></div>
+    </div>
+    <svg class="gooey-filter" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="enhanced-goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo"></feColorMatrix>
+          <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+  <label class="theme-switch" title="切换主题">
+    <input type="checkbox" class="theme-switch__checkbox" id="theme-toggle">
+    <div class="theme-switch__container">
+      <div class="theme-switch__clouds"></div>
+      <div class="theme-switch__stars-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 26.7112C83.0551 25.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"></path>
+        </svg>
+      </div>
+      <div class="theme-switch__circle-container">
+        <div class="theme-switch__sun-moon-container">
+          <div class="theme-switch__moon">
+            <div class="theme-switch__spot"></div>
+            <div class="theme-switch__spot"></div>
+            <div class="theme-switch__spot"></div>
+          </div>
+        </div>
+      </div>
+      <div class="theme-switch__shooting-star"></div>
+      <div class="theme-switch__shooting-star-2"></div>
+      <div class="theme-switch__meteor"></div>
+      <div class="theme-switch__stars-cluster">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+      </div>
+      <div class="theme-switch__aurora"></div>
+      <div class="theme-switch__comets">
+        <div class="comet"></div>
+        <div class="comet"></div>
+      </div>
+    </div>
+  </label>
+  <div class="topbar-links">
+    <a class="Btn" id="link-github" href="https://github.com/" target="_blank" rel="noopener" title="GitHub 仓库喵" aria-label="GitHub 仓库">
+      <span class="svgContainer">
+        <svg fill="white" viewBox="0 0 496 512" height="1.6em"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
+      </span>
+      <span class="BG"></span>
+    </a>
+    <a class="btn" id="link-sponsor" href="https://docs.nekodayo.top/zanzhu" target="_blank" rel="noopener" title="赞助neko喵" aria-label="赞助">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20.503" height="20.625" viewBox="0 0 17.503 15.625">
+        <path id="Fill" d="M8.752,15.625h0L1.383,8.162a4.824,4.824,0,0,1,0-6.762,4.679,4.679,0,0,1,6.674,0l.694.7.694-.7a4.678,4.678,0,0,1,6.675,0,4.825,4.825,0,0,1,0,6.762L8.752,15.624ZM4.72,1.25A3.442,3.442,0,0,0,2.277,2.275a3.562,3.562,0,0,0,0,5l6.475,6.556,6.475-6.556a3.563,3.563,0,0,0,0-5A3.443,3.443,0,0,0,12.786,1.25h-.01a3.415,3.415,0,0,0-2.443,1.038L8.752,3.9,7.164,2.275A3.442,3.442,0,0,0,4.72,1.25Z" transform="translate(0 0)"></path>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<div class="layout">
+  <aside id="side">
+    <div class="side-title">功能分类</div>
+    <div id="side-list"></div>
+    <div class="side-tools">
+      <button type="button" class="side-tool" id="btn-random">随机来一个</button>
+      <button type="button" class="side-tool" id="btn-pref">偏好设置</button>
+    </div>
+    <div class="side-section" id="side-recent-section">
+      <div class="side-title recent-title" id="recent-title" hidden>最近使用</div>
+      <div id="side-recent"></div>
+    </div>
+    <div class="side-section">
+      <div class="side-title">小纸条</div>
+      <div class="hitokoto" id="hitokoto" hidden title="戳一下换一句喵"></div>
+      <div class="side-info-card jrrp-card" id="jrrp-card" hidden title="今日人品，每天固定喵"></div>
+      <div class="side-info-card" id="moyu-card" hidden></div>
+      <div class="side-info-card weather-card" id="weather-card" hidden title="数据来自 Open-Meteo 喵"></div>
+    </div>
+    <a class="tooltip-container" id="link-about" href="https://docs.nekodayo.top/about/" target="_blank" rel="noopener" aria-label="关于">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22c-5.518 0-10-4.482-10-10s4.482-10 10-10 10 4.482 10 10-4.482 10-10 10zm-1-16h2v6h-2zm0 8h2v2h-2z"></path>
+        </svg>
+      </div>
+      <div class="tooltip">
+        <p>关于</p>
+      </div>
+    </a>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="modal-head">
+      <button class="close" id="m-back" title="返回列表"></button>
+      <div class="ico" id="m-icon"></div>
+      <h2 id="m-title"></h2>
+      <button class="close" id="m-platforms" style="display:none" title="支持平台" onclick="togglePlatforms()"></button>
+      <button class="close" id="m-clear" style="display:none" title="清空聊天记录"></button>
+      <button class="close" id="m-share" title="分享此功能"></button>
+      <button class="close" id="m-close"></button>
+    </div>
+    <div class="chat-wrap"><div class="chat" id="m-chat"></div>
+      <button type="button" id="to-bottom" title="回到底部"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7l7 7 7-7"/></svg></button>
+    </div>
+    <div class="panel" id="m-body"></div>
+    <div class="qq-footer">
+      <div><svg viewBox="0 0 384 512"><path fill="currentColor" d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"/></svg></div>
+      <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg></div>
+      <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/></svg></div>
+      <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg></div>
+      <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM164.1 325.5C182 346.2 212.6 368 256 368s74-21.8 91.9-42.5c5.8-6.7 15.9-7.4 22.6-1.6s7.4 15.9 1.6 22.6C349.8 372.1 311.1 400 256 400s-93.8-27.9-116.1-53.5c-5.8-6.7-5.1-16.8 1.6-22.6s16.8-5.1 22.6 1.6zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm156.4 25.6c-5.3 7.1-15.3 8.5-22.4 3.2s-8.5-15.3-3.2-22.4c30.4-40.5 91.2-40.5 121.6 0c5.3 7.1 3.9 17.1-3.2 22.4s-17.1 3.9-22.4-3.2c-17.6-23.5-52.8-23.5-70.4 0z"/></svg></div>
+      <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<div class="weather-mask" id="weather-mask" hidden>
+  <div class="weather-modal">
+    <button class="weather-modal-close" id="weather-modal-close" type="button" aria-label="关闭天气"></button>
+    <section class="wm-landscape">
+      <div class="wm-sky"></div>
+      <div class="wm-stars">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="wm-sun"></div>
+      <div class="wm-moon">
+        <div class="wm-shine-1"></div>
+        <div class="wm-shine-2"></div>
+        <div class="wm-real-moon"><div class="wm-moon-shape"></div></div>
+      </div>
+      <div class="wm-hill-1"></div>
+      <div class="wm-hill-2"></div>
+      <div class="wm-ocean">
+        <div class="wm-reflection"></div>
+        <div class="wm-reflection"></div>
+        <div class="wm-reflection"></div>
+        <div class="wm-reflection"></div>
+        <div class="wm-reflection"></div>
+        <div class="wm-shadow-hill-1"></div>
+        <div class="wm-shadow-hill-2"></div>
+      </div>
+      <div class="wm-hill-3"></div>
+      <div class="wm-hill-4"></div>
+      <div class="wm-tree-1"><svg viewBox="0 0 64 64" fill="#b77873"><path d="M32,0C18.148,0,12,23.188,12,32c0,9.656,6.883,17.734,16,19.594V60c0,2.211,1.789,4,4,4s4-1.789,4-4v-8.406C45.117,49.734,52,41.656,52,32C52,22.891,46.051,0,32,0z"/></svg></div>
+      <div class="wm-tree-2"><svg viewBox="0 0 64 64" fill="#b77873"><path d="M32,0C18.148,0,12,23.188,12,32c0,9.656,6.883,17.734,16,19.594V60c0,2.211,1.789,4,4,4s4-1.789,4-4v-8.406C45.117,49.734,52,41.656,52,32C52,22.891,46.051,0,32,0z"/></svg></div>
+      <div class="wm-tree-3"><svg viewBox="0 0 64 64" fill="#a16773"><path d="M32,0C18.148,0,12,23.188,12,32c0,9.656,6.883,17.734,16,19.594V60c0,2.211,1.789,4,4,4s4-1.789,4-4v-8.406C45.117,49.734,52,41.656,52,32C52,22.891,46.051,0,32,0z"/></svg></div>
+      <div class="wm-filter"></div>
+    </section>
+    <div class="wm-weather-info">
+      <div class="wm-left">
+        <div class="wm-icon" id="wm-icon"></div>
+        <p class="wm-desc" id="wm-desc"></p>
+      </div>
+      <div class="wm-right">
+        <div class="wm-location">
+          <svg viewBox="0 0 64 64" fill="#fff"><path d="M32,0C18.746,0,8,10.746,8,24c0,5.219,1.711,10.008,4.555,13.93c0.051,0.094,0.059,0.199,0.117,0.289l16,24C29.414,63.332,30.664,64,32,64s2.586-0.668,3.328-1.781l16-24c0.059-0.09,0.066-0.195,0.117-0.289C54.289,34.008,56,29.219,56,24C56,10.746,45.254,0,32,0z M32,32c-4.418,0-8-3.582-8-8s3.582-8,8-8s8,3.582,8,8S36.418,32,32,32z"/></svg>
+          <span id="wm-city"></span>
+        </div>
+        <p class="wm-date" id="wm-date"></p>
+        <p class="wm-temperature" id="wm-temp"></p>
+      </div>
+    </div>
+    <div class="wm-forecast" id="wm-forecast"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lb-close" type="button"></button>
+  <img id="lb-img" alt="" />
+</div>
+<div class="egg-panel-mask" id="egg-panel-mask">
+  <div class="egg-panel">
+    <div class="egg-head">
+      <img class="egg-cat" src="/images/neko.webp" alt="neko 头像" />
+      <h2>彩蛋收集册</h2>
+      <button class="close" id="egg-close" type="button"></button>
+    </div>
+    <div class="egg-progress"><div class="egg-progress-bar" id="egg-progress-bar"></div></div>
+    <p class="egg-count" id="egg-count"></p>
+    <div class="egg-list" id="egg-list"></div>
+  </div>
+</div>
+<div class="egg-panel-mask" id="pref-mask">
+  <div class="egg-panel pref-panel">
+    <div class="egg-head">
+      <img class="egg-cat" src="/images/neko.webp" alt="neko 头像" />
+      <h2>偏好设置</h2>
+      <button class="close" id="pref-close" type="button"></button>
+    </div>
+    <div class="pref-cards">
+    <div class="pref-card">
+      <div class="pref-card-ico" id="pref-ico-accent"></div>
+      <div class="pref-card-body">
+        <h3>主题色</h3>
+        <p>给网站换个心情色喵，选好立即生效、自动记住</p>
+        <div class="accent-dots" id="accent-dots"></div>
+      </div>
+    </div>
+    <div class="pref-card">
+      <div class="pref-card-ico" id="pref-ico-weather"></div>
+      <div class="pref-card-body">
+        <h3>天气城市</h3>
+        <p>默认显示北京天气，设个城市名（支持中文，如：合肥 / Tokyo）显示当地天气喵</p>
+        <div class="pref-city-row">
+          <input type="text" id="pref-city" placeholder="如：上海 / Tokyo" maxlength="24" autocomplete="off" />
+          <button type="button" class="pref-btn primary" id="pref-city-save">保存</button>
+        </div>
+      </div>
+    </div>
+    <div class="pref-card">
+      <div class="pref-card-ico" id="pref-ico-export"></div>
+      <div class="pref-card-body">
+        <h3>导出偏好</h3>
+        <p>把主题、主题色、彩蛋进度、连续访问天数、最近使用打包成一个文件，收好备用喵</p>
+      </div>
+      <button type="button" class="pref-btn primary" id="pref-export">导出</button>
+    </div>
+    <div class="pref-card">
+      <div class="pref-card-ico" id="pref-ico-import"></div>
+      <div class="pref-card-body">
+        <h3>导入偏好</h3>
+        <p>选择之前导出的文件，在这台设备恢复全部设置，换手机也能无缝衔接喵</p>
+      </div>
+      <label class="pref-btn primary">
+        导入
+        <input type="file" id="pref-file" accept="application/json" hidden />
+      </label>
+    </div>
+    </div>
+  </div>
+</div>
+<div class="drag-mask" id="drag-mask">松手就把图片交给neko喵～</div>
+<div class="toast" id="toast"></div>
+<div class="cmd-mask" id="cmd-mask">
+  <div class="cmd-panel">
+    <input id="cmd-input" placeholder="搜索功能喵… ↑↓ 选择  Enter 打开  Esc 关闭" autocomplete="off" />
+    <div class="cmd-list" id="cmd-list"></div>
+  </div>
+</div>
+
+<script src="/texts.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c);
+
+const sanitizeName = (s) => (s || '').replace(/[\\/:*?"<>|\s]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'neko';
+const localDay = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+let toastTimer;
+let toastQueue = [];
+const toast = (msg) => {
+  const el = $('toast');
+  if (el.classList.contains('show')) { toastQueue.push(msg); return; }
+  el.textContent = msg;
+  el.classList.add('show');
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+    if (toastQueue.length) { const next = toastQueue.shift(); setTimeout(() => toast(next), 200); }
+  }, 1800);
+};
+const copyText = (btn, text) => {
+  const done = () => {
+    const old = btn.innerHTML;
+    btn.innerHTML = '已复制喵✓';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.innerHTML = old; btn.classList.remove('ok'); }, 1400);
+  };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => toast('复制失败了呀喵…'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch { toast('复制失败了呀喵…'); }
+    ta.remove();
+  }
+};
+const COPY_ICON_S = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const copyBtn = (text) =>
+  `<button type="button" class="cp-btn" onclick="copyText(this, this.dataset.copy)" data-copy="${esc(text)}">${COPY_ICON_S}复制</button>`;
+const AVATAR_NEKO = '/images/neko.webp';
+const AVATAR_USER = '/images/neko11.jpg';
+const fmtTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+const addMsg = (role, html) => {
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + role;
+  el.dataset.time = fmtTime(new Date());
+  el.innerHTML = role === 'user'
+    ? `<div class="chat-bubble">${html}</div><div class="chat-avatar user"></div>`
+    : `<div class="chat-avatar neko"></div><div class="chat-bubble">${html}</div>`;
+  const box = $('m-chat');
+  const stick = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  box.appendChild(el);
+  if (stick) box.scrollTop = box.scrollHeight;
+  else $('to-bottom').classList.add('show');
+  $('m-clear').style.display = '';
+  if (currentFeatureId) saveChatHistory();
+  return el;
+};
+/* 打字指示气泡：neko 处理请求时三点跳动 */
+const addTyping = () => {
+  const el = document.createElement('div');
+  el.className = 'chat-msg neko typing';
+  el.innerHTML = `<div class="chat-avatar neko"></div><div class="chat-bubble typing-bubble"><span></span><span></span><span></span></div>`;
+  const box = $('m-chat');
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
+};
+$('m-chat').addEventListener('scroll', () => {
+  const box = $('m-chat');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  $('to-bottom').classList.toggle('show', !atBottom);
+});
+$('to-bottom').onclick = () => {
+  $('m-chat').scrollTop = $('m-chat').scrollHeight;
+  $('to-bottom').classList.remove('show');
+};
+const showImg = (el) => {
+  const files = [...el.files];
+  if (!files.length) return;
+  const urls = files.map((f) => URL.createObjectURL(f));
+  el.dataset.previews = JSON.stringify(urls);
+  const box = el.closest('.up-box');
+  box.querySelector('.up-reset').hidden = false;
+  box.querySelector('.up-icon').innerHTML = files.map((f, i) => `<img src="${urls[i]}" alt="" />`).join('');
+};
+const firstPreview = (id) => JSON.parse($(id).dataset.previews || '[]')[0] || '';
+const resetImg = (btn) => {
+  const box = btn.closest('.up-box');
+  const input = box.querySelector('input[type=file]');
+  input.value = '';
+  input.dataset.previews = '';
+  btn.hidden = true;
+  box.querySelector('.up-icon').innerHTML = UPLOAD_ICON + '<span>选择图片</span>';
+};
+
+/* 粘贴/拖拽图片直达当前功能的上传控件（截图 Ctrl+V 场景） */
+const getActiveImgInput = () => {
+  if (!currentFeatureId || !featureImpls[currentFeatureId]?.imgUpload) return null;
+  const input = $('m-body')?.querySelector('input[type=file][accept*="image"]');
+  return input && input.files !== undefined ? input : null;
+};
+const feedFilesToInput = (input, files) => {
+  if (!input || !files.length) return false;
+  const dt = new DataTransfer();
+  for (const f of files) dt.items.add(f);
+  input.files = dt.files;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+};
+document.addEventListener('paste', (e) => {
+  if (!$('mask').classList.contains('open')) return;
+  if (document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.tagName === 'INPUT') return;
+  const imgs = [...(e.clipboardData?.items ?? [])].filter((i) => i.kind === 'file' && i.type.startsWith('image/'));
+  const files = imgs.map((i) => i.getAsFile()).filter(Boolean);
+  if (files.length) feedFilesToInput(getActiveImgInput(), files);
+});
+document.addEventListener('dragover', (e) => {
+  if (!$('mask').classList.contains('open') || !getActiveImgInput()) return;
+  e.preventDefault();
+  $('drag-mask').classList.add('on');
+});
+document.addEventListener('dragleave', (e) => {
+  if (e.relatedTarget === null) $('drag-mask').classList.remove('on');
+});
+document.addEventListener('drop', (e) => {
+  $('drag-mask').classList.remove('on');
+  if (!$('mask').classList.contains('open') || !getActiveImgInput()) return;
+  const files = [...(e.dataTransfer?.files ?? [])].filter((f) => f.type.startsWith('image/'));
+  if (files.length) {
+    e.preventDefault();
+    feedFilesToInput(getActiveImgInput(), files);
+  }
+});
+
+/* Tabler Icons (MIT) — 24x24 stroke 图标 */
+const ICONS = {
+  tool: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10h3V7L6.5 3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1-3 3l-6-6a6 6 0 0 1-8-8z"/>',
+  confetti: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h2M5 4v2m6.5-2L11 6m7-1h2m-1-1v2m-4 3l-1 1m4 3l2-.5M18 19h2m-1-1v2m-5-3.482L7.482 10l-4.39 9.58a1 1 0 0 0 1.329 1.329z"/>',
+  gamepad: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 5h3.5a5 5 0 0 1 0 10H10l-4.015 4.227a2.3 2.3 0 0 1-3.923-2.035l1.634-8.173A5 5 0 0 1 8.6 5z"/><path d="m14 15l4.07 4.284a2.3 2.3 0 0 0 3.925-2.023l-1.6-8.232M8 9v2m-1-1h2m5 0h2"/></g>',
+  music: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 17a3 3 0 1 0 6 0a3 3 0 0 0-6 0m10 0a3 3 0 1 0 6 0a3 3 0 0 0-6 0"/><path d="M9 17V4h10v13M9 8h10"/></g>',
+  robot: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2zm6-4v2m-3 8v9m6-9v9M5 16l4-2m6 0l4 2M9 18h6M10 8v.01M14 8v.01"/>',
+  language: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 6.371C9 10.789 6.761 13 4 13m0-6.629h7"/><path d="M5 9c0 2.144 2.252 3.908 6 4m1 7l4-9l4 9m-.9-2h-6.2M6.694 3l.793.582"/></g>',
+  cut: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17a3 3 0 1 0 6 0a3 3 0 1 0-6 0m10 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0m-4.85-2.15L18 4M6 4l8.85 10.85"/>',
+  'photo-search': '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M15 8h.01M11.5 21H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v5.5"/><path d="M15 18a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22M3 16l5-5c.928-.893 2.072-.893 3 0l2 2"/></g>',
+  image: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></g>',
+  news: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0V6"/><path d="M18 14h-8M18 8h-8M8 2v20"/></g>',
+  pig: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><ellipse cx="12" cy="13" rx="8.5" ry="6.5"/><ellipse cx="12" cy="14.5" rx="3" ry="2"/><path d="M12 12.5v2M10 13.5h4"/><circle cx="8.5" cy="10.5" r=".6"/><circle cx="15.5" cy="10.5" r=".6"/></g>',
+  link: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 15l6-6m-4-3l.463-.536a5 5 0 0 1 7.071 7.072L18 13m-5 5l-.397.534a5.07 5.07 0 0 1-7.127 0a4.97 4.97 0 0 1 0-7.071L6 11"/>',
+  bucket: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 7a8 4 0 1 0 16 0A8 4 0 1 0 4 7"/><path d="M4 7c0 .664.088 1.324.263 1.965L7 19c.5 1.5 2.239 2 5 2s4.5-.5 5-2q.5-1.5 2.737-10.035A7.5 7.5 0 0 0 20 7"/></g>',
+  pill: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.5l8-8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1-7-7m4-4l7 7"/>',
+  search: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0-14 0m18 11l-6-6"/>',
+  moon: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z"/>',
+  sun: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0m-5 0h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7l-.7.7m0 11.4l.7.7m-12.1-.7l-.7.7"/>',
+  menu: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>',
+  close: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/>',
+  back: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"/>',
+  info: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8v.01"/></g>',
+  trash: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16m-10 4v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
+  copy: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></g>',
+  share: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 3v13"/><path d="m8 7l4-4 4 4"/><path d="M6 12h-2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2"/></g>',
+  'x-lg': '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/>',
+  check: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 6L9 17l-5-5"/>',
+  lock: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></g>',
+  trophy: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 21h8m-4-4v4M7 4h10v6a5 5 0 0 1-10 0zM7 6H4a1 1 0 0 0-1 1c0 2.5 2 4 4 4M17 6h3a1 1 0 0 1 1 1c0 2.5-2 4-4 4"/></g>',
+  dice: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01"/></g>',
+};
+
+const svg = (name, size = 20) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${
+    ICONS[name] || ICONS.tool}</svg>`;
+
+const UPLOAD_ICON = '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg>';
+const RESET_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>';
+const DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12"/></svg>';
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+let CATEGORIES = [], FEATURES = [], current = null, keyword = '';
+const isNight = () => { const h = new Date().getHours(); return h >= 0 && h < 5; };
+const getTimeBasedPrompts = () => {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return MORNING_PROMPTS;
+  if (h >= 12 && h < 18) return AFTERNOON_PROMPTS;
+  if (h >= 18 && h < 24) return EVENING_PROMPTS;
+  return NIGHT_PROMPTS;
+};
+const isThursday = () => new Date().getDay() === 4;
+
+/* 功能模块注册表 + 按需加载（web/features/<id>.js，点开功能时才下载） */
+window.__features = {};
+window.__run = (id) => window.__features[id]?.run();
+const featureImpls = {};
+const featurePromises = {};
+const loadFeatureModule = (id) =>
+  new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = `/features/${id}.js`;
+    s.onload = () => resolve(window.__features[id]);
+    s.onerror = () => { delete featurePromises[id]; reject(new Error(`功能模块 ${id} 加载失败`)); };
+    document.head.appendChild(s);
+  });
+const getFeatureImpl = (id) =>
+  featurePromises[id] ??= (async () => {
+    try {
+      featureImpls[id] = await loadFeatureModule(id);
+    } catch (e) {
+      toast(e.message || String(e));
+      return null;
+    }
+    return featureImpls[id];
+  })();
+
+const moyerLine = () => {
+  const now = new Date();
+  const day = now.getDay();
+  if (day === 0 || day === 6) return pickArr(['今天是休息日呀喵！摸什么鱼，去晒太阳吧～', '周末还惦记上班喵？快去玩，neko批准了！']);
+  const mins = now.getHours() * 60 + now.getMinutes();
+  if (mins >= 18 * 60) return pickArr(['早就下班啦喵！还想钓neko吗？', '下班时间摸鱼是合法的喵～不过已经没有班可摸了哦！']);
+  const left = 18 * 60 - mins;
+  const h = Math.floor(left / 60), m = left % 60;
+  return pickArr([
+    `摸鱼倒计时喵～距离下班还有 ${h} 小时 ${m} 分钟！`,
+    `坚持住喵！还有 ${h} 小时 ${m} 分钟就下班啦～`,
+    `下班倒计时启动喵：${h} 小时 ${m} 分钟！摸鱼要低调哦～`,
+  ]);
+};
+const EASTER_EGGS = [
+  { test: /(喵|meow|nyaa)/i, lines: ['喵喵喵？你在叫我吗喵！✨', '听到有人喵喵叫了喵～我在这儿呢！', '喵呜～是要摸摸头吗呀？'] },
+  { test: /(摸摸头|摸摸|rua)/, lines: ['咕噜咕噜…被摸头了好舒服喵～', '尾巴卷住你的手了喵！别走呀！', '再摸一下下就好喵…就一下下！'] },
+  { test: /(老婆|嫁给我|喜欢你|爱你)/, lines: ['我是数据小猫，不是恋爱对象呀喵。叫我neko就好~', '呜哇！neko只是小猫咪喵，这种话要说给真人听呀！'] },
+  { test: /(抹茶|冰淇淋|布丁|甜点)/, lines: ['抹茶冰淇淋是本命喵！你也喜欢吗呀？✨', '说到甜点尾巴就竖起来了喵！焦糖布丁也很好吃呀~', '要不要一起吃块抹茶冰淇淋喵？'] },
+  { test: /(你好|hello|\bhi\b|\b嗨\b)/i, lines: ['你好呀喵！今天过得怎么样喵~', '我在我在喵！有什么要帮忙的吗呀？', '嗨喵～尾巴摇摇欢迎你！'] },
+  { test: /(谢谢|感谢|thx|3q)/i, lines: THANKS_LINES, egg: 'thanks' },
+  { test: /^[1１]+$/, lines: TEST_ONE_LINES, egg: 'testOne' },
+  { test: /(晚安|睡觉|困了|好梦)/, lines: ['晚安喵～记得盖好被子呀！', '困了就去休息嘛喵，我就在这里等你~', '晚安喵…呼噜呼噜…', '早点睡呀喵，熬夜会长黑眼圈的哦～', '晚安喵～梦里记得请neko吃小鱼干！', '去睡吧去睡吧喵，明天再来找我玩呀～'] },
+];
+const tryEasterEgg = (text) => {
+  if (/(在吗|在不在)/.test(text)) {
+    const [first, second] = pickArr(STILL_HERE_LINES);
+    addMsg('neko', esc(first));
+    setTimeout(() => addMsg('neko', esc(second)), 2000);
+    markEgg('stillHere');
+    return true;
+  }
+  const hit = EASTER_EGGS.find((e) => e.test.test(text));
+  if (!hit) return false;
+  addMsg('neko', esc(pickArr(hit.lines)));
+  if (hit.egg) markEgg(hit.egg);
+  if (/(晚安|好梦)/.test(text) && isNight()) markEgg('nightGreet');
+  return true;
+};
+const pickLine = (key) => {
+  const arr = LOADING_LINES[key] ?? [];
+  return arr.length ? pickArr(arr) : '收到喵，处理中...';
+};
+
+const busy = {};
+const guard = async (key, fn) => {
+  if (busy[key]) return addMsg('neko', '慢一点呀喵～上一条还没处理完呢！');
+  busy[key] = true;
+  const typing = addTyping();
+  try { await fn(); } finally { busy[key] = false; typing.remove(); }
+};
+
+let currentFeatureId = null;
+const BLOB_PLACEHOLDER = '<div class="blob-expired">（这张图随窗口关闭失效了喵）</div>';
+const saveChatHistory = () => {
+  try {
+    const box = document.createElement('div');
+    box.innerHTML = $('m-chat').innerHTML;
+    box.querySelectorAll('.chat-msg.typing').forEach((el) => el.remove());
+    box.querySelectorAll('img[src^="blob:"], audio[src^="blob:"], video[src^="blob:"], a[href^="blob:"]').forEach((el) => {
+      el.outerHTML = BLOB_PLACEHOLDER;
+    });
+    sessionStorage.setItem('chat:' + currentFeatureId, box.innerHTML);
+  } catch (e) { /* 存储满或隐私模式时忽略 */ }
+};
+
+async function openFeature(id) {
+  const f = FEATURES.find((x) => x.id === id);
+  if (!f) return;
+  const impl = await getFeatureImpl(id);
+  if (!impl) return;
+  currentFeatureId = id;
+  trackExplorer(id);
+  pushRecent(id);
+  $('m-icon').innerHTML = svg(f.icon, 22);
+  $('m-title').textContent = f.name;
+  $('m-chat').innerHTML = '';
+  impl.reset?.();
+  $('m-body').innerHTML = impl.renderer?.() ?? '<p class="empty">暂未实现操作面板</p>';
+  $('m-platforms').style.display = impl.platforms ? '' : 'none';
+  $('m-clear').style.display = 'none';
+  const saved = sessionStorage.getItem('chat:' + id);
+  if (saved) {
+    $('m-chat').innerHTML = saved;
+    $('m-chat').scrollTop = $('m-chat').scrollHeight;
+    $('m-clear').style.display = $('m-chat').querySelector('.chat-msg:not([data-welcome])') ? '' : 'none';
+  } else if (isNight()) {
+    const el = addMsg('neko', esc(pickArr(NIGHT_PROMPTS)));
+    el.querySelector('.chat-avatar').style.backgroundImage = 'url("/images/nekosleep.webp")';
+    el.dataset.welcome = '1';
+    $('m-clear').style.display = 'none';
+    markEgg('night');
+  } else {
+    const el = addMsg('neko', esc(pickArr(PROMPTS[f.id] ?? getTimeBasedPrompts())));
+    el.dataset.welcome = '1';
+    $('m-clear').style.display = 'none';
+  }
+  $('mask').classList.add('open');
+  if (new Date().getDay() === 1) markEgg('monday');
+  impl.open?.();
+}
+
+/* 最近使用：记录打开过的功能，侧栏置顶展示 */
+const RECENT_KEY = 'neko-recent';
+const getRecent = () => {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
+};
+const setRecent = (list) => {
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch { /* 隐私模式等忽略 */ }
+};
+const pushRecent = (id) => {
+  setRecent([id, ...getRecent().filter((x) => x !== id)].slice(0, 3));
+  renderRecent();
+};
+const removeRecent = (id, e) => {
+  e.stopPropagation();
+  setRecent(getRecent().filter((x) => x !== id));
+  renderRecent();
+};
+const renderRecent = () => {
+  const list = getRecent().filter((id) => FEATURES.some((f) => f.id === id));
+  $('recent-title').hidden = !list.length;
+  $('side-recent-section').hidden = !list.length;
+  $('side-recent').innerHTML = list.map((id, i) => {
+    const f = FEATURES.find((x) => x.id === id);
+    return `<div class="side-recent-item" data-id="${id}" style="animation-delay:${i * 30}ms">
+      <span class="rec-ico">${svg(f.icon, 15)}</span><span>${esc(f.name)}</span>
+      <button type="button" class="rec-x" title="移除" onclick="removeRecent('${id}', event)">${svg('close', 12)}</button>
+    </div>`;
+  }).join('');
+  $('side-recent').querySelectorAll('.side-recent-item').forEach((el) => {
+    el.onclick = () => openFeature(el.dataset.id);
+  });
+};
+window.removeRecent = removeRecent;
+
+/* 随机来一个：随机打开一个功能 */
+let randStreak = 0, randLast = 0;
+$('btn-random').onclick = () => {
+  if (!FEATURES.length) return;
+  const now = Date.now();
+  randStreak = now - randLast > 5000 ? 1 : randStreak + 1;
+  randLast = now;
+  if (randStreak === 8) markEgg('randPick', pickArr(RAND_TEN_LINES));
+  const f = FEATURES[Math.floor(Math.random() * FEATURES.length)];
+  $('side').classList.remove('open');
+  openFeature(f.id);
+};
+
+/* 返回列表：功能窗口内回到主页（移动端手势区） */
+$('m-back').innerHTML = svg('back', 20);
+$('m-back').onclick = () => {
+  closeModal();
+  $('side').classList.remove('open');
+};
+
+/* 偏好导入/导出：主题、主题色、彩蛋进度、连续访问天数、最近使用 */
+const PREF_KEYS = ['neko-theme', 'neko-accent', 'neko-eggs', 'neko-visits', 'neko-recent', 'neko-weather-city', 'neko-dl-count', 'neko-uid', 'neko-search-history', 'neko-daily-seen', 'neko-weather-geo', 'neko-pig-today'];
+const exportPrefs = () => {
+  const data = { site: 'nekodayo-tools', version: 1, savedAt: new Date().toISOString() };
+  PREF_KEYS.forEach((k) => {
+    try { const v = localStorage.getItem(k); if (v !== null) data[k] = v; } catch { /* 忽略 */ }
+  });
+  if (!PREF_KEYS.some((k) => data[k] !== undefined)) return toast('没有可导出的偏好喵…');
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  saveBlob(blob, `neko偏好_${new Date().toISOString().slice(0, 10)}.json`);
+  toast('偏好导出好了喵！记得收好文件哦～');
+};
+const importPrefs = async (file) => {
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.site !== 'nekodayo-tools') return toast('这不是neko的偏好文件呀喵…');
+    let n = 0;
+    PREF_KEYS.forEach((k) => {
+      if (typeof data[k] === 'string') {
+        try { localStorage.setItem(k, data[k]); n++; } catch { /* 忽略 */ }
+      }
+    });
+    if (!n) return toast('文件里没有找到偏好数据喵…');
+    try { const v = localStorage.getItem('neko-accent'); if (ACCENTS[v]) currentAccent = v; } catch { /* 忽略 */ }
+    applyTheme(localStorage.getItem('neko-theme') === 'dark');
+    renderRecent();
+    renderAccentDots();
+    loadWeather();
+    toast(`导入成功喵～恢复了 ${n} 项设置！刷新后彩蛋进度就回来了`);
+  } catch (e) {
+    toast('导入失败啦喵：' + (e.message || String(e)));
+  }
+};
+$('btn-pref').onclick = () => {
+  $('pref-city').value = getWeatherCity();
+  $('pref-mask').classList.add('open');
+};
+$('pref-close').onclick = () => $('pref-mask').classList.remove('open');
+$('pref-mask').onclick = (e) => { if (e.target === $('pref-mask')) $('pref-mask').classList.remove('open'); };
+$('pref-ico-export').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
+$('pref-ico-import').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>';
+$('pref-ico-weather').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 15a4.5 4.5 0 1 0-.44-8.98A7 7 0 1 0 6 15h11.5z"/><path d="M8 18v2m4-1v2m4-3v2"/></svg>';
+$('pref-city-save').onclick = () => {
+  const city = $('pref-city').value.trim();
+  try { city ? localStorage.setItem('neko-weather-city', city) : localStorage.removeItem('neko-weather-city'); } catch { }
+  loadWeather();
+  toast(city ? `天气城市设为「${city}」了喵！` : '恢复默认北京天气喵～');
+};
+$('pref-city').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('pref-city-save').click(); });
+$('pref-export').onclick = exportPrefs;
+$('pref-file').onchange = (e) => { if (e.target.files[0]) importPrefs(e.target.files[0]); e.target.value = ''; };
+
+/* 灯箱：点击聊天内图片放大查看，支持双击/滚轮缩放与拖拽平移 */
+const lb = { scale: 1, x: 0, y: 0, drag: null };
+const lbApply = () => {
+  const img = $('lb-img'), box = $('lightbox');
+  box.classList.toggle('zoomed', lb.scale > 1);
+  img.style.setProperty('--lb-scale', lb.scale);
+  img.style.setProperty('--lb-tf', `translate(${lb.x}px, ${lb.y}px)`);
+};
+const lbReset = () => { lb.scale = 1; lb.x = 0; lb.y = 0; lbApply(); };
+const openLightbox = (src) => {
+  $('lb-img').src = src;
+  lbReset();
+  $('lightbox').classList.add('open');
+};
+const closeLightbox = () => {
+  $('lightbox').classList.remove('open', 'zoomed');
+  $('lb-img').src = '';
+};
+const lbZoom = (delta) => {
+  const next = Math.min(5, Math.max(1, lb.scale + delta));
+  if (next === lb.scale) return;
+  lb.scale = next;
+  if (next === 1) { lb.x = 0; lb.y = 0; }
+  lbApply();
+};
+$('lb-img').addEventListener('dblclick', () => lbZoom(lb.scale > 1 ? -lb.scale + 1 : 1));
+$('lightbox').addEventListener('wheel', (e) => {
+  if (!$('lightbox').classList.contains('open')) return;
+  e.preventDefault();
+  lbZoom(e.deltaY < 0 ? .5 : -.5);
+}, { passive: false });
+$('lb-img').addEventListener('pointerdown', (e) => {
+  if (lb.scale <= 1) return;
+  e.preventDefault();
+  lb.drag = { sx: e.clientX, sy: e.clientY, ox: lb.x, oy: lb.y };
+  $('lb-img').classList.add('dragging');
+});
+window.addEventListener('pointermove', (e) => {
+  if (!lb.drag) return;
+  lb.x = lb.drag.ox + (e.clientX - lb.drag.sx);
+  lb.y = lb.drag.oy + (e.clientY - lb.drag.sy);
+  lbApply();
+});
+window.addEventListener('pointerup', () => {
+  lb.drag = null;
+  $('lb-img').classList.remove('dragging');
+});
+$('lb-close').innerHTML = svg('close', 20);
+$('lb-close').onclick = closeLightbox;
+$('lightbox').onclick = (e) => { if (e.target === $('lightbox')) closeLightbox(); };
+$('m-chat').addEventListener('click', (e) => {
+  const img = e.target.closest('.chat-bubble img');
+  if (!img?.src || img.className.includes('sthumb')) return;
+  const link = img.closest('a');
+  if (link && !link.classList.contains('dl-btn')) e.preventDefault();
+  openLightbox(img.src);
+});
+const loadJSZip = () => {
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    s.onload = () => res(window.JSZip);
+    s.onerror = () => rej(new Error('JSZip 加载失败'));
+    document.head.appendChild(s);
+  });
+};
+const saveBlob = (blob, name) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+};
+const flashDone = (btn) => {
+  let dlCount = 0;
+  try {
+    dlCount = Number(localStorage.getItem('neko-dl-count') ?? 0) + 1;
+    localStorage.setItem('neko-dl-count', String(dlCount));
+  } catch { /* 隐私模式等忽略 */ }
+  if (dlCount === 10) markEgg('dlTen', pickArr(DL_TEN_LINES));
+  const original = btn.innerHTML;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="done-tick"><path d="M20 6L9 17l-5-5"/></svg>`;
+  setTimeout(() => { btn.innerHTML = original; }, 900);
+};
+const closeModal = () => {
+  $('mask').classList.remove('open');
+  document.querySelectorAll('#m-chat video, #m-chat audio').forEach((el) => el.pause());
+  currentFeatureId = null;
+};
+$('m-close').onclick = closeModal;
+$('mask').onclick = (e) => { if (e.target === $('mask')) closeModal(); };
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if ($('cmd-mask').classList.contains('open')) return $('cmd-mask').classList.remove('open');
+  if (!$('weather-mask').hidden && $('weather-mask').classList.contains('open')) return closeWeatherModal();
+  if ($('pref-mask').classList.contains('open')) return $('pref-mask').classList.remove('open');
+  if ($('egg-panel-mask').classList.contains('open')) return closeEggPanel();
+  if ($('lightbox').classList.contains('open')) return closeLightbox();
+  if ($('mask').classList.contains('open')) closeModal();
+});
+
+/* 命令面板：Ctrl/Cmd+K 快速跳转功能 */
+const cmdMask = $('cmd-mask'), cmdInput = $('cmd-input'), cmdList = $('cmd-list');
+let cmdIndex = 0, cmdFiltered = [];
+const renderCmd = () => {
+  const q = cmdInput.value.trim().toLowerCase();
+  if (q === '666') markEgg('s666');
+  else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
+  else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
+  else if (q === 'miao' || q === '喵') markEgg('sMiao');
+  else if (q === '彩蛋' || q === 'eggs') { closeCmd(); openEggPanel(); return; }
+  cmdFiltered = FEATURES.filter((f) => !q || (f.name + f.desc).toLowerCase().includes(q));
+  cmdIndex = 0;
+  cmdList.innerHTML = cmdFiltered.length
+    ? cmdFiltered.map((f, i) => `<div class="cmd-item${i === 0 ? ' active' : ''}" data-id="${f.id}"><span class="cmd-ico">${svg(f.icon, 18)}</span><span class="cmd-name">${esc(f.name)}</span><span class="cmd-desc">${esc(f.group)}</span></div>`).join('')
+    : '<div class="cmd-empty">没有匹配的功能喵～</div>';
+  cmdList.querySelectorAll('.cmd-item').forEach((el) => { el.onclick = () => pickCmd(el.dataset.id); });
+};
+const pickCmd = (id) => { closeCmd(); openFeature(id); };
+const openCmd = () => { cmdMask.classList.add('open'); cmdInput.value = ''; renderCmd(); setTimeout(() => cmdInput.focus(), 0); };
+const closeCmd = () => cmdMask.classList.remove('open');
+const moveCmd = (dir) => {
+  if (!cmdFiltered.length) return;
+  cmdIndex = (cmdIndex + dir + cmdFiltered.length) % cmdFiltered.length;
+  cmdList.querySelectorAll('.cmd-item').forEach((el, i) => el.classList.toggle('active', i === cmdIndex));
+  cmdList.querySelector('.cmd-item.active')?.scrollIntoView({ block: 'nearest' });
+};
+cmdInput.oninput = renderCmd;
+cmdInput.onkeydown = (e) => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); moveCmd(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); moveCmd(-1); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (cmdFiltered[cmdIndex]) pickCmd(cmdFiltered[cmdIndex].id); }
+  else if (e.key === 'Escape') { e.stopPropagation(); closeCmd(); }
+};
+cmdMask.onclick = (e) => { if (e.target === cmdMask) closeCmd(); };
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); cmdMask.classList.contains('open') ? closeCmd() : openCmd(); }
+});
+
+/* 分享按钮：复制当前功能直达链接 */
+$('m-share').innerHTML = svg('share', 20);
+$('m-share').onclick = () => {
+  if (!currentFeatureId) return;
+  const url = `${location.origin}${location.pathname}?f=${currentFeatureId}`;
+  const f = FEATURES.find((x) => x.id === currentFeatureId);
+  if (navigator.share) {
+    navigator.share({ title: f ? f.name : 'Neko 功能站', url }).catch(() => {});
+  } else if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(url).then(() => toast('链接复制好了喵！发给朋友吧✨'), () => toast('复制失败了呀喵…'));
+  } else {
+    toast(url);
+  }
+};
+
+function matched(f) {
+  if (!keyword) return true;
+  return (f.name + f.desc).toLowerCase().includes(keyword);
+}
+
+function renderSide() {
+  $('side-list').innerHTML = CATEGORIES.map((c) => {
+    const n = FEATURES.filter((f) => f.category === c.id && matched(f)).length;
+    return `<div class="side-item${c.id === current ? ' active' : ''}" data-cat="${c.id}">
+      ${svg(c.icon, 19)}<span>${esc(c.name)}</span><span class="count">${n}</span></div>`;
+  }).join('');
+  $('side-list').querySelectorAll('.side-item').forEach((el) => {
+    el.onclick = () => {
+      current = el.dataset.cat;
+      $('side').classList.remove('open');
+      render();
+    };
+  });
+}
+
+let firstRender = true;
+function renderMain() {
+  const cat = CATEGORIES.find((c) => c.id === current);
+  if (!cat) return;
+  const replayContent = () => {
+    const m = $('main');
+    m.classList.remove('content-in');
+    void m.offsetWidth;
+    m.classList.add('content-in');
+  };
+  const list = FEATURES.filter((f) => f.category === current && matched(f));
+
+  if (!list.length) {
+    const isNekoSearch = keyword === 'neko' || keyword === '猫';
+    if (isNekoSearch) setTimeout(() => markEgg('nekoSearch'), 0);
+    $('main').innerHTML = `<div class="group"><h2>${svg(cat.icon, 22)}${esc(cat.name)}</h2>
+      <p class="empty">${isNekoSearch
+        ? '在找neko吗喵？neko无处不在哦～ 🐾<br>小提示：连点几下左上角的头像试试喵！✨'
+        : keyword ? '没有匹配的功能' : '该系列功能正在搬运中，敬请期待～'}</p></div>`;
+    replayContent();
+    return;
+  }
+
+  const groups = cat.groups.filter((g) => list.some((f) => f.group === g));
+  $('main').innerHTML = `<div class="page-counter">
+    <img src="https://count.getloli.com/@nekodayo-tools?theme=original-new&padding=6&scale=1.4&darkmode=auto" alt="访客计数器" loading="lazy" referrerpolicy="no-referrer" />
+    <span>只被看过这么多次喵</span>
+  </div>` + groups.map((g) => {
+    const cards = list.filter((f) => f.group === g).map((f, i) =>
+      `<div class="card${firstRender ? ' enter' : ''}"${firstRender ? ` style="animation-delay:${Math.min(i * 40, 320)}ms"` : ''} data-id="${f.id}">
+        <div class="ico">${svg(f.icon, 22)}</div>
+        <div class="card-body"><h3>${esc(f.name)}</h3><p>${esc(f.desc)}</p></div>
+      </div>`).join('');
+    return `<section class="group"><h2>${esc(g)}</h2><div class="grid">${cards}</div></section>`;
+  }).join('');
+  firstRender = false;
+  replayContent();
+
+  $('main').querySelectorAll('.card').forEach((el) => {
+    el.onclick = () => openFeature(el.dataset.id);
+  });
+}
+
+const render = () => { renderSide(); renderMain(); };
+
+$('search-ico').innerHTML = svg('search', 18);
+$('menu-btn').innerHTML = svg('menu', 20);
+$('m-close').innerHTML = svg('close', 20);
+$('m-platforms').innerHTML = svg('info', 20);
+$('m-clear').innerHTML = svg('trash', 20);
+/* 标题文字逐字跳动 */
+$('brand').querySelector('.brand-text').innerHTML = [...'Neko 功能站']
+  .map((ch) => ch === ' ' ? ' ' : `<b>${ch === '<' ? '&lt;' : ch}</b>`).join('');
+/* 控制台小彩蛋 + 彩蛋进度查询（翻源码的小人们看这里） */
+console.log('%c喵～开发者你好喵！\n想知道隐藏彩蛋进度吗？输入 eggStatus() 喵～\n想召唤neko吗？输入 neko 喵～', 'color:#096dd9;font-weight:bold;font-size:14px');
+console.log('%c翻源码是吧喵？彩蛋答案全在 EGGS 和 EGG_HINTS 里，\n看完记得假装是自己发现的哦喵～（骄傲地竖起尾巴）', 'color:#e679b8;font-size:13px');
+console.log('    /\\_/\\\n   ( -.- )  < 偷看源码的，罚摸头十次喵\n    > ^ <');
+window.eggStatus = () => {
+  const total = Object.keys(EGGS).length;
+  console.log(`彩蛋进度：${eggFound.size}/${total} 喵！`);
+  Object.entries(EGGS).forEach(([id, name]) =>
+    console.log(`${eggFound.has(id) ? '✅' : '⬜'} ${name}`));
+  if (!eggFound.has('eggAll') && eggFound.size >= total - 1) {
+    const confetti = [
+      ['🎊', '#e679b8'], ['✨', '#f5c542'], ['🐾', '#4da3ff'], ['🎉', '#7ed957'], ['🐱', '#ff9ed5'],
+    ];
+    console.log('%c╔══════════════════════════════╗', 'color:#f5c542;font-weight:bold');
+    for (let row = 0; row < 3; row++) {
+      console.log(
+        Array.from({ length: 12 }, (_, i) => `%c${confetti[(i + row * 3) % confetti.length][0]}`).join(' '),
+        ...Array.from({ length: 12 }, (_, i) => `color:${confetti[(i + row * 3) % confetti.length][1]};font-size:18px`)
+      );
+    }
+    console.log('%c╚══════════════════════════════╝', 'color:#f5c542;font-weight:bold');
+    console.log('%c全部彩蛋收集完成喵！你是neko认证的资深铲屎官！🏆', 'color:#e679b8;font-weight:bold;font-size:16px');
+    markEgg('eggAll', '彩蛋全收集达成喵！🏆');
+  }
+  return `${eggFound.size}/${total}`;
+};
+/* 彩蛋收集册面板：搜索"彩蛋"或"eggs"唤出 */
+$('egg-close').innerHTML = svg('close', 20);
+const EGG_OK_ICON = svg('check', 16);
+const EGG_LOCK_ICON = svg('lock', 16);
+const EGG_TROPHY_ICON = svg('trophy', 18);
+const EGG_DONE_TEXT = '全部彩蛋收集完成喵！你是neko认证的资深铲屎官！';
+const renderEggPanel = () => {
+  const total = Object.keys(EGGS).length;
+  const found = eggFound.size;
+  $('egg-progress-bar').style.width = `${(found / total) * 100}%`;
+  $('egg-count').textContent = `已收集 ${found} / ${total} 个喵～名字就是线索哦`;
+  const allDone = eggFound.has('eggAll') || found >= total - 1;
+  if (allDone && !eggFound.has('eggAll')) markEgg('eggAll', '彩蛋全收集达成喵！');
+  $('egg-list').innerHTML =
+    (allDone ? `<div class="egg-done-banner">${EGG_TROPHY_ICON}${esc(EGG_DONE_TEXT)}</div>` : '')
+    + Object.entries(EGGS).map(([id, name], i) => {
+      const got = eggFound.has(id);
+      const revealed = !got && eggRevealed.has(id);
+      return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div>${got ? '' : `<div class="egg-hint">${esc(EGG_HINTS[id] ?? '')}</div>`}</div></div>`;
+    }).join('');
+};
+/* 没收集的彩蛋可以戳：1 次抖一下，2 次 neko 吐槽，3 次欲言又止，4 次揭晓答案 */
+const eggRevealed = new Set();
+const eggPokes = new Map();
+$('egg-list').addEventListener('click', (e) => {
+  const item = e.target.closest('.egg-item.locked');
+  if (!item) return;
+  const id = item.dataset.egg;
+  if (!id || eggRevealed.has(id)) return;
+  const n = (eggPokes.get(id) ?? 0) + 1;
+  eggPokes.set(id, n);
+  const name = item.querySelector('.egg-name');
+  name.classList.remove('egg-poke');
+  void name.offsetWidth;
+  name.classList.add('egg-poke');
+  if (n === 2) toast(pickArr(EGG_POKE_1));
+  else if (n === 3) toast(pickArr(EGG_POKE_2));
+  else if (n >= 4) {
+    eggRevealed.add(id);
+    item.classList.add('show-hint');
+    toast('好啦好啦，悄悄告诉你喵…');
+  }
+});
+const openEggPanel = () => {
+  renderEggPanel();
+  $('egg-panel-mask').classList.add('open');
+  $('search').value = '';
+  keyword = '';
+  render();
+};
+const closeEggPanel = () => $('egg-panel-mask').classList.remove('open');
+$('egg-close').onclick = closeEggPanel;
+$('egg-panel-mask').onclick = (e) => { if (e.target === $('egg-panel-mask')) closeEggPanel(); };
+
+/* logo 连点彩蛋：6 次起每 4 次递进，22 次戳穿 */
+let logoTaps = 0, logoTapTimer = null;
+$('brand-logo').addEventListener('click', () => {
+  logoTaps++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(() => { logoTaps = 0; }, 1500);
+  if (logoTaps === 6) {
+    markEgg('logoTap');
+    toast('喵喵喵？！戳够了喵！✨');
+  } else if (logoTaps === 10) toast('还在戳还在戳…尾巴开始不耐烦了喵！');
+  else if (logoTaps === 14) toast('戳戳戳！neko头都要被戳扁啦！');
+  else if (logoTaps === 18) toast('再戳尾巴要炸毛了喵！！');
+  else if (logoTaps >= 22) {
+    logoTaps = 0;
+    markEgg('logo22', '戳穿次元壁了喵！你就是天选铲屎官！');
+  }
+});
+let clearArmed = false;
+$('m-clear').onclick = () => {
+  if (!currentFeatureId) return;
+  if (!clearArmed) {
+    clearArmed = true;
+    addMsg('neko', '真的要扔掉我们的聊天记录吗喵…neko会想念它们的。再点一次垃圾桶就清空啦。');
+    markEgg('clearTwice');
+    setTimeout(() => { clearArmed = false; }, 4000);
+    return;
+  }
+  clearArmed = false;
+  sessionStorage.removeItem('chat:' + currentFeatureId);
+  $('m-chat').innerHTML = '';
+  featureImpls[currentFeatureId]?.reset?.();
+  const ps = PROMPTS[currentFeatureId] ?? getTimeBasedPrompts();
+  const el = addMsg('neko', esc(pickArr(ps)));
+  el.dataset.welcome = '1';
+  $('m-clear').style.display = 'none';
+};
+
+$('search').addEventListener('mousedown', (e) => { e.preventDefault(); openCmd(); });
+$('menu-btn').onclick = () => $('side').classList.toggle('open');
+
+/* 主题色：明/暗各一套品牌色，覆盖 --brand / --brand-light */
+let currentAccent = (() => { try { const v = localStorage.getItem('neko-accent'); return ACCENTS[v] ? v : 'blue'; } catch { return 'blue'; } })();
+let accentFlips = 0;
+const applyAccent = (id) => {
+  const a = ACCENTS[id] ?? ACCENTS.blue;
+  const [brand, brandLight] = document.documentElement.classList.contains('dark') ? a.dark : a.light;
+  document.documentElement.style.setProperty('--brand', brand);
+  document.documentElement.style.setProperty('--brand-light', brandLight);
+};
+const renderAccentDots = () => {
+  const wrap = $('accent-dots');
+  wrap.innerHTML = '';
+  for (const [id, a] of Object.entries(ACCENTS)) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'accent-dot' + (id === currentAccent ? ' active' : '');
+    b.title = a.name;
+    b.setAttribute('aria-label', a.name);
+    b.style.background = a.light[0];
+    b.onclick = () => {
+      if (id === currentAccent) return;
+      currentAccent = id;
+      try { localStorage.setItem('neko-accent', id); } catch { /* 隐私模式等忽略 */ }
+      applyAccent(id);
+      renderAccentDots();
+      if (++accentFlips === 10) markEgg('accentTen', pickArr(ACCENT_TEN_LINES));
+      toast(`主题色换成「${a.name}」了喵！`);
+    };
+    wrap.appendChild(b);
+  }
+};
+$('pref-ico-accent').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
+
+const applyTheme = (dark) => {
+  document.documentElement.classList.toggle('dark', dark);
+  $('theme-toggle').checked = dark;
+  applyAccent(currentAccent);
+  try { localStorage.setItem('neko-theme', dark ? 'dark' : 'light'); } catch { /* 隐私模式等忽略 */ }
+};
+const savedTheme = (() => { try { return localStorage.getItem('neko-theme'); } catch { return null; } })();
+applyTheme(savedTheme === 'dark' || (!savedTheme && matchMedia('(prefers-color-scheme: dark)').matches));
+renderAccentDots();
+let themeFlips = 0;
+$('theme-toggle').onchange = (e) => {
+  applyTheme(e.target.checked);
+  if (++themeFlips === 10) markEgg('themeTen', pickArr(THEME_TEN_LINES));
+};
+
+/* 节日彩蛋（公历节日 + 近两年农历节日硬编码） */
+{
+  const now = new Date();
+  const fest = FESTIVALS[`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`] ?? FESTIVALS[`${now.getMonth() + 1}-${now.getDate()}`];
+  if (fest) markEgg('festival', pickArr(fest));
+}
+
+/* 深夜提醒：23 点后（含凌晨）每次会话首次打开时问候一次 */
+try {
+  const h = new Date().getHours();
+  if ((h >= 23 || h < 5) && !sessionStorage.getItem('neko-late-toast')) {
+    sessionStorage.setItem('neko-late-toast', '1');
+    setTimeout(() => toast(pickArr(LATE_NIGHT_TOAST_LINES)), 600);
+  }
+} catch { /* 隐私模式等存储异常时静默跳过 */ }
+
+/* 整点报时 / 11:45 好臭时间 */
+const checkOnTime = () => {
+  const now = new Date();
+  const mm = now.getMinutes();
+  if (now.getHours() === 11 && mm >= 44 && mm <= 46) {
+    markEgg('onTime', pickArr(['11:45…好臭的时间喵（偷笑', '好臭好臭喵！谁在这个时间发癫呀（偷笑']));
+  } else if (mm <= 1) {
+    markEgg('onTime', pickArr([`叮咚～整点报时喵！现在是 ${now.getHours()} 点整～`, `分秒不差喵！${now.getHours()} 点整，neko的生物钟最准了！`]));
+  }
+};
+checkOnTime();
+setInterval(checkOnTime, 60_000);
+
+/* 打瞌睡彩蛋：2 分钟无操作换睡觉头像，一动就醒 */
+let idleTimer = null;
+const sleepLogo = () => {
+  $('brand-logo').style.backgroundImage = 'url("/images/nekosleep.webp")';
+  markEgg('idleSleep');
+};
+const wakeLogo = () => {
+  $('brand-logo').style.backgroundImage = '';
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(sleepLogo, 120_000);
+};
+['pointermove', 'pointerdown', 'keydown', 'wheel'].forEach((ev) =>
+  document.addEventListener(ev, wakeLogo, { passive: true }));
+idleTimer = setTimeout(sleepLogo, 120_000);
+
+/* 控制台召唤：输入 neko 看猫叫动画（彩蛋之外的小乐趣，手机端不依赖） */
+Object.defineProperty(window, 'neko', {
+  configurable: true,
+  get() {
+    (async () => {
+      const frames = [
+        '    /\\_/\\\n   ( o.o )  < 喵？\n    > ^ <',
+        '    /\\_/\\\n   ( ^.^ )  < 喵！\n    > ^ <',
+        '    /\\_/\\\n   ( -.- )  zzz…\n    > ~ <',
+        '    /\\_/\\\n   ( @.@ )  < 喵喵喵！！\n    > ^ <',
+      ];
+      for (const f of frames) {
+        console.clear();
+        console.log(f);
+        await new Promise((r) => setTimeout(r, 350));
+      }
+      console.clear();
+      console.log('  へ  咪~♡\n૮  >  <)\n /  ⁻  ៸|\n乀(ˍ, ل ل');
+      console.log('　／l、\n（ﾟ､ 。 ７\n　l、 ~ヽ\n　じしf_, )ノ');
+      console.log(`　　       　∧,,　
+　　　　ヾ ｀. ､\`フ
+　　　(,｀'´ヽ､､ﾂﾞ
+　 (ヽｖ'　　　\`''ﾞつ
+　　,ゝ　 ⌒\`ｙ'''´
+　 （ (´＾ヽこつ
+　　 ) )
+　　(ノ`);
+      console.log('%c喵～neko被召唤出来啦喵！✨', 'color:#e679b8;font-weight:bold;font-size:14px');
+    })();
+    return '喵！';
+  },
+});
+
+/* 一日不见：连续 3 天访问（localStorage 记录本地日期，跨会话） */
+try {
+  const localDate = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  const today = localDate(new Date());
+  const visit = JSON.parse(localStorage.getItem('neko-visits') || '{"last":"","streak":0}');
+  if (visit.last !== today) {
+    const yesterday = localDate(new Date(Date.now() - 864e5));
+    visit.streak = visit.last === yesterday ? visit.streak + 1 : 1;
+    visit.last = today;
+    localStorage.setItem('neko-visits', JSON.stringify(visit));
+    if (visit.streak >= 3) markEgg('visit3', `第 ${visit.streak} 天都来了喵！neko每天都在等你哦～`);
+  }
+} catch { /* 隐私模式等存储异常时静默跳过 */ }
+
+const seenFeatures = new Set();
+const trackExplorer = (id) => {
+  if (seenFeatures.has(id)) return;
+  seenFeatures.add(id);
+  if (seenFeatures.size >= 3) markEgg('explorer');
+};
+
+(async () => {
+  try {
+    const data = await (await fetch('/api/features')).json();
+    CATEGORIES = data.categories;
+    FEATURES = data.features;
+  } catch {
+    toast('功能列表加载失败喵…刷新页面试试？');
+    return;
+  }
+  current = (CATEGORIES.find((c) => FEATURES.some((f) => f.category === c.id)) || CATEGORIES[0]).id;
+  render();
+  renderRecent();
+  const target = new URLSearchParams(location.search).get('f');
+  if (target && FEATURES.some((f) => f.id === target)) {
+    current = FEATURES.find((f) => f.id === target).category;
+    render();
+    openFeature(target);
+  }
+})();
+
+/* 一言：侧栏底部展示，点击换一句，失败恢复原文 */
+const HITOKOTO_KEY = 'neko-hitokoto';
+let hitoPending = false;
+const setHitokoto = (html) => {
+  const el = $('hitokoto');
+  el.innerHTML = `<i class="hito-aurora"></i><i class="hito-glass"></i><span class="hito-body">${html}</span>`;
+  el.hidden = false;
+  el.style.minHeight = '';
+  el.classList.remove('hito-in');
+  void el.offsetWidth;
+  el.classList.add('hito-in');
+  try { sessionStorage.setItem(HITOKOTO_KEY, html); } catch { }
+};
+const loadHitokoto = async () => {
+  if (hitoPending) return;
+  hitoPending = true;
+  const el = $('hitokoto');
+  const prev = el.innerHTML;
+  el.style.minHeight = el.offsetHeight + 'px';
+  el.innerHTML = '<i class="hito-aurora"></i><i class="hito-glass"></i><span class="hito-loading"></span>';
+  el.hidden = false;
+  try {
+    const d = await (await fetch(`https://v1.hitokoto.cn/?encode=json&max_length=24&_=${Date.now()}`)).json();
+    const from = d.from ? `—— ${esc(d.from)}` : '';
+    setHitokoto(`「${esc(d.hitokoto)}」<span class="hito-from">${from}</span>`);
+  } catch {
+    el.innerHTML = prev || '';
+    el.hidden = !prev;
+    el.style.minHeight = '';
+  } finally {
+    hitoPending = false;
+  }
+};
+try {
+  const cached = sessionStorage.getItem(HITOKOTO_KEY);
+  if (cached) { setHitokoto(cached); }
+  else loadHitokoto();
+} catch { loadHitokoto(); }
+$('hitokoto').onclick = loadHitokoto;
+
+/* ─────────────── 摸鱼日历卡：今日进度 + 距周末/节假日 ─────────────── */
+{
+  const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const today = new Date();
+  const todayStr = fmt(today);
+  const holidayMap = new Map(HOLIDAYS.map((h) => [h.date, h]));
+  const isRestDay = (d) => {
+    const h = holidayMap.get(fmt(d));
+    if (h) return !h.work;
+    const day = d.getDay();
+    return day === 0 || day === 6;
+  };
+  const daysUntil = (pred) => {
+    for (let i = 0; i <= 400; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+      if (i > 0 && pred(d)) return i;
+    }
+    return null;
+  };
+
+  const nowMins = today.getHours() * 60 + today.getMinutes();
+  const dayPct = Math.round(((nowMins / 1440) * 100));
+  const restToday = isRestDay(today);
+  const lines = [];
+  const curHoliday = holidayMap.get(todayStr);
+  if (curHoliday && !curHoliday.work) {
+    /* 连续假期：算出假期剩余天数 */
+    let end = new Date(today);
+    while (isRestDay(new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1))) end = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1);
+    const left = Math.round((end - today) / 864e5);
+    lines.push(`今天${curHoliday.name}还放 ${left} 天喵`);
+  } else {
+    if (restToday) lines.push('今天是休息日喵～');
+    else {
+      const toWeekend = daysUntil((d) => isRestDay(d));
+      if (toWeekend !== null) lines.push(`距周末还有 ${toWeekend} 天`);
+      const toNextHoliday = daysUntil((d) => holidayMap.get(fmt(d)) && !holidayMap.get(fmt(d)).work);
+      const nextHoliday = HOLIDAYS.find((h) => h.date > todayStr && !h.work);
+      if (toNextHoliday !== null && nextHoliday) {
+        lines.push(`距${nextHoliday.name}还有 ${toNextHoliday} 天（${nextHoliday.date.slice(5).replace('-', '.')}）`);
+      }
+    }
+  }
+  const el = $('moyu-card');
+  el.innerHTML = `<div class="moyu-aurora"></div>
+    <div class="moyu-glass"></div>
+    <div class="side-info-head">摸鱼日历</div>
+    <div class="moyu-pct">今天已过 <b>0%</b></div>
+    <div class="moyu-progress"><i style="width:${dayPct}%"></i></div>
+    ${lines.map((l) => `<div class="side-info-line">${esc(l)}</div>`).join('')}`;
+  el.hidden = false;
+  /* 百分比数字从 0 涨到目标值（Number ticker，ease-out cubic） */
+  const b = el.querySelector('.moyu-pct b');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    b.textContent = dayPct + '%';
+  } else {
+    const start = performance.now();
+    const dur = 800;
+    const tick = (now) => {
+      const t = Math.min((now - start) / dur, 1);
+      b.textContent = Math.round((1 - Math.pow(1 - t, 3)) * dayPct) + '%';
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  /* 每分钟刷新进度条 */
+  setInterval(() => {
+    const n = new Date();
+    const pct = Math.round((n.getHours() * 60 + n.getMinutes()) / 1440 * 100);
+    if (pct !== dayPct) {
+      dayPct = pct;
+      document.querySelectorAll('#moyu-card .moyu-pct b').forEach((b) => { b.textContent = pct + '%'; });
+      document.querySelectorAll('#moyu-card .moyu-progress i').forEach((i) => { i.style.width = pct + '%'; });
+    }
+  }, 60_000);
+}
+
+/* ─────────────── 今日人品卡：种子 = uid + 日期，每天固定 ─────────────── */
+{
+  const uid = (() => {
+    try {
+      let v = localStorage.getItem('neko-uid');
+      if (!v) {
+        v = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+        localStorage.setItem('neko-uid', v);
+      }
+      return v;
+    } catch { return String(Date.now()); }
+  })();
+  const hashStr = (s) => {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  };
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const score = hashStr(uid + ':' + dateStr) % 101;
+  const r = JRRP_RANGES.find((x) => score >= x.min && score <= x.max) ?? JRRP_RANGES[0];
+  const el = $('jrrp-card');
+  el.innerHTML = `<div class="jrrp-aurora"></div>
+    <div class="jrrp-glass"></div>
+    <div class="side-info-head">今日人品</div>
+    <div class="jrrp-row"><div class="jrrp-main"><b>${score}</b></div><span class="jrrp-level-big">${esc(r.level)}</span></div>`;
+  el.hidden = false;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'luck-bubble';
+  bubble.innerHTML = `<span class="luck-level">${esc(r.level)}</span><span class="luck-desc">${esc(r.desc)}</span><img src="${encodeURI(r.img)}" alt="${esc(r.level)}">`;
+  document.body.appendChild(bubble);
+  const isMobile = window.matchMedia('(max-width: 780px)').matches;
+  const placeBubble = (clientY) => {
+    const rect = el.getBoundingClientRect();
+    if (isMobile) {
+      bubble.style.width = rect.width + 'px';
+      let top = rect.bottom + 8;
+      if (top + bubble.offsetHeight > window.innerHeight - 8) top = rect.top - bubble.offsetHeight - 8;
+      top = Math.max(8, Math.min(top, window.innerHeight - bubble.offsetHeight - 8));
+      bubble.style.left = rect.left + 'px';
+      bubble.style.top = top + 'px';
+    } else {
+      bubble.style.width = '180px';
+      let left = rect.left - bubble.offsetWidth - 12;
+      if (left < 8) left = rect.right + 12;
+      let top = clientY - bubble.offsetHeight / 2;
+      top = Math.max(8, Math.min(top, window.innerHeight - bubble.offsetHeight - 8));
+      bubble.style.left = left + 'px';
+      bubble.style.top = top + 'px';
+    }
+  };
+  bubble.addEventListener('click', (e) => e.stopPropagation());
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    el.addEventListener('mouseenter', (e) => { placeBubble(e.clientY); bubble.classList.add('open'); });
+    el.addEventListener('mousemove', (e) => { if (!isMobile) placeBubble(e.clientY); });
+    el.addEventListener('mouseleave', () => bubble.classList.remove('open'));
+  } else {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (bubble.classList.contains('open')) { bubble.classList.remove('open'); return; }
+      const rect = el.getBoundingClientRect();
+      placeBubble(rect.top + rect.height / 2);
+      bubble.classList.add('open');
+    });
+    document.addEventListener('click', () => bubble.classList.remove('open'));
+  }
+}
+
+/* ─────────────── 天气卡：Open-Meteo（无 key），城市经地理编码转坐标，10 分钟缓存 ─────────────── */
+const WEATHER_ICONS = {
+  sun: '<svg class="sunshine" viewBox="0 0 512 512" fill="currentColor"><path class="sun-full" d="M256,144c-61.8,0-112,50.2-112,112s50.2,112,112,112s112-50.2,112-112S317.8,144,256,144z M256,336c-44.2,0-80-35.8-80-80s35.8-80,80-80s80,35.8,80,80S300.2,336,256,336z"/><path class="sun-ray-eight" d="M131.6,357.8l-22.6,22.6c-6.2,6.2-6.2,16.4,0,22.6s16.4,6.2,22.6,0l22.6-22.6c6.2-6.3,6.2-16.4,0-22.6C147.9,351.6,137.8,351.6,131.6,357.8z"/><path class="sun-ray-seven" d="M256,400c-8.8,0-16,7.2-16,16v32c0,8.8,7.2,16,16,16s16-7.2,16-16v-32C272,407.2,264.8,400,256,400z"/><path class="sun-ray-six" d="M380.5,357.8c-6.3-6.2-16.4-6.2-22.6,0c-6.3,6.2-6.3,16.4,0,22.6l22.6,22.6c6.2,6.2,16.4,6.2,22.6,0s6.2-16.4,0-22.6L380.5,357.8z"/><path class="sun-ray-five" d="M448,240h-32c-8.8,0-16,7.2-16,16s7.2,16,16,16h32c8.8,0,16-7.2,16-16S456.8,240,448,240z"/><path class="sun-ray-four" d="M380.4,154.2l22.6-22.6c6.2-6.2,6.2-16.4,0-22.6s-16.4-6.2-22.6,0l-22.6,22.6c-6.2,6.2-6.2,16.4,0,22.6C364.1,160.4,374.2,160.4,380.4,154.2z"/><path class="sun-ray-three" d="M256,112c8.8,0,16-7.2,16-16V64c0-8.8-7.2-16-16-16s-16,7.2-16,16v32C240,104.8,247.2,112,256,112z"/><path class="sun-ray-two" d="M131.5,154.2c6.3,6.2,16.4,6.2,22.6,0c6.3-6.2,6.3-16.4,0-22.6l-22.6-22.6c-6.2-6.2-16.4-6.2-22.6,0c-6.2,6.2-6.2,16.4,0,22.6L131.5,154.2z"/><path class="sun-ray-one" d="M112,256c0-8.8-7.2-16-16-16H64c-8.8,0-16,7.2-16,16s7.2,16,16,16h32C104.8,272,112,264.8,112,256z"/></svg>',
+  partly: '<svg class="sun-cloud" viewBox="0 0 512 512" fill="currentColor"><path class="sun-half" d="M127.8,259.1c3.1-4.3,6.5-8.4,10-12.3c-6-11.2-9.4-24-9.4-37.7c0-44.1,35.7-79.8,79.8-79.8c40,0,73.1,29.4,78.9,67.7c11.4,2.3,22.4,5.7,32.9,10.4c-0.4-29.2-12-56.6-32.7-77.3C266.1,109,238,97.4,208.2,97.4c-29.9,0-57.9,11.6-79.1,32.8c-21.1,21.1-32.8,49.2-32.8,79.1c0,17.2,3.9,33.9,11.2,48.9c1.5-0.1,3-0.1,4.4-0.1C117.3,258,122.6,258.4,127.8,259.1z"/><path class="cloud" d="M400,256c-5.3,0-10.6,0.4-15.8,1.1c-16.8-22.8-39-40.5-64.2-51.7c-10.5-4.6-21.5-8.1-32.9-10.4c-10.1-2-20.5-3.1-31.1-3.1c-45.8,0-88.4,19.6-118.2,52.9c-3.5,3.9-6.9,8-10,12.3c-5.2-0.8-10.5-1.1-15.8-1.1c-1.5,0-3,0-4.4,0.1C47.9,258.4,0,307.7,0,368c0,61.8,50.2,112,112,112c13.7,0,27.1-2.5,39.7-7.3c29,25.2,65.8,39.3,104.3,39.3c38.5,0,75.3-14.1,104.3-39.3c12.6,4.8,26,7.3,39.7,7.3c61.8,0,112-50.2,112-112S461.8,256,400,256z M400,448c-17.1,0-32.9-5.5-45.9-14.7C330.6,461.6,295.6,480,256,480c-39.6,0-74.6-18.4-98.1-46.7c-13,9.2-28.8,14.7-45.9,14.7c-44.2,0-80-35.8-80-80s35.8-80,80-80c7.8,0,15.4,1.2,22.5,3.3c2.7,0.8,5.4,1.7,8,2.8c4.5-8.7,9.9-16.9,16.2-24.4C182,241.9,216.8,224,256,224c10.1,0,20,1.2,29.4,3.5c10.6,2.5,20.7,6.4,30.1,11.4c23.2,12.4,42.1,31.8,54.1,55.2c9.4-3.9,19.7-6.1,30.5-6.1c44.2,0,80,35.8,80,80S444.2,448,400,448z"/><path class="ray ray-one" d="M16,224h32c8.8,0,16-7.2,16-16s-7.2-16-16-16H16c-8.8,0-16,7.2-16,16S7.2,224,16,224z"/><path class="ray ray-two" d="M83.5,106.2c6.3,6.2,16.4,6.2,22.6,0c6.3-6.2,6.3-16.4,0-22.6L83.5,60.9c-6.2-6.2-16.4-6.2-22.6,0c-6.2,6.2-6.2,16.4,0,22.6L83.5,106.2z"/><path class="ray ray-three" d="M208,64c8.8,0,16-7.2,16-16V16c0-8.8-7.2-16-16-16s-16,7.2-16,16v32C192,56.8,199.2,64,208,64z"/><path class="ray ray-four" d="M332.4,106.2l22.6-22.6c6.2-6.2,6.2-16.4,0-22.6c-6.2-6.2-16.4-6.2-22.6,0l-22.6,22.6c-6.2,6.2-6.2,16.4,0,22.6S326.2,112.4,332.4,106.2z"/><path class="ray ray-five" d="M352,208c0,8.8,7.2,16,16,16h32c8.8,0,16-7.2,16-16s-7.2-16-16-16h-32C359.2,192,352,199.2,352,208z"/></svg>',
+  cloud: '<svg class="windy-cloud" viewBox="0 0 512 512" fill="currentColor"><g class="cloud-wrap"><path class="cloud" d="M417,166.1c-24-24.5-57.1-38.8-91.7-38.8c-34.6,0-67.7,14.2-91.7,38.8c-52.8,2.5-95,46.2-95,99.6c0,55,44.7,99.7,99.7,99.7c5.8,0,11.6-0.5,17.3-1.5c20.7,13.5,44.9,20.9,69.7,20.9c24.9,0,49.1-7.3,69.8-20.9c5.7,1,11.5,1.5,17.3,1.5c54.9,0,99.6-44.7,99.6-99.7C512,212.3,469.8,168.5,417,166.1z M412.4,333.3c-8.3,0-16.4-1.5-24-4.4c-17.5,15.2-39.8,23.8-63.1,23.8c-23.2,0-45.5-8.5-63-23.8c-7.6,2.9-15.8,4.4-24,4.4c-37.3,0-67.7-30.4-67.7-67.7c0-37.3,30.4-67.7,67.7-67.7c3.2,0,6.4,0.2,9.5,0.7c18.1-24.6,46.5-39.4,77.5-39.4c30.9,0,59.4,14.8,77.5,39.4c3.1-0.5,6.3-0.7,9.6-0.7c37.3,0,67.6,30.4,67.6,67.7C480,303,449.7,333.3,412.4,333.3z"/></g><path class="wind-three" d="M144,352H16c-8.8,0-16,7.2-16,16s7.2,16,16,16h128c8.8,0,16-7.2,16-16S152.8,352,144,352z"/><path class="wind-two" d="M16,320h94c8.8,0,16-7.2,16-16s-7.2-16-16-16H16c-8.8,0-16,7.2-16,16S7.2,320,16,320z"/><path class="wind-one" d="M16,256h64c8.8,0,16-7.2,16-16s-7.2-16-16-16H16c-8.8,0-16,7.2-16,16S7.2,256,16,256z"/></svg>',
+  rain: '<svg class="rain-cloud" viewBox="0 0 512 512" fill="currentColor"><path class="raindrop-one" d="M96,384c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S96,366.3,96,384z"/><path class="raindrop-two" d="M225,480c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S225,462.3,225,480z"/><path class="raindrop-three" d="M352,448c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S352,430.3,352,448z"/><path d="M400,64c-5.3,0-10.6,0.4-15.8,1.1C354.3,24.4,307.2,0,256,0s-98.3,24.4-128.2,65.1c-5.2-0.8-10.5-1.1-15.8-1.1C50.2,64,0,114.2,0,176s50.2,112,112,112c13.7,0,27.1-2.5,39.7-7.3c29,25.2,65.8,39.3,104.3,39.3c38.5,0,75.3-14.1,104.3-39.3c12.6,4.8,26,7.3,39.7,7.3c61.8,0,112-50.2,112-112S461.8,64,400,64z M400,256c-17.1,0-32.9-5.5-45.9-14.7C330.6,269.6,295.6,288,256,288c-39.6,0-74.6-18.4-98.1-46.7c-13,9.2-28.8,14.7-45.9,14.7c-44.2,0-80-35.8-80-80s35.8-80,80-80c10.8,0,21.1,2.2,30.4,6.1C163.7,60.7,206.3,32,256,32s92.3,28.7,113.5,70.1c9.4-3.9,19.7-6.1,30.5-6.1c44.2,0,80,35.8,80,80S444.2,256,400,256z"/></svg>',
+  heavy: '<svg class="rain-cloud" viewBox="0 0 512 512" fill="currentColor"><path class="raindrop-one" d="M96,384c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S96,366.3,96,384z"/><path class="raindrop-two" d="M225,480c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S225,462.3,225,480z"/><path class="raindrop-three" d="M352,448c0,17.7,14.3,32,32,32s32-14.3,32-32s-32-64-32-64S352,430.3,352,448z"/><path d="M400,64c-5.3,0-10.6,0.4-15.8,1.1C354.3,24.4,307.2,0,256,0s-98.3,24.4-128.2,65.1c-5.2-0.8-10.5-1.1-15.8-1.1C50.2,64,0,114.2,0,176s50.2,112,112,112c13.7,0,27.1-2.5,39.7-7.3c29,25.2,65.8,39.3,104.3,39.3c38.5,0,75.3-14.1,104.3-39.3c12.6,4.8,26,7.3,39.7,7.3c61.8,0,112-50.2,112-112S461.8,64,400,64z M400,256c-17.1,0-32.9-5.5-45.9-14.7C330.6,269.6,295.6,288,256,288c-39.6,0-74.6-18.4-98.1-46.7c-13,9.2-28.8,14.7-45.9,14.7c-44.2,0-80-35.8-80-80s35.8-80,80-80c10.8,0,21.1,2.2,30.4,6.1C163.7,60.7,206.3,32,256,32s92.3,28.7,113.5,70.1c9.4-3.9,19.7-6.1,30.5-6.1c44.2,0,80,35.8,80,80S444.2,256,400,256z"/></svg>',
+  storm: '<svg class="thunder-cloud" viewBox="0 0 512 512" fill="currentColor"><path d="M400,64c-5.3,0-10.6,0.4-15.8,1.1C354.3,24.4,307.2,0,256,0s-98.3,24.4-128.2,65.1c-5.2-0.8-10.5-1.1-15.8-1.1C50.2,64,0,114.2,0,176s50.2,112,112,112c13.7,0,27.1-2.5,39.7-7.3c12.3,10.7,26.2,19,40.9,25.4l24.9-24.9c-23.5-7.6-44.2-21.3-59.6-39.9c-13,9.2-28.8,14.7-45.9,14.7c-44.2,0-80-35.8-80-80s35.8-80,80-80c10.8,0,21.1,2.2,30.4,6.1C163.7,60.7,206.3,32,256,32s92.3,28.7,113.5,70.1c9.4-3.9,19.7-6.1,30.5-6.1c44.2,0,80,35.8,80,80s-35.8,80-80,80c-17.1,0-32.9-5.5-45.9-14.7c-10.4,12.5-23.3,22.7-37.6,30.6L303,312.2c20.9-6.6,40.5-16.9,57.3-31.6c12.6,4.8,26,7.3,39.7,7.3c61.8,0,112-50.2,112-112S461.8,64,400,64z"/><polygon class="bolt" points="192,352 224,384 192,480 288,384 256,352 288,256"/></svg>',
+  snow: '<svg class="snow-cloud" viewBox="0 0 512 512" fill="currentColor"><path d="M512,176c0-61.8-50.2-112-112-112c-5.3,0-10.6,0.4-15.8,1.1C354.3,24.4,307.2,0,256,0s-98.3,24.4-128.2,65.1c-5.2-0.8-10.5-1.1-15.8-1.1C50.2,64,0,114.2,0,176s50.2,112,112,112c13.7,0,27.1-2.5,39.7-7.3c29,25.2,65.8,39.3,104.3,39.3c38.5,0,75.3-14.1,104.3-39.3c12.6,4.8,26,7.3,39.7,7.3C461.8,288,512,237.8,512,176z M354.1,241.3C330.6,269.6,295.6,288,256,288c-39.6,0-74.6-18.4-98.1-46.7c-13,9.2-28.8,14.7-45.9,14.7c-44.2,0-80-35.8-80-80s35.8-80,80-80c10.8,0,21.1,2.2,30.4,6.1C163.7,60.7,206.3,32,256,32s92.3,28.7,113.5,70.1c9.4-3.9,19.7-6.1,30.5-6.1c44.2,0,80,35.8,80,80s-35.8,80-80,80C382.9,256,367.1,250.5,354.1,241.3z"/><path class="snowflake-one" d="M131.8,349.9c-1.5-5.6-7.3-8.9-12.9-7.4l-11.9,3.2c-1.1-1.5-2.2-3-3.6-4.4c-1.4-1.4-2.9-2.6-4.5-3.6l3.2-11.9c1.5-5.6-1.8-11.4-7.4-12.9c-5.6-1.5-11.4,1.8-12.9,7.4l-3.2,12.1c-3.8,0.3-7.5,1.2-10.9,2.9l-8.8-8.8c-4.1-4.1-10.8-4.1-14.8,0c-4.1,4.1-4.1,10.8,0,14.9l8.8,8.8c-1.6,3.5-2.6,7.2-2.9,11l-12,3.2c-5.6,1.5-9,7.2-7.5,12.9c1.5,5.6,7.3,8.9,12.9,7.4l11.9-3.2c1.1,1.6,2.2,3.1,3.7,4.5c1.4,1.4,2.9,2.6,4.4,3.6l-3.2,11.9c-1.5,5.6,1.8,11.4,7.4,12.9c5.6,1.5,11.3-1.8,12.8-7.4l3.2-12c3.8-0.3,7.5-1.3,11-2.9l8.8,8.8c4.1,4.1,10.7,4,14.8,0c4.1-4.1,4.1-10.7,0-14.8l-8.8-8.8c1.7-3.5,2.7-7.2,2.9-11l12.1-3.2C130,361.3,133.3,355.6,131.8,349.9z M88.6,371c-4.1,4.1-10.8,4.1-14.9,0c-4.1-4.1-4.1-10.8,0-14.8c4.1-4.1,10.8-4.1,14.9,0S92.6,366.9,88.6,371z"/><path class="snowflake-two" d="M304.8,437.6l-12.6-7.2c0.4-2.2,0.7-4.4,0.7-6.7c0-2.3-0.3-4.5-0.7-6.7l12.6-7.2c5.9-3.4,7.9-11,4.5-16.8c-3.4-5.9-10.9-7.9-16.8-4.5l-12.7,7.3c-3.4-2.9-7.2-5.2-11.5-6.7v-14.6c0-6.8-5.5-12.3-12.3-12.3s-12.3,5.5-12.3,12.3V389c-4.3,1.5-8.1,3.8-11.5,6.7l-12.7-7.3c-5.9-3.4-13.5-1.4-16.9,4.5c-3.4,5.9-1.4,13.4,4.5,16.8l12.5,7.2c-0.4,2.2-0.7,4.4-0.7,6.7c0,2.3,0.3,4.5,0.7,6.7l-12.5,7.2c-5.9,3.4-7.9,11-4.5,16.9s10.9,7.9,16.8,4.5l12.7-7.3c3.4,2.9,7.2,5.1,11.5,6.7V473c0,6.8,5.5,12.3,12.3,12.3s12.3-5.5,12.3-12.3v-14.6c4.3-1.5,8.2-3.8,11.5-6.7l12.7,7.3c5.9,3.4,13.4,1.4,16.8-4.5C312.8,448.6,310.7,441.1,304.8,437.6z M256,436c-6.8,0-12.3-5.5-12.3-12.3c0-6.8,5.5-12.3,12.3-12.3s12.3,5.5,12.3,12.3C268.3,430.5,262.8,436,256,436z"/><path class="snowflake-three" d="M474.2,396.2l-12.1-3.2c-0.3-3.8-1.2-7.5-2.9-11l8.8-8.8c4.1-4.1,4.1-10.8,0-14.9c-4.1-4.1-10.7-4.1-14.8,0l-8.8,8.8c-3.5-1.6-7.1-2.6-11-2.9l-3.2-12.1c-1.5-5.6-7.2-8.9-12.9-7.4c-5.6,1.5-8.9,7.3-7.4,12.9l3.2,11.9c-1.6,1.1-3.1,2.3-4.5,3.7c-1.4,1.4-2.5,2.9-3.6,4.5l-11.9-3.2c-5.6-1.5-11.4,1.9-12.9,7.4c-1.5,5.6,1.9,11.4,7.4,12.9l12,3.2c0.3,3.8,1.3,7.5,3,11l-8.8,8.8c-4.1,4.1-4.1,10.7,0,14.8c4.1,4.1,10.7,4.1,14.8,0l8.8-8.8c3.5,1.7,7.2,2.7,11,3l3.2,12c1.5,5.6,7.2,8.9,12.9,7.4c5.6-1.5,9-7.2,7.5-12.9l-3.2-11.9c1.5-1.1,3-2.2,4.5-3.6c1.4-1.4,2.5-2.9,3.6-4.5l11.9,3.2c5.6,1.5,11.4-1.9,12.9-7.4C483.1,403.5,479.8,397.8,474.2,396.2z M438.3,402.9c-4.1,4.1-10.8,4.1-14.9,0c-4.1-4.1-4.1-10.7,0-14.9c4.1-4.1,10.8-4.1,14.9,0C442.4,392.2,442.4,398.9,438.3,402.9z"/></svg>',
+  fog: '<svg class="windy-cloud" viewBox="0 0 512 512" fill="currentColor"><g class="cloud-wrap"><path class="cloud" d="M417,166.1c-24-24.5-57.1-38.8-91.7-38.8c-34.6,0-67.7,14.2-91.7,38.8c-52.8,2.5-95,46.2-95,99.6c0,55,44.7,99.7,99.7,99.7c5.8,0,11.6-0.5,17.3-1.5c20.7,13.5,44.9,20.9,69.7,20.9c24.9,0,49.1-7.3,69.8-20.9c5.7,1,11.5,1.5,17.3,1.5c54.9,0,99.6-44.7,99.6-99.7C512,212.3,469.8,168.5,417,166.1z M412.4,333.3c-8.3,0-16.4-1.5-24-4.4c-17.5,15.2-39.8,23.8-63.1,23.8c-23.2,0-45.5-8.5-63-23.8c-7.6,2.9-15.8,4.4-24,4.4c-37.3,0-67.7-30.4-67.7-67.7c0-37.3,30.4-67.7,67.7-67.7c3.2,0,6.4,0.2,9.5,0.7c18.1-24.6,46.5-39.4,77.5-39.4c30.9,0,59.4,14.8,77.5,39.4c3.1-0.5,6.3-0.7,9.6-0.7c37.3,0,67.6,30.4,67.6,67.7C480,303,449.7,333.3,412.4,333.3z"/></g><path class="wind-three" d="M144,352H16c-8.8,0-16,7.2-16,16s7.2,16,16,16h128c8.8,0,16-7.2,16-16S152.8,352,144,352z"/><path class="wind-two" d="M16,320h94c8.8,0,16-7.2,16-16s-7.2-16-16-16H16c-8.8,0-16,7.2-16,16S7.2,320,16,320z"/><path class="wind-one" d="M16,256h64c8.8,0,16-7.2,16-16s-7.2-16-16-16H16c-8.8,0-16,7.2-16,16S7.2,256,16,256z"/></svg>',
+};
+const updateWeatherClock = () => {
+  const timeEl = document.querySelector('.weather-time');
+  if (!timeEl) return;
+  const now = new Date();
+  timeEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  const dateEl = document.querySelector('.weather-date');
+  if (dateEl) dateEl.textContent = `${['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]} ${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+};
+let weatherClockTimer = null;
+let weatherData = null;
+const renderWeather = (d) => {
+  const el = $('weather-card');
+  const dirMap = ['北', '北东北', '东北', '东东北', '东', '东东南', '东南', '南东南', '南', '南西南', '西南', '西西南', '西', '西西北', '西北', '北西北'];
+  const dir = dirMap[Math.round(d.dirDeg / 22.5) % 16];
+  const days = (d.days ?? []).slice(0, 4).map((x) => `<div class="wd-item"><span class="wd-ico">${WEATHER_ICONS[x.icon] ?? WEATHER_ICONS.cloud}</span><span class="wd-day">${x.day}</span></div>`).join('');
+  el.className = 'side-info-card weather-card';
+  el.innerHTML = `<div class="weather-bg"><i></i><i></i><i></i></div>
+    <div class="weather-aurora"></div>
+    <div class="weather-info">
+      <div class="weather-left">
+        <div class="weather-now"><span class="weather-ico">${WEATHER_ICONS[d.icon] ?? WEATHER_ICONS.cloud}</span><span class="weather-desc">${esc(d.desc)}</span></div>
+        <div class="weather-temp">${d.temp}°</div>
+        <div class="weather-range">${d.max}° / ${d.min}°</div>
+      </div>
+      <div class="weather-right">
+        <div class="weather-clock">
+          <div class="weather-time"></div>
+          <div class="weather-date"></div>
+        </div>
+        <div class="weather-city">${esc(d.city)}</div>
+      </div>
+    </div>
+    <div class="weather-days">${days}</div>`;
+  el.hidden = false;
+  el.title = `体感 ${d.feels}° · ${dir}风 ${d.wind}km/h · 湿度 ${d.hum}%`;
+  weatherData = d;
+  el.onclick = openWeatherModal;
+  updateWeatherClock();
+  if (!weatherClockTimer) weatherClockTimer = setInterval(updateWeatherClock, 1000);
+};
+const getWeatherCity = () => {
+  try { return localStorage.getItem('neko-weather-city') || ''; } catch { return ''; }
+};
+const resolveWeatherCity = (city) => CITY_ALIASES[city.trim()] ?? city.trim();
+/* 城市名 → 坐标（Open-Meteo 地理编码，结果持久缓存） */
+const geocodeCity = async (city) => {
+  const CACHE_KEY = 'neko-weather-geo';
+  let cache = {};
+  try { cache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}'); } catch { /* 忽略 */ }
+  if (cache[city]) return cache[city];
+  const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`);
+  if (!res.ok) throw new Error();
+  const hit = (await res.json()).results?.[0];
+  if (!hit) return null;
+  const geo = { lat: hit.latitude, lon: hit.longitude, name: hit.name };
+  cache[city] = geo;
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch { /* 忽略 */ }
+  return geo;
+};
+/* wttr.in weatherCode → 图标key（回退源） */
+const wtrIconKey = (code) => {
+  if (code === 113) return 'sun';
+  if (code === 116 || code === 119 || code === 122) return 'cloud';
+  if (code === 143 || code === 248 || code === 260) return 'fog';
+  if ((code >= 200 && code < 230) || [386, 389, 392, 395].includes(code)) return 'storm';
+  if (code >= 320 && code < 339) return 'snow';
+  if (code >= 286 && code < 320) return 'rain';
+  return 'cloud';
+};
+/* Open-Meteo 被限流时回退 wttr.in */
+const fetchWttrFallback = async (city) => {
+  const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error();
+  const data = await res.json();
+  const cur = data.current_condition?.[0];
+  if (!cur) throw new Error();
+  const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  const daily = (data.weather ?? []).map((item) => {
+    const dt = new Date(`${item.date}T00:00:00`);
+    const code = +item.hourly?.[0]?.weatherCode ?? 113;
+    const week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return {
+      day: ['日', '一', '二', '三', '四', '五', '六'][dt.getDay()],
+      dayFull: week[dt.getDay()],
+      date: item.date.slice(5).replace('-', '.'),
+      icon: wtrIconKey(code),
+      max: Math.round(+item.maxtempC),
+      min: Math.round(+item.mintempC),
+    };
+  });
+  return {
+    at: Date.now(),
+    city,
+    desc: (cur.lang_zh?.[0]?.value ?? cur.weatherDesc?.[0]?.value ?? ''),
+    icon: wtrIconKey(+cur.weatherCode),
+    temp: Math.round(+cur.temp_C),
+    feels: Math.round(+cur.FeelsLikeC),
+    dirDeg: dirs.indexOf(cur.winddir16Point) * 22.5,
+    wind: Math.round(+cur.windspeedKmph),
+    hum: +cur.humidity,
+    max: daily[0]?.max ?? Math.round(+cur.temp_C),
+    min: daily[0]?.min ?? Math.round(+cur.temp_C),
+    days: daily.slice(1),
+  };
+};
+const loadWeather = async () => {
+  const el = $('weather-card');
+  const city = resolveWeatherCity(getWeatherCity()) || '北京';
+  const cacheKey = `neko-weather-2-${city}`;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+    if (cached && Date.now() - cached.at < 600_000) return renderWeather(cached);
+    let d;
+    try {
+      const geo = await geocodeCity(city);
+      if (!geo) throw new Error('geo');
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.lat}&longitude=${geo.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto`);
+      if (!res.ok) throw new Error('api');
+      const json = await res.json();
+      const cur = json.current;
+      if (!cur) throw new Error('api');
+      const [desc, icon] = WMO_WEATHER[cur.weather_code] ?? ['未知', 'cloud'];
+      const daily = json.daily;
+      const days = (daily?.time ?? []).map((t, i) => {
+        const [, di] = WMO_WEATHER[daily.weather_code[i]] ?? ['未知', 'cloud'];
+        const dt = new Date(`${t}T00:00:00`);
+        const week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        return {
+          day: ['日', '一', '二', '三', '四', '五', '六'][dt.getDay()],
+          dayFull: week[dt.getDay()],
+          date: t.slice(5).replace('-', '.'),
+          icon: di,
+          max: Math.round(daily.temperature_2m_max[i]),
+          min: Math.round(daily.temperature_2m_min[i]),
+        };
+      });
+      d = {
+        at: Date.now(),
+        city: geo.name || city,
+        desc, icon,
+        temp: Math.round(cur.temperature_2m),
+        feels: Math.round(cur.apparent_temperature),
+        dirDeg: cur.wind_direction_10m,
+        wind: Math.round(cur.wind_speed_10m),
+        hum: cur.relative_humidity_2m,
+        max: Math.round(daily?.temperature_2m_max?.[0] ?? cur.temperature_2m),
+        min: Math.round(daily?.temperature_2m_min?.[0] ?? cur.temperature_2m),
+        days: days.slice(1),
+      };
+    } catch {
+      d = await fetchWttrFallback(city);
+    }
+    try { sessionStorage.setItem(cacheKey, JSON.stringify(d)); } catch { /* 忽略 */ }
+    renderWeather(d);
+  } catch { el.hidden = true; }
+};
+loadWeather();
+
+/* 天气完整弹窗：点按侧栏卡片打开，展示景观 + 当前天气 + 未来预报 */
+function openWeatherModal() {
+  const d = weatherData;
+  if (!d) return;
+  const now = new Date();
+  const isNight = document.documentElement.classList.contains('dark') || now.getHours() >= 18 || now.getHours() < 6;
+  document.querySelector('.weather-modal').classList.toggle('night', isNight);
+  $('wm-icon').innerHTML = WEATHER_ICONS[d.icon] ?? WEATHER_ICONS.cloud;
+  $('wm-desc').textContent = d.desc;
+  $('wm-city').textContent = d.city;
+  $('wm-temp').textContent = `${d.temp}°`;
+  $('wm-date').textContent = `${['周日', '周一', '周二', '周三', '周四', '周五', '周六'][now.getDay()]} ${now.getMonth() + 1}月${now.getDate()}日`;
+  const days = (d.days ?? []).slice(0, 3);
+  $('wm-forecast').innerHTML = days.length
+    ? days.map((x) => `
+    <div class="wm-fc"><p>${x.dayFull} ${x.date}</p><p>${x.max}°</p></div>
+    <div class="wm-separator"></div>`).join('')
+    : '<p class="wm-empty">暂无预报数据</p>';
+  const mask = $('weather-mask');
+  clearTimeout(weatherCloseTimer);
+  mask.hidden = false;
+  requestAnimationFrame(() => mask.classList.add('open'));
+}
+let weatherCloseTimer = 0;
+function closeWeatherModal() {
+  const mask = $('weather-mask');
+  mask.classList.remove('open');
+  weatherCloseTimer = setTimeout(() => { mask.hidden = true; }, 200);
+}
+$('weather-modal-close').onclick = closeWeatherModal;
+$('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather-mask')) closeWeatherModal(); });
+
+/* ─────────────── 搜索历史：聚焦/输入时下拉，localStorage 记忆 ─────────────── */
+{
+  const KEY = 'neko-search-history';
+  const get = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]').filter((x) => typeof x === 'string'); } catch { return []; } };
+  const set = (list) => { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 8))); } catch { } };
+  const input = $('search');
+  const panel = $('search-history');
+  let items = get();
+
+  const render = () => {
+    const q = input.value.trim().toLowerCase();
+    const list = q ? items.filter((x) => x.toLowerCase().includes(q)) : items;
+    if (!list.length) { panel.hidden = true; return; }
+    panel.innerHTML = '';
+    list.forEach((word) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'search-hist-item';
+      b.textContent = word;
+      b.onclick = () => { input.value = word; panel.hidden = true; input.dispatchEvent(new Event('input', { bubbles: true })); input.focus(); };
+      panel.appendChild(b);
+    });
+    const clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'search-hist-clear';
+    clear.textContent = '清空历史';
+    clear.onclick = (e) => { e.stopPropagation(); items = []; set([]); panel.hidden = true; };
+    panel.appendChild(clear);
+    panel.hidden = false;
+  };
+  const remember = () => {
+    const q = input.value.trim();
+    if (!q || q.length < 2) return;
+    if (/^\d+$/.test(q)) return;
+    items = [q, ...items.filter((x) => x.toLowerCase() !== q.toLowerCase())].slice(0, 8);
+    set(items);
+  };
+
+  input.addEventListener('focus', render);
+  input.addEventListener('input', render);
+  input.addEventListener('blur', () => { setTimeout(() => { remember(); panel.hidden = true; }, 200); });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-inner')) panel.hidden = true;
+  });
+}
+</script>
+</body>
+</html>
