@@ -225,6 +225,7 @@ const EGGS = {
   healthPig: '猪还是人', newsFan: '资讯达人', randPick: '选择困难晚期', accentTen: '彩虹收藏家',
   scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
   numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
+  longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失',
 };
 const EGG_HINTS = {
   night: '凌晨 0 点到 5 点之间打开任意功能窗口',
@@ -266,6 +267,9 @@ const EGG_HINTS = {
   fishFood: '在链接解析聊天里只发一个 🐟',
   shake: '手机端用力摇晃手机（需要 HTTPS 且授权了传感器权限）',
   sixSeven: '在链接解析聊天里只发 67 或 六七',
+  longPress: '按住任意按钮不松手，坚持 3 秒',
+  titleMeow: '切到别的标签页再切回来 2 次以上',
+  offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
 };
 const eggFound = new Set(
   (() => { try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; } })()

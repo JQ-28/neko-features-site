@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=8"></script>
+<script src="/texts.js?v=9"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -884,6 +884,52 @@ cmdInput.onkeydown = (e) => {
 cmdMask.onclick = (e) => { if (e.target === cmdMask) closeCmd(); };
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); cmdMask.classList.contains('open') ? closeCmd() : openCmd(); }
+});
+
+/* 长按任意按钮 3 秒彩蛋：按下计时，超时吐槽 */
+let btnHoldTimer = null, btnHoldTarget = null;
+document.addEventListener('pointerdown', (e) => {
+  const btn = e.target.closest('button, .btn, .side-item');
+  if (!btn) return;
+  btnHoldTarget = btn;
+  btnHoldTimer = setTimeout(() => {
+    if (btnHoldTarget) markEgg('longPress', pickArr([
+      '按这么久是想让 neko 感应到吗喵？感应到了哦！',
+      '这是要把按钮按出坑吗喵？',
+      '长按三秒达成！neko 已收到你的执念喵！',
+    ]));
+    btnHoldTimer = null;
+  }, 3000);
+}, { passive: true });
+document.addEventListener('pointerup', () => { if (btnHoldTimer) { clearTimeout(btnHoldTimer); btnHoldTimer = null; } }, { passive: true });
+document.addEventListener('pointercancel', () => { if (btnHoldTimer) { clearTimeout(btnHoldTimer); btnHoldTimer = null; } }, { passive: true });
+
+/* 标签页失焦彩蛋：切走再回来，标题栏喵叫递进（切走次数越多叫得越长） */
+let blurCount = 0;
+const BASE_TITLE = document.title;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    blurCount++;
+  } else {
+    const level = Math.min(blurCount, 3);
+    if (blurCount >= 2) {
+      markEgg('titleMeow', '回来啦喵！刚才 neko 在标题栏喊你好久了！');
+    }
+    if (level > 0) {
+      document.title = '喵'.repeat(level) + ' ' + BASE_TITLE;
+      setTimeout(() => { document.title = BASE_TITLE; }, 3000);
+    }
+  }
+});
+
+/* 断网彩蛋：neko 是云端猫，没网要消失了 */
+window.addEventListener('offline', () => {
+  markEgg('offline', pickArr([
+    '没网了喵！neko 是云端猫，要消失了…（虚化中）',
+    '网线被拔了喵？！neko 感觉身体变透明了…',
+    '断网警告喵！趁 neko 还没消失，快检查一下网络！',
+  ]));
+  toast('离线状态：功能暂时用不了，但彩蛋照收喵！');
 });
 
 /* 分享按钮：复制当前功能直达链接 */
