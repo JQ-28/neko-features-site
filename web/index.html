@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v8'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v9'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -849,11 +849,32 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* 命令面板：Ctrl/Cmd+K 快速跳转功能 */
+/* 666 数字雨：随机位置/延时/时长撒一把 666，动画结束后自清理 */
+let sixRainTidy = null;
+const sixRain = () => {
+  if (sixRainTidy) return;
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (REDUCED) return;
+  const nodes = [];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('span');
+    el.className = 'six-rain';
+    el.textContent = '666';
+    el.style.left = `${4 + Math.random() * 88}vw`;
+    const dur = 1.1 + Math.random() * 0.9;
+    el.style.animationDuration = `${dur.toFixed(2)}s`;
+    el.style.animationDelay = `${(Math.random() * 0.7).toFixed(2)}s`;
+    el.style.fontSize = `${20 + Math.random() * 18 | 0}px`;
+    document.body.appendChild(el);
+    nodes.push(el);
+  }
+  sixRainTidy = setTimeout(() => { nodes.forEach((n) => n.remove()); sixRainTidy = null; }, 2600);
+};
 const cmdMask = $('cmd-mask'), cmdInput = $('cmd-input'), cmdList = $('cmd-list');
 let cmdIndex = 0, cmdFiltered = [];
 const renderCmd = () => {
   const q = cmdInput.value.trim().toLowerCase();
-  if (q === '666') markEgg('s666');
+  if (q === '666') { markEgg('s666'); sixRain(); }
   else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
   else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
   else if (q === 'miao' || q === '喵') markEgg('sMiao');
