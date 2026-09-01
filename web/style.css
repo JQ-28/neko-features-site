@@ -1285,6 +1285,8 @@
   .chat-bubble .daily-desc { font-size: 12px; color: var(--sub); line-height: 1.5; margin-top: 3px; }
   .chat-bubble .daily-link { display: inline-block; margin-top: 4px; font-size: 12px; color: var(--brand); text-decoration: none; }
   .chat-bubble .pig-name { font-size: 14px; font-weight: 700; margin-top: 4px; }
+  .chat-bubble .pig-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+  .chat-bubble .pig-head .pig-name { margin-top: 0; }
   .chat-bubble .pig-desc { font-size: 12px; color: var(--sub); margin-top: 2px; }
   .chat-bubble .pig-dl { margin-top: 4px; padding: 4px 0; width: 100%; justify-content: center; font-size: 11px; }
   .chat-bubble .pig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }

@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v6'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v7'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');

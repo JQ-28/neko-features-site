@@ -7,8 +7,8 @@
 
   const doroImg = (d, withDl = true) =>
     `<img src="${esc(d.image)}" alt="${esc(d.name)}" onerror="this.remove()" />
-     <div class="pig-name">${esc(d.name)}</div>
-     ${withDl ? `<a class="dl-btn" href="javascript:;" data-url="${esc(d.image)}" data-name="${esc(d.name)}" onclick="downloadDoro(this)">${DL_ICON}下载</a>` : ''}`;
+     <div class="pig-head"><div class="pig-name">${esc(d.name)}</div>
+     ${withDl ? `<a class="dl-btn" href="javascript:;" data-url="${esc(d.image)}" data-name="${esc(d.name)}" onclick="downloadDoro(this)">${DL_ICON}下载</a>` : ''}</div>`;
 
   window.downloadDoro = async (btn) => {
     const url = btn.dataset.url;
