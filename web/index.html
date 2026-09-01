@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=14"></script>
+<script src="/texts.js?v=15"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -299,15 +299,15 @@ const localDay = () => {
 };
 let toastTimer;
 let toastQueue = [];
-const toast = (msg) => {
+const toast = (msg, dur = 1800) => {
   const el = $('toast');
-  if (el.classList.contains('show')) { toastQueue.push(msg); return; }
+  if (el.classList.contains('show')) { toastQueue.push([msg, dur]); return; }
   el.textContent = msg;
   el.classList.add('show');
   toastTimer = setTimeout(() => {
     el.classList.remove('show');
-    if (toastQueue.length) { const next = toastQueue.shift(); setTimeout(() => toast(next), 200); }
-  }, 1800);
+    if (toastQueue.length) { const next = toastQueue.shift(); setTimeout(() => toast(next[0], next[1]), 200); }
+  }, dur);
 };
 const copyText = (btn, text) => {
   const done = () => {

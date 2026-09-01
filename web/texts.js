@@ -288,7 +288,7 @@ const markEgg = (id, line) => {
   const total = Object.keys(EGGS).length;
   toast(line
     ? `${line}（彩蛋 ${eggFound.size}/${total} 喵！✨）`
-    : `彩蛋发现：${EGGS[id] ?? id}（${eggFound.size}/${total}）喵！✨`);
+    : `彩蛋发现：${EGGS[id] ?? id}（${eggFound.size}/${total}）喵！✨`, 4200);
 };
 const NIGHT_GREET_LINES = [
   '这个点的晚安最真诚了喵…快去睡，做个好梦哦 🌙',
