@@ -1318,12 +1318,18 @@ export const parser: Feature = {
   register(app: App) {
     // B站扫码登录：数据中心 IP 被风控拉黑时，用户扫码授权后凭证存 KV，解析请求携带登录态
     app.get('/api/parse/bili/login/start', async (c) => {
+      kvRef = c.env.KV;
       try {
         const res = await fetch('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', {
           method: 'POST',
-          headers: { 'User-Agent': BILI_UA, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/' },
+          headers: {
+            'User-Agent': BILI_UA,
+            Origin: 'https://www.bilibili.com',
+            Referer: 'https://www.bilibili.com/',
+            Cookie: await getBiliCookie(),
+          },
         });
-        const json = (await res.json()) as { code?: number; data?: { url?: string; qrcode_key?: string } };
+        const json = (await biliJson(res)) as { code?: number; data?: { url?: string; qrcode_key?: string } };
         if (json.code !== 0 || !json.data?.url || !json.data.qrcode_key) {
           return c.json({ error: `生成二维码失败（code=${json.code}）` }, 502);
         }
@@ -1334,15 +1340,21 @@ export const parser: Feature = {
     });
 
     app.get('/api/parse/bili/login/poll', async (c) => {
+      kvRef = c.env.KV;
       const key = c.req.query('key') ?? '';
       if (!key) return c.json({ error: '缺少 key' }, 400);
       try {
         const res = await fetch(`https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${encodeURIComponent(key)}`, {
-          headers: { 'User-Agent': BILI_UA, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/' },
+          headers: {
+            'User-Agent': BILI_UA,
+            Origin: 'https://www.bilibili.com',
+            Referer: 'https://www.bilibili.com/',
+            Cookie: await getBiliCookie(),
+          },
           redirect: 'manual',
         });
         const cookieJar = parseSetCookies(res);
-        const json = (await res.json()) as { code?: number; data?: { code?: number; message?: string; url?: string } };
+        const json = (await biliJson(res)) as { code?: number; data?: { code?: number; message?: string; url?: string } };
         if (json.data?.code === 0 && cookieJar.SESSDATA) {
           const sess: BiliSess = {
             sessdata: cookieJar.SESSDATA,
@@ -1353,7 +1365,9 @@ export const parser: Feature = {
           biliSessCache = null;
           return c.json({ code: 0 });
         }
-        return c.json({ code: json.data?.code ?? json.code ?? -1, message: json.data?.message ?? '' });
+        // B站 poll 未扫码时 data.code 也为 0（但无 SESSDATA），归一化为 1 避免前端误判成功
+        const code = json.data?.code === 0 ? 1 : (json.data?.code ?? json.code ?? -1);
+        return c.json({ code, message: json.data?.message ?? '' });
       } catch (e) {
         return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
       }

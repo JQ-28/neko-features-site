@@ -127,11 +127,9 @@
       if (r.code === 0) {
         clearInterval(timer);
         statusEl.textContent = BILI_QR_TEXTS.success;
-      } else if (r.code === 860) {
-        statusEl.textContent = BILI_QR_TEXTS.scanned;
       } else if (r.code === 86090) {
         statusEl.textContent = BILI_QR_TEXTS.scanned;
-      } else if (r.code === -4 || r.code === -1) {
+      } else if (r.code === 86038 || r.code === -1) {
         clearInterval(timer);
         statusEl.textContent = BILI_QR_TEXTS.expired;
       }

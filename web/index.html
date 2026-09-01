@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js"></script>
+<script src="/texts.js?v=2"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -482,10 +482,11 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
+const FEAT_VER = 'v2'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = `/features/${id}.js`;
+    s.src = `/features/${id}.js?${FEAT_VER}`;
     s.onload = () => resolve(window.__features[id]);
     s.onerror = () => { delete featurePromises[id]; reject(new Error(`功能模块 ${id} 加载失败`)); };
     document.head.appendChild(s);
