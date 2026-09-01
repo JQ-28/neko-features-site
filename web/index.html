@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=10"></script>
+<script src="/texts.js?v=12"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v11'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v12'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -1086,7 +1086,7 @@ const renderEggPanel = () => {
   $('egg-list').innerHTML =
     (allDone ? `<div class="egg-done-banner">${EGG_TROPHY_ICON}${esc(EGG_DONE_TEXT)}</div>` : '')
     + Object.entries(EGGS)
-    .sort(([idA], [idB]) => Number(eggFound.has(idB)) - Number(eggFound.has(idA)))
+    .sort(([idA], [idB]) => Number(eggFound.has(idA)) - Number(eggFound.has(idB)))
     .map(([id, name], i) => {
       const got = eggFound.has(id);
       const revealed = !got && eggRevealed.has(id);
