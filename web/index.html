@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=4"></script>
+<script src="/texts.js?v=5"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -525,6 +525,14 @@ const EASTER_EGGS = [
   { test: /(谢谢|感谢|thx|3q)/i, lines: THANKS_LINES, egg: 'thanks', emote: 'love' },
   { test: /^[1１]+$/, lines: TEST_ONE_LINES, egg: 'testOne' },
   { test: /(晚安|睡觉|困了|好梦)/, lines: ['晚安喵～记得盖好被子呀！', '困了就去休息嘛喵，我就在这里等你~', '晚安喵…呼噜呼噜…', '早点睡呀喵，熬夜会长黑眼圈的哦～', '晚安喵～梦里记得请neko吃小鱼干！', '去睡吧去睡吧喵，明天再来找我玩呀～'], emote: 'sleep' },
+  { test: /(笨蛋|蠢猫|没用|垃圾|讨厌你|骂我)/, lines: ['呜…被骂了…neko会记仇的喵！（记在猫砂盆里）', '喵？！neko做错了什么呀…尾巴都耷拉了…', '凶什么凶喵！再凶就挠你！（亮爪子）'], emote: 'angry', egg: 'scolded' },
+  { test: /(唱歌|来一首|唱首歌)/, lines: SING_LINES, emote: 'laugh', egg: 'sing' },
+  { test: /(讲个笑话|说个笑话|来个笑话|冷笑话)/, lines: JOKE_LINES, emote: 'popcorn', egg: 'joke' },
+  { test: /(neko是猫吗|你是AI吗|你是机器人吗|你是真人吗)/i, lines: AI_QUESTION_LINES, emote: 'question', egg: 'soulAsk' },
+  { test: /996/, lines: JAIL_996_LINES, emote: 'jail', egg: 'jail996' },
+  { test: /^(520|1314)$/, lines: ['呜哇！数字表白最浪漫了喵…可惜neko是小猫呀！', '1314…neko可以陪你一辈子喵！小鱼干管够的话～'], emote: 'love', egg: 'numberLove' },
+  { test: /(饿了|好饿|肚子饿)/, lines: HUNGRY_LINES, emote: 'spray', egg: 'hungry' },
+  { test: /^🐟+$/, lines: FISH_EMOJI_LINES, emote: 'nod', egg: 'fishFood' },
 ];
 const tryEasterEgg = (text) => {
   if (/(在吗|在不在)/.test(text)) {
@@ -1176,6 +1184,17 @@ const wakeLogo = () => {
 ['pointermove', 'pointerdown', 'keydown', 'wheel'].forEach((ev) =>
   document.addEventListener(ev, wakeLogo, { passive: true }));
 idleTimer = setTimeout(sleepLogo, 120_000);
+
+/* 摇一摇彩蛋：手机端用力摇晃（devicemotion），抖动幅度够大触发 */
+let lastShake = 0;
+window.addEventListener('devicemotion', (e) => {
+  const a = e.accelerationIncludingGravity;
+  if (!a || a.x == null) return;
+  const mag = Math.abs(a.x) + Math.abs(a.y) + Math.abs(a.z);
+  if (mag < 34 || Date.now() - lastShake < 3000) return;
+  lastShake = Date.now();
+  markEgg('shake', pickArr(['别摇了别摇了喵！neko要被摇晕了！', '摇出什么了吗喵？只有猫毛…喵。', '停停停！尾巴打结了喵！！']));
+}, { passive: true });
 
 /* 控制台召唤：输入 neko 看猫叫动画（彩蛋之外的小乐趣，手机端不依赖） */
 Object.defineProperty(window, 'neko', {

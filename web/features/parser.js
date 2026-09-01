@@ -144,6 +144,10 @@
     run: () => guard('parser', async () => {
       const text = $('ps-text').value.trim();
       if (!text) return addMsg('neko', pickArr(EMPTY_TEXT_LINES));
+      if (text.length > 500) {
+        addMsg('user', esc(text.slice(0, 200)) + `…（${text.length} 字）`);
+        return addEmote(addMsg('neko', pickArr(LONG_TEXT_LINES)), 'daze');
+      }
       addMsg('user', esc(text));
       $('ps-text').value = '';
       if (!/https?:\/\//i.test(text) && tryEasterEgg(text)) return;
