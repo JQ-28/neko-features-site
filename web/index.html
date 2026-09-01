@@ -857,12 +857,15 @@ const renderCmd = () => {
   else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
   else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
   else if (q === 'miao' || q === '喵') markEgg('sMiao');
+  else if (q === 'neko' || q === '猫') markEgg('nekoSearch');
   else if (q === '彩蛋' || q === 'eggs') { closeCmd(); openEggPanel(); return; }
   cmdFiltered = FEATURES.filter((f) => !q || (f.name + f.desc).toLowerCase().includes(q));
   cmdIndex = 0;
   cmdList.innerHTML = cmdFiltered.length
     ? cmdFiltered.map((f, i) => `<div class="cmd-item${i === 0 ? ' active' : ''}" data-id="${f.id}"><span class="cmd-ico">${svg(f.icon, 18)}</span><span class="cmd-name">${esc(f.name)}</span><span class="cmd-desc">${esc(f.group)}</span></div>`).join('')
-    : '<div class="cmd-empty">没有匹配的功能喵～</div>';
+    : (q === 'neko' || q === '猫')
+      ? '<div class="cmd-empty">在找neko吗喵？neko无处不在哦～ 🐾<br>小提示：连点几下左上角的头像试试喵！✨</div>'
+      : '<div class="cmd-empty">没有匹配的功能喵～</div>';
   cmdList.querySelectorAll('.cmd-item').forEach((el) => { el.onclick = () => pickCmd(el.dataset.id); });
 };
 const pickCmd = (id) => { closeCmd(); openFeature(id); };
