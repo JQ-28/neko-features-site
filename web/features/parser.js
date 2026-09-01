@@ -146,6 +146,8 @@
       if (!text) return addMsg('neko', pickArr(EMPTY_TEXT_LINES));
       if (text.length > 500) {
         addMsg('user', esc(text.slice(0, 200)) + `…（${text.length} 字）`);
+        $('ps-text').value = '';
+        markEgg('longText');
         return addEmote(addMsg('neko', pickArr(LONG_TEXT_LINES)), 'daze');
       }
       addMsg('user', esc(text));
