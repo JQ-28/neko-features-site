@@ -1502,12 +1502,33 @@ export const parser: Feature = {
       if (!MEDIA_HOST_ALLOWLIST.test(host)) return c.json({ error: '该域名不在允许列表' }, 403);
 
       const range = c.req.header('range');
-      const abort = new AbortController();
-      const timer = setTimeout(() => abort.abort(), 15_000);
-      // 手动跟随重定向（抖音 aweme.snssdk.com/aweme/v1/play 302 到真实 CDN），
-      // 每一跳都重新校验白名单并按该跳 host 计算 Referer
       let upstream: Response | null = null;
-      let current = upgraded;
+      // B站 CDN 跨境链路慢且各镜像速度差异大（实测 69~157KB/s）；
+      // 签名 URL 只验路径不验主机，并发竞速多个 upos 镜像，取最先返回 200 的流
+      if (/^https:\/\/upos-(?:sz|hz)-mirror[^.]*\.bilivideo\.com\/.+\.(?:mp4|m4s|flv|mp3|blv)(?:\?|$)/i.test(upgraded)) {
+        const mirrors = ['upos-sz-mirror08c', 'upos-sz-mirrorhw']
+          .map((h) => upgraded.replace(/^(https:\/\/)[^.]+(\.bilivideo\.com)/i, `$1${h}$2`))
+          .filter((u) => u !== upgraded);
+        const attempt = (u: string) =>
+          fetch(u, {
+            headers: {
+              'User-Agent': DESKTOP_UA,
+              Referer: 'https://www.bilibili.com/',
+              ...(range ? { Range: range } : {}),
+            },
+            signal: AbortSignal.timeout(30_000),
+          }).then((r) => {
+            if (r.status >= 300) throw new Error(`HTTP ${r.status}`);
+            return r;
+          });
+        upstream = await Promise.any([attempt(upgraded), ...mirrors.map(attempt)]).catch(() => null);
+      }
+      if (!upstream) {
+        const abort = new AbortController();
+        const timer = setTimeout(() => abort.abort(), 15_000);
+        // 手动跟随重定向（抖音 aweme.snssdk.com/aweme/v1/play 302 到真实 CDN），
+        // 每一跳都重新校验白名单并按该跳 host 计算 Referer
+        let current = upgraded;
       for (let i = 0; i < 5; i++) {
         let hopHost: string;
         try {
@@ -1542,9 +1563,10 @@ export const parser: Feature = {
         }
         break;
       }
-      clearTimeout(timer);
-      if (!upstream || upstream.status >= 300) {
-        return c.json({ error: '上游重定向次数过多' }, 403);
+        clearTimeout(timer);
+        if (!upstream || upstream.status >= 300) {
+          return c.json({ error: '上游重定向次数过多' }, 403);
+        }
       }
 
       const headers = new Headers();
