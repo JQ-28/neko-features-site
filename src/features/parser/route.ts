@@ -34,8 +34,10 @@ const resolveRedirect = async (url: string, headers: Record<string, string> = {}
   return current;
 };
 
-// Cloudflare 数据中心 IP 会被 B站风控拦（412 返回 HTML 挑战页）。
-// 绕过：先访问 B站主页拿 Set-Cookie（buvid3/b_nut，主页不风控），再调 spi 拿 buvid4，组合成完整设备指纹。
+// ===== B站风控绕过（buvid 指纹激活，参考 nonebot-plugin-parser-lite / SocialSisterYi 文档） =====
+// Cloudflare 数据中心 IP 直接调 B站 API 会 412。必须：spi 拿 buvid3/4 → 组装指纹 payload →
+// murmur3 计算 buvid_fp → POST ExClimbWuzhi 激活，之后携带该组 Cookie 才能过风控。
+const BILI_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15';
 let biliCookieCache: { cookie: string; ts: number } | null = null;
 const BILI_COOKIE_TTL = 6 * 3600_000;
 
@@ -50,31 +52,247 @@ const parseSetCookies = (res: Response): Record<string, string> => {
   return jar;
 };
 
+const MASK64 = 0xffffffffffffffffn;
+const rotl64 = (x: bigint, r: bigint): bigint => ((x << r) | (x >> (64n - r))) & MASK64;
+
+const fmix64 = (k: bigint): bigint => {
+  let t = k & MASK64;
+  t ^= t >> 33n;
+  t = (t * 0xff51afd7ed558ccdn) & MASK64;
+  t ^= t >> 33n;
+  t = (t * 0xc4ceb9fe1a85ec53n) & MASK64;
+  t ^= t >> 33n;
+  return t;
+};
+
+const murmur3Hex = (str: string, seed = 31n): string => {
+  const C1 = 0x87c37b91114253d5n;
+  const C2 = 0x4cf5ad432745937fn;
+  const bytes = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) bytes[i] = str.charCodeAt(i) & 255;
+  let h1 = seed & MASK64;
+  let h2 = seed & MASK64;
+  const blocks = Math.floor(bytes.length / 16);
+  for (let i = 0; i < blocks; i++) {
+    const off = i * 16;
+    let k1 = 0n;
+    let k2 = 0n;
+    for (let j = 7; j >= 0; j--) k1 = (k1 << 8n) | BigInt(bytes[off + j] ?? 0);
+    for (let j = 15; j >= 8; j--) k2 = (k2 << 8n) | BigInt(bytes[off + j] ?? 0);
+    k1 = (rotl64((k1 * C1) & MASK64, 31n) * C2) & MASK64;
+    h1 ^= k1;
+    h1 = rotl64(h1, 27n);
+    h1 = (h1 + h2) & MASK64;
+    h1 = (h1 * 5n + 0x52dce729n) & MASK64;
+    k2 = (rotl64((k2 * C2) & MASK64, 33n) * C1) & MASK64;
+    h2 ^= k2;
+    h2 = rotl64(h2, 31n);
+    h2 = (h2 + h1) & MASK64;
+    h2 = (h2 * 5n + 0x38495ab5n) & MASK64;
+  }
+  const tail = bytes.subarray(blocks * 16);
+  let k1 = 0n;
+  let k2 = 0n;
+  for (let i = 0; i < tail.length; i++) {
+    const b = BigInt(tail[i] ?? 0);
+    if (i < 8) k1 ^= b << BigInt(8 * i);
+    else k2 ^= b << BigInt(8 * (i - 8));
+  }
+  if (tail.length > 8) h2 ^= (rotl64((k2 * C2) & MASK64, 33n) * C1) & MASK64;
+  if (tail.length > 0) h1 ^= (rotl64((k1 * C1) & MASK64, 31n) * C2) & MASK64;
+  h1 ^= BigInt(bytes.length);
+  h2 ^= BigInt(bytes.length);
+  h1 = (h1 + h2) & MASK64;
+  h2 = (h2 + h1) & MASK64;
+  h1 = fmix64(h1);
+  h2 = fmix64(h2);
+  h1 = (h1 + h2) & MASK64;
+  h2 = (h2 + h1) & MASK64;
+  return h1.toString(16).padStart(16, '0') + h2.toString(16).padStart(16, '0');
+};
+
+const genUuidInfoc = (): string => {
+  const chars = '123456789ABCDEF10';
+  const part = (n: number) => Array.from({ length: n }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  return `${part(8)}-${part(4)}-${part(4)}-${part(4)}-${part(12)}${String(Date.now() % 100000).padStart(5, '0')}infoc`;
+};
+
+const EXClimbWuzhiPayload = (uuid: string): Record<string, unknown> => ({
+  '3064': 1,
+  '5062': Date.now(),
+  '03bf': 'https%3A%2F%2Fwww.bilibili.com%2F',
+  '39c8': '333.788.fp.risk',
+  '34f1': '',
+  'd402': '',
+  '654a': '',
+  '6e7c': '839x959',
+  '3c43': {
+    '2673': 0,
+    '5766': 24,
+    '6527': 0,
+    '7003': 1,
+    '807e': 1,
+    'b8ce': BILI_UA,
+    '641c': 0,
+    '07a4': 'en-US',
+    '1c57': 'not available',
+    '0bd0': 8,
+    '748e': [900, 1440],
+    'd61f': [875, 1440],
+    'fc9d': -480,
+    '6aa9': 'Asia/Shanghai',
+    '75b8': 1,
+    '3b21': 1,
+    '8a1c': 0,
+    'd52f': 'not available',
+    'adca': 'MacIntel',
+    '80c9': [
+      ['PDF Viewer', 'Portable Document Format', [['application/pdf', 'pdf'], ['text/pdf', 'pdf']]],
+      ['Chrome PDF Viewer', 'Portable Document Format', [['application/pdf', 'pdf'], ['text/pdf', 'pdf']]],
+      ['Chromium PDF Viewer', 'Portable Document Format', [['application/pdf', 'pdf'], ['text/pdf', 'pdf']]],
+      ['Microsoft Edge PDF Viewer', 'Portable Document Format', [['application/pdf', 'pdf'], ['text/pdf', 'pdf']]],
+      ['WebKit built-in PDF', 'Portable Document Format', [['application/pdf', 'pdf'], ['text/pdf', 'pdf']]],
+    ],
+    '13ab': '0dAAAAAASUVORK5CYII=',
+    'bfe9': 'QgAAEIQAACEIAABCCQN4FXANGq7S8KTZayAAAAAElFTkSuQmCC',
+    'a3c1': [
+      'extensions:ANGLE_instanced_arrays;EXT_blend_minmax;EXT_color_buffer_half_float;EXT_float_blend;EXT_frag_depth;EXT_shader_texture_lod;EXT_texture_compression_bptc;EXT_texture_compression_rgtc;EXT_texture_filter_anisotropic;EXT_sRGB;KHR_parallel_shader_compile;OES_element_index_uint;OES_fbo_render_mipmap;OES_standard_derivatives;OES_texture_float;OES_texture_float_linear;OES_texture_half_float;OES_texture_half_float_linear;OES_vertex_array_object;WEBGL_color_buffer_float;WEBGL_compressed_texture_astc;WEBGL_compressed_texture_etc;WEBGL_compressed_texture_etc1;WEBGL_compressed_texture_pvrtc;WEBKIT_WEBGL_compressed_texture_pvrtc;WEBGL_compressed_texture_s3tc;WEBGL_compressed_texture_s3tc_srgb;WEBGL_debug_renderer_info;WEBGL_debug_shaders;WEBGL_depth_texture;WEBGL_draw_buffers;WEBGL_lose_context;WEBGL_multi_draw',
+      'webgl aliased line width range:[1, 1]',
+      'webgl aliased point size range:[1, 511]',
+      'webgl alpha bits:8',
+      'webgl antialiasing:yes',
+      'webgl blue bits:8',
+      'webgl depth bits:24',
+      'webgl green bits:8',
+      'webgl max anisotropy:16',
+      'webgl max combined texture image units:32',
+      'webgl max cube map texture size:16384',
+      'webgl max fragment uniform vectors:1024',
+      'webgl max render buffer size:16384',
+      'webgl max texture image units:16',
+      'webgl max texture size:16384',
+      'webgl max varying vectors:30',
+      'webgl max vertex attribs:16',
+      'webgl max vertex texture image units:16',
+      'webgl max vertex uniform vectors:1024',
+      'webgl max viewport dims:[16384, 16384]',
+      'webgl red bits:8',
+      'webgl renderer:WebKit WebGL',
+      'webgl shading language version:WebGL GLSL ES 1.0 (1.0)',
+      'webgl stencil bits:0',
+      'webgl vendor:WebKit',
+      'webgl version:WebGL 1.0',
+      'webgl unmasked vendor:Apple Inc.',
+      'webgl unmasked renderer:Apple GPU',
+      'webgl vertex shader high float precision:23',
+      'webgl vertex shader high float precision rangeMin:127',
+      'webgl vertex shader high float precision rangeMax:127',
+      'webgl vertex shader medium float precision:23',
+      'webgl vertex shader medium float precision rangeMin:127',
+      'webgl vertex shader medium float precision rangeMax:127',
+      'webgl vertex shader low float precision:23',
+      'webgl vertex shader low float precision rangeMin:127',
+      'webgl vertex shader low float precision rangeMax:127',
+      'webgl fragment shader high float precision:23',
+      'webgl fragment shader high float precision rangeMin:127',
+      'webgl fragment shader high float precision rangeMax:127',
+      'webgl fragment shader medium float precision:23',
+      'webgl fragment shader medium float precision rangeMin:127',
+      'webgl fragment shader medium float precision rangeMax:127',
+      'webgl fragment shader low float precision:23',
+      'webgl fragment shader low float precision rangeMin:127',
+      'webgl fragment shader low float precision rangeMax:127',
+      'webgl vertex shader high int precision:0',
+      'webgl vertex shader high int precision rangeMin:31',
+      'webgl vertex shader high int precision rangeMax:30',
+      'webgl vertex shader medium int precision:0',
+      'webgl vertex shader medium int precision rangeMin:31',
+      'webgl vertex shader medium int precision rangeMax:30',
+      'webgl vertex shader low int precision:0',
+      'webgl vertex shader low int precision rangeMin:31',
+      'webgl vertex shader low int precision rangeMax:30',
+      'webgl fragment shader high int precision:0',
+      'webgl fragment shader high int precision rangeMin:31',
+      'webgl fragment shader high int precision rangeMax:30',
+      'webgl fragment shader medium int precision:0',
+      'webgl fragment shader medium int precision rangeMin:31',
+      'webgl fragment shader medium int precision rangeMax:30',
+      'webgl fragment shader low int precision:0',
+      'webgl fragment shader low int precision rangeMin:31',
+      'webgl fragment shader low int precision rangeMax:30',
+    ],
+    '6bc5': 'Apple Inc.~Apple GPU',
+    'ed31': 0,
+    '72bd': 0,
+    '097b': 0,
+    '52cd': [0, 0, 0],
+    'a658': [
+      'Andale Mono', 'Arial', 'Arial Black', 'Arial Hebrew', 'Arial Narrow',
+      'Arial Rounded MT Bold', 'Arial Unicode MS', 'Comic Sans MS', 'Courier',
+      'Courier New', 'Geneva', 'Georgia', 'Helvetica', 'Helvetica Neue', 'Impact',
+      'LUCIDA GRANDE', 'Microsoft Sans Serif', 'Monaco', 'Palatino', 'Tahoma',
+      'Times', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Wingdings',
+      'Wingdings 2', 'Wingdings 3',
+    ],
+    'd02f': '124.04345259929687',
+  },
+  '54ef':
+    '{"in_new_ab":true,"ab_version":{"remove_back_version":"REMOVE","login_dialog_version":"V_PLAYER_PLAY_TOAST","open_recommend_blank":"SELF","storage_back_btn":"HIDE","call_pc_app":"FORBID","clean_version_old":"GO_NEW","optimize_fmp_version":"LOADED_METADATA","for_ai_home_version":"V_OTHER","bmg_fallback_version":"DEFAULT","ai_summary_version":"SHOW","weixin_popup_block":"ENABLE","rcmd_tab_version":"DISABLE","in_new_ab":true},"ab_split_num":{"remove_back_version":11,"login_dialog_version":43,"open_recommend_blank":90,"storage_back_btn":87,"call_pc_app":47,"clean_version_old":46,"optimize_fmp_version":28,"for_ai_home_version":38,"bmg_fallback_version":86,"ai_summary_version":466,"weixin_popup_block":45,"rcmd_tab_version":90,"in_new_ab":0},"pageVersion":"new_video","videoGoOldVersion":-1}',
+  '8b94': 'https%3A%2F%2Fwww.bilibili.com%2F',
+  'df35': uuid,
+  '07a4': 'en-US',
+  '5f45': null,
+  'db46': 0,
+});
+
 const getBiliCookie = async (force = false): Promise<string> => {
   if (!force && biliCookieCache && Date.now() - biliCookieCache.ts < BILI_COOKIE_TTL) return biliCookieCache.cookie;
   const jar: Record<string, string> = {};
   try {
     const home = await fetch('https://www.bilibili.com/', {
-      headers: { 'User-Agent': DESKTOP_UA },
+      headers: { 'User-Agent': BILI_UA },
       redirect: 'manual',
     });
     Object.assign(jar, parseSetCookies(home));
   } catch {
     // 主页失败继续尝试 spi
   }
-  const headers: Record<string, string> = { 'User-Agent': DESKTOP_UA, Referer: 'https://www.bilibili.com/' };
-  if (jar.buvid3 || jar.b_nut) headers.Cookie = Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ');
+  const spiHeaders: Record<string, string> = { 'User-Agent': BILI_UA, Referer: 'https://www.bilibili.com/' };
+  const jarCookie = Object.entries(jar)
+    .map(([k, v]) => `${k}=${v}`)
+    .join('; ');
+  if (jarCookie) spiHeaders.Cookie = jarCookie;
+  let b3 = jar.buvid3;
+  let b4 = '';
   try {
-    const res = await fetch('https://api.bilibili.com/x/frontend/finger/spi', { headers });
+    const res = await fetch('https://api.bilibili.com/x/frontend/finger/spi', { headers: spiHeaders });
     const json = (await res.json()) as { data?: { b_3?: string; b_4?: string } };
-    if (json.data?.b_3) jar.buvid3 ??= json.data.b_3;
-    if (json.data?.b_4) jar.buvid4 = json.data.b_4;
+    b3 = json.data?.b_3 ?? b3;
+    b4 = json.data?.b_4 ?? '';
   } catch {
-    // spi 失败就用主页 cookie + 随机兜底
+    // spi 失败走随机兜底
   }
-  if (!jar.buvid3) jar.buvid3 = `XY${crypto.randomUUID().replaceAll('-', '').slice(0, 30)}infoc`;
-  if (!jar.buvid4) jar.buvid4 = crypto.randomUUID().replaceAll('-', '');
-  const cookie = Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ');
+  if (!b3) b3 = `XY${crypto.randomUUID().replaceAll('-', '').slice(0, 30)}infoc`;
+  if (!b4) b4 = crypto.randomUUID().replaceAll('-', '');
+  const uuid = genUuidInfoc();
+  const body = JSON.stringify({ payload: JSON.stringify(EXClimbWuzhiPayload(uuid)) });
+  const buvidFp = murmur3Hex(body);
+  const cookie = `buvid3=${b3}; buvid4=${b4}; buvid_fp=${buvidFp}; _uuid=${uuid}; b_nut=${jar.b_nut ?? '100'}`;
+  try {
+    await fetch('https://api.bilibili.com/x/internal/gaia-gateway/ExClimbWuzhi', {
+      method: 'POST',
+      headers: {
+        'User-Agent': BILI_UA,
+        'Content-Type': 'application/json',
+        Origin: 'https://www.bilibili.com',
+        Referer: 'https://www.bilibili.com/',
+        Cookie: cookie,
+      },
+      body,
+    });
+  } catch {
+    // 激活失败仍返回 Cookie 尝试
+  }
   biliCookieCache = { cookie, ts: Date.now() };
   return cookie;
 };
@@ -88,10 +306,10 @@ const biliJson = async (res: Response): Promise<unknown> => {
   }
 };
 
-// B站 GET 请求：412 时强制刷新 Cookie 重试一次
+// B站 GET 请求：412 时强制刷新 Cookie（重新激活）重试一次
 const biliGet = async (url: string): Promise<unknown> => {
   const doFetch = (cookie: string) =>
-    fetch(url, { headers: { 'User-Agent': DESKTOP_UA, Referer: 'https://www.bilibili.com/', Cookie: cookie } });
+    fetch(url, { headers: { 'User-Agent': BILI_UA, Referer: 'https://www.bilibili.com/', Cookie: cookie } });
   let res = await doFetch(await getBiliCookie());
   if (res.status === 412) res = await doFetch(await getBiliCookie(true));
   return biliJson(res);
