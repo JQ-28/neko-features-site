@@ -226,6 +226,7 @@ const EGGS = {
   scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
   numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
   longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失', footerTour: '全按钮巡礼',
+  copyNeko: '偷学台词', multiTab: '猫界捉奸', printNeko: 'neko海报', cinema: '影院模式',
 };
 const EGG_HINTS = {
   night: '凌晨 0 点到 5 点之间打开任意功能窗口',
@@ -271,6 +272,10 @@ const EGG_HINTS = {
   titleMeow: '切到别的标签页再切回来 2 次以上',
   offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
   footerTour: '把功能窗口底部那排工具按钮（麦克风/图片/相机等 6 个）挨个点一遍',
+  copyNeko: '选中 neko 的聊天消息复制 3 次（点消息上的复制按钮也算喵）',
+  multiTab: '同时打开两个 neko 网站标签页，两只猫会互相发现喵',
+  printNeko: '在网站上按 Ctrl+P（或浏览器菜单里的打印）',
+  cinema: '让网页进入全屏（F11 或视频全屏都可以喵）',
 };
 const eggFound = new Set(
   (() => { try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; } })()

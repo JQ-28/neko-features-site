@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=13"></script>
+<script src="/texts.js?v=14"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -970,6 +970,44 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+/* 偷学台词：复制 neko 的消息累计 3 次（选区复制 / 消息上的复制按钮都算） */
+let nekoCopyCount = 0;
+const bumpCopyEgg = () => {
+  if (++nekoCopyCount >= 3) markEgg('copyNeko', 'neko 的话都要被你背下来了喵！');
+};
+document.addEventListener('copy', () => {
+  const n = document.getSelection()?.anchorNode;
+  const inNekoMsg = n && (n.nodeType === 1 ? n : n.parentElement)?.closest?.('.chat-msg.neko');
+  if (inNekoMsg) bumpCopyEgg();
+});
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.cp-btn')?.closest('.chat-msg.neko')) bumpCopyEgg();
+});
+
+/* 多开捉奸：BroadcastChannel 发现另一个 neko 标签页（旧标签收到 hi 即发现，回个 hi-back 让对方也发现） */
+try {
+  const presence = new BroadcastChannel('neko-presence');
+  presence.onmessage = (e) => {
+    markEgg('multiTab', '抓到了喵！你在外面还有别的猫！');
+    if (e.data === 'hi') presence.postMessage('hi-back');
+  };
+  presence.postMessage('hi');
+} catch { /* 不支持时静默跳过 */ }
+
+/* 打印彩蛋：把 neko 做成海报 */
+window.addEventListener('beforeprint', () => {
+  markEgg('printNeko', '要把 neko 做成海报吗？！记得挑个好看的角度喵！');
+});
+
+/* 全屏彩蛋：影院模式（标准 API + webkit 前缀，后者覆盖 iOS 视频全屏） */
+const onFullscreenChange = () => {
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    markEgg('cinema', '影院模式，贴贴时间喵！');
+  }
+};
+document.addEventListener('fullscreenchange', onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
 /* 断网彩蛋：neko 是云端猫，没网要消失了 */
 window.addEventListener('offline', () => {
