@@ -1,92 +1,64 @@
 # Neko 功能站
 
-一个部署在 Cloudflare Workers 上的小工具网站，以"聊天窗口"的形式提供各种实用功能。前端是纯 HTML/CSS/JS（无构建步骤），后端用 Hono 框架。线上地址：https://tools.nekodayo.top
+一只猫娘住进了 Cloudflare Workers，顺便帮你干点活。
+
+以"聊天窗口"形式聚合各种实用小工具：粘贴链接解析、以图搜源、漫画翻译、智能抠图……前端纯 HTML/CSS/JS 无构建，后端 Hono，单 Worker 部署即用。
+
+线上地址：https://tools.nekodayo.top
 
 ## 现有功能
 
 | 功能 | 说明 |
 |---|---|
-| 疯狂星期四 | 随机返回一条 KFC 疯四文案 |
-| 发病语录 | 输入名字，生成一段"发病"文案 |
-| 随机 Roll | 随机数字、二选一、多选一、判断句、概率，帮选择困难做决定 |
-| 漫画翻译 | 上传图片，调用百度翻译识别并翻译图内文字 |
 | 链接解析 | 粘贴分享链接，解析出视频/图片/封面并支持预览和下载，支持 B站、抖音、小红书、微博、X 等 21 个平台 |
-| 智能抠图 | 上传图片去除背景（remove.bg） |
 | 以图搜源 | 上传图片搜索出处（SauceNAO / TraceMoe / AnimeTrace / 百度识图），多引擎结果合并展示 |
+| 漫画翻译 | 上传图片，识别并翻译图内文字 |
+| 智能抠图 | 上传图片去除背景（remove.bg） |
+| 随机 Roll | 随机数字、二选一、多选一、判断句、概率，帮选择困难做决定 |
+| 疯狂星期四 | 随机返回一条疯四文案 |
+| 发病语录 | 输入名字，生成一段"发病"文案 |
 
 ## 体验特性
 
-- **聊天式交互**：所有功能以 neko 猫娘对话形式呈现，文案随机不重样，问候语按早/下午/傍晚/深夜分时段变化；支持粘贴/拖拽上传截图
-- **聊天记录**：每个功能的对话历史会记住，关掉窗口再打开还在（刷新页面后你自己上传的图片会失效，属正常）
+- **聊天式交互**：所有功能以猫娘对话形式呈现，文案随机不重样，问候语按时段变化；支持粘贴/拖拽上传截图
+- **聊天记录**：每个功能的对话历史会记住，关掉窗口再打开还在
 - **快捷键**：回车发送 / Shift+回车换行、按 ESC 关窗口、粘贴链接自动解析
-- **智能滚动**：往上翻看历史时，新来的消息不会把你拽到底部，右下角有"回到底部"小按钮
-- **neko 正在输入**：等待结果时 neko 的气泡会先冒出三个跳动的小点，像真的在打字
-- **图片放大镜**：点聊天里的任意图片会全屏放大，双击或滚轮可以再放大缩小，放大后能拖着移动
-- **下载体验**：视频/封面/图集一键下载，多张图自动打包成一个 ZIP，文件名带平台和标题；下载完成时按钮上的对勾会画出来
-- **界面动效**：窗口弹出带一点回弹、功能卡片依次入场、进度条渐变填充，系统开了"减弱动态效果"会自动关闭这些动画
-- **移动端**：手机上功能窗口自动全屏、支持深色模式；彩蛋收集册也能用，不依赖控制台
-- **一言卡片**：侧栏展示随机一言（v1.hitokoto.cn），点击换一句（带转圈加载动画，卡片高度不变），会话内缓存避免重复请求，失败静默恢复
-- **今日人品卡**：侧栏每日固定人品值（种子 = 设备标识 + 日期），0-100 分映射六档运势；点击弹出签图气泡（评语 + 图片），桌面端气泡跟随鼠标上下移动
-- **天气卡**：侧栏展示当前位置实时天气与未来几天（Open-Meteo，免 key），点击弹出完整天气窗口（白天明亮景观 / 夜晚星空月光，随时间和深色模式切换）
-- **摸鱼日历卡**：侧栏展示今日已过百分比进度条、距周末/节假日倒计时
-- **防滥用**：会消耗外部接口额度的操作限每 IP 每分钟 60 次，看视频、翻页这类普通浏览不受影响
+- **智能滚动**：往上翻看历史时新消息不会把你拽到底部，右下角有"回到底部"按钮
+- **图片放大镜**：点聊天里的任意图片全屏放大，双击或滚轮缩放，可拖动
+- **下载体验**：视频/封面/图集一键下载，多张图自动打包 ZIP，文件名带平台和标题
+- **界面动效**：窗口弹出回弹、卡片依次入场，系统开启"减弱动态效果"时自动关闭
+- **移动端**：功能窗口自动全屏、深色模式适配
+- **侧栏卡片**：一言、今日人品、实时天气、摸鱼日历（节假日倒计时、调休识别）
+- **防滥用**：消耗外部额度的接口限每 IP 每分钟 60 次，普通浏览不受影响
 
-## 隐藏彩蛋
+> 猫是要哄的。她偶尔会回应超出你输入的东西——深夜、节日、或者你多陪她玩一会儿的时候。网站上藏着一些小秘密，找到的都会记进她的收集册。
 
-共 25 个，在搜索框输入"彩蛋"可以打开彩蛋收集册查看进度（收集册里已收集的显示绿色对勾、没收集的显示灰色锁；锁着的彩蛋戳 4 下，neko 挠头之后就会悄悄告诉你解锁方法；控制台输入 `eggStatus()` 也行，输入 `neko()` 能召唤一只猫）：
-
-- 深夜来访：凌晨 0-5 点打开任意功能
-- 连点 logo：快速连点左上角猫头像 6 次（连点 22 次还有后续）
-- 摸头杀：长按左上角猫头像 1 秒半
-- 搜索"neko"：在搜索框输入 neko 或"猫"
-- 清空撒娇：点垃圾桶时 neko 会先挽留一下
-- 疯四正日子：周四那天疯四按钮会变成"🍗 V我50"
-- 打瞌睡的neko：页面 2 分钟没操作，左上角头像会睡着
-- 换装狂魔：来回切换深浅主题 10 次
-- 下载达人：累计下载成功 10 次
-- 周一综合征：周一打开任意功能
-- 整点报时：整点前后 1 分钟内打开网站（11:45 有惊喜）
-- 节日问候：元旦、春节、中秋等节日当天打开网站
-- 搜索 666：在搜索框输入 666
-- 摸鱼倒计时：在搜索框输入"摸鱼"或"上班"
-- 深夜晚安：凌晨在链接解析里说"晚安"
-- 一日不见：连续 3 天访问网站
-- 对neko发病：发病语录里输入"neko"
-- 到处逛逛：不关网页的情况下打开 3 个不同功能
-- 道谢的乖孩子：在链接解析里说"谢谢"
-- 灵敏测试：在链接解析里只发一个"1"或"111"
-- 在的喵：在链接解析里问"在吗"，neko 会回你两条
-- 搜索 404：在搜索框输入 404，neko 会把你丢去 404 页面看睡觉猫
-- 搜索喵叫：在搜索框输入 miao 或"喵"
-- 全彩蛋达成：集齐其他所有彩蛋后，打开彩蛋收集册或控制台输入 `eggStatus()` 都会庆祝
-
-另外还有：鼠标放到"Neko 功能站"文字上会跳一下、在链接解析里发"喵"“摸摸头"会有特殊回复、访问不存在的网址会看到睡觉猫页面。
-
-## 目录结构
+## 技术架构
 
 ```
-src/
-  index.ts                 入口，注册所有路由 + 限流 + 404 页面
-  types.ts                 分类、功能列表的定义
-  features/
-    parser/                链接解析（最复杂的功能，各平台解析逻辑都在 route.ts）
-    image-search/          以图搜源（engines.ts 是各搜索引擎实现）
-    manga-translator/      漫画翻译（百度 API）
-    remove-bg/             智能抠图
-    crazy-thursday/        疯狂星期四（文案在 data.ts）
-    stereotypes/           发病语录（文案在 data.ts）
-    sayoroll/              随机 Roll（纯前端随机，无后端接口）
-web/
-  index.html               前端骨架 + 核心逻辑（聊天、彩蛋、搜索、一言卡片、动态加载功能模块）
-  style.css                全部样式和动画
-  texts.js                 全部文案池、彩蛋清单和提示（加彩蛋只改这个文件）
-  features/                每个功能一个文件，点开功能时才下载（加新功能 = 加一个文件）
-  images/                  自托管的图标和头像图片
+Cloudflare Workers
+├── src/                      后端（Hono + TypeScript）
+│   ├── index.ts              入口：路由注册 + KV 限流 + 静态资源缓存策略
+│   ├── types.ts              分类与功能类型定义
+│   └── features/             每个功能一个目录（route.ts + data.ts）
+│       ├── parser/           链接解析（21 平台，媒体走同源代理绕防盗链）
+│       ├── image-search/      以图搜源（engines.ts 为各引擎实现）
+│       ├── manga-translator/ 漫画翻译
+│       ├── remove-bg/        智能抠图（多密钥轮询）
+│       └── ...
+└── web/                      前端（原生，无构建）
+    ├── index.html            骨架 + 核心系统（聊天/搜索/模块加载）
+    ├── style.css             全部样式与动画
+    ├── texts.js              文案池集中管理
+    ├── features/             功能模块，点开时才按需加载
+    └── images/               自托管图片资源
 ```
+
+后端与前端通过 `/api/features` 元数据端点解耦：前端拿到功能清单后动态渲染，功能代码只在用户点开时才注入。
 
 ## 本地运行
 
-需要 Node.js 和一个 Cloudflare 账号（本地运行不需要登录）。
+需要 Node.js（本地运行不需要 Cloudflare 账号）。
 
 ```powershell
 npm install
@@ -95,42 +67,31 @@ npx.cmd wrangler dev
 
 默认地址 `http://127.0.0.1:8787`。
 
-**局域网访问**（手机调试）：
+局域网调试（手机访问）：
 
 ```powershell
-$env:XDG_CONFIG_HOME="D:\JQ-28\网站\neko功能网站\.wrangler-tmp"; npx.cmd wrangler dev --ip 0.0.0.0 --port 8787
+$env:XDG_CONFIG_HOME="<项目路径>\.wrangler-tmp"; npx.cmd wrangler dev --ip 0.0.0.0 --port 8787
 ```
 
-> 注意：设置 `XDG_CONFIG_HOME` 是为了让 wrangler 把日志写到项目目录内，避免在 IDE 终端里因权限问题启动失败。
->
-> 停止服务请按 `x` 或 Ctrl+C，不要直接关终端窗口，否则会留下 workerd 后台进程占用 8787 端口，导致下次启动"卡住"或页面一直加载。遇到这种情况用 `netstat -ano | findstr :8787` 找到进程再 `taskkill /F /PID <进程号>` 清理。
+> 设置 `XDG_CONFIG_HOME` 是让 wrangler 日志写在项目目录内，避免 IDE 终端权限问题。
+> 停止服务请按 `x` 或 Ctrl+C，直接关终端可能留下 workerd 进程占用 8787 端口（`netstat -ano | findstr :8787` 定位后 `taskkill /F /PID <pid>` 清理）。
 
 ## 密钥配置
 
-密钥放在项目根目录的 `.dev.vars` 文件（本地，已被 git 忽略），格式为每行 `名字=值`：
-
-```
-BAIDU_APP_ID=xxx
-BAIDU_APP_SECRET=xxx
-...
-```
-
-线上环境用 `npx.cmd wrangler secret put <名字>` 设置。
-
-各密钥作用：
+本地放在根目录 `.dev.vars`（已被 git 忽略），每行 `名字=值`；线上用 `npx.cmd wrangler secret put <名字>`。
 
 | 密钥 | 用于 | 必需吗 |
 |---|---|---|
-| `BAIDU_APP_ID` / `BAIDU_APP_KEY` | 漫画翻译（百度翻译 API，每月免费 1 万字符） | 用漫画翻译才需要 |
-| `REMOVE_BG_KEY` | 智能抠图（remove.bg，免费 50 张/月，可填多个用逗号分隔轮换） | 用抠图才需要 |
-| `SAUCENAO_KEY` | 以图搜源的 SauceNAO 引擎（没有 key 会走网页解析模式） | 可选 |
+| `BAIDU_APP_ID` / `BAIDU_APP_KEY` | 漫画翻译（每月免费 1 万字符） | 用漫画翻译才需要 |
+| `REMOVE_BG_KEY` | 智能抠图（免费 50 张/月，可逗号分隔多个轮换） | 用抠图才需要 |
+| `SAUCENAO_KEY` | 以图搜源 SauceNAO 引擎（无 key 走网页解析） | 可选 |
 | `YOUDAO_APP_KEY` / `YOUDAO_APP_SECRET` | 备用翻译通道 | 可选 |
 
-没配置密钥的功能会直接返回错误提示，不影响其他功能。
+未配置密钥的功能直接返回错误提示，不影响其他功能。
 
 ## 部署
 
-先在 `wrangler.toml` 里把 `REPLACE_WITH_KV_ID` 换成你自己的 KV 命名空间 ID（`npx.cmd wrangler kv namespace create KV` 创建），R2 桶名按需修改，然后：
+在 `wrangler.toml` 中把 `REPLACE_WITH_KV_ID` 换成你自己的 KV 命名空间 ID（`npx.cmd wrangler kv namespace create KV` 创建），R2 桶名按需修改，然后：
 
 ```powershell
 npx.cmd wrangler deploy
@@ -138,22 +99,25 @@ npx.cmd wrangler deploy
 
 ## 开发约定
 
-- 新增功能：后端在 `src/features/` 下建文件夹，写一个导出 `Feature` 对象的 `route.ts`（照抄现有功能的结构即可），然后在 `src/features/index.ts` 里注册、`src/types.ts` 里挂分类；前端在 `web/features/` 下建一个同名 js 文件，注册 `window.__features.<id> = { renderer, run }`（照抄 kfc.js 的结构，需要图片上传就加 `imgUpload: true`，打开时要初始化就加 `open()`），操作面板文案里的按钮用 `__run('<id>')` 触发。欢迎语等随机文案加到 `web/texts.js` 的 `PROMPTS` / `LOADING_LINES`。功能模块是点开时才加载的，用户首屏不用下载全部功能代码。
-- 大段文案数据（如疯四文案）单独放 `data.ts`，不混在路由逻辑里。
-- 浏览器直接加载不了的视频/图片（跨域、防盗链），统一走 `/api/parse/proxy?url=...` 代理，代理会带上对应平台的 Referer。新增平台时记得把它的图片/视频域名加进 `route.ts` 里的 `MEDIA_HOST_ALLOWLIST`，否则会被拒绝。
-- 解析结果会在 KV 里缓存 1 小时（key 为 `parse:<链接>`），调试时注意旧缓存。
-- 改完 TypeScript 代码跑一下 `npx.cmd tsc --noEmit` 做类型检查。
-- 前端动画只用 transform/opacity，时长小于 300ms，并保留 `prefers-reduced-motion` 回退。
-- 聊天文案全部走随机文案池（`PROMPTS` / `LOADING_LINES` 等），改文案时保持猫娘语气：短句、以"喵/呀/哦"收尾、少量颜文字。时段问候语用 `MORNING/AFTERNOON/EVENING/NIGHT_PROMPTS`，按访客本地时间自动选择。
-- 彩蛋统一用 `markEgg('id')` 登记（id 加进 `web/texts.js` 的 `EGGS` 表，解锁提示加进 `EGG_HINTS`，触发文案放对应的 `*_LINES` 数组），进度存 localStorage 的 `neko-eggs`。
+- **新增功能**：后端在 `src/features/` 建目录写 `route.ts`（导出 `Feature` 对象），在 `src/features/index.ts` 注册、`src/types.ts` 挂分类；前端在 `web/features/` 建同名 js，注册 `window.__features.<id> = { renderer, run }`。功能模块按需加载，首屏不下载全部代码。
+- 大段文案数据单独放 `data.ts`，不混在路由逻辑里。
+- 跨域/防盗链媒体统一走 `/api/parse/proxy?url=...` 代理（带对应平台 Referer）；新增平台记得把域名加进 `MEDIA_HOST_ALLOWLIST`。
+- 解析结果在 KV 缓存 1 小时，调试注意旧缓存。
+- 改完 TS 跑 `npx.cmd tsc --noEmit`。
+- 前端动画只用 transform/opacity、时长 <300ms、保留 `prefers-reduced-motion` 回退。
+- 聊天文案走随机文案池（`PROMPTS` / `LOADING_LINES`），保持猫娘语气。
 
 ## 参考项目
 
 部分功能参考了以下原仓库的实现思路：
 
-- 链接解析：nonebot-plugin-parser-lite（Python/NoneBot 插件，本项目是其网页版还原）
+- 链接解析：nonebot-plugin-parser-lite（本项目是其网页版还原）
 - 以图搜源：imgS-plugin
 - 随机 Roll：nonebot-plugin-sayoroll
-- 今日人品：nonebot-plugin-jrrp3（运势分级）/ nonebot-plugin-neko-draw（签图）
+- 今日人品：nonebot-plugin-jrrp3 / nonebot-plugin-neko-draw
 
-部分平台（知乎、贴吧、小黑盒）因需要复杂的签名或设备指纹，未实现。
+部分平台（知乎、贴吧、小黑盒）因需要复杂签名或设备指纹，未实现。
+
+## License
+
+仅供学习交流使用。
