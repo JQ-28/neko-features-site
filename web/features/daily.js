@@ -1,16 +1,13 @@
-/* 多源日报：60秒/知乎/微博/IT之家/历史/AI/抖音/贴吧/摸鱼 聚合 */
+/* 多源日报：60秒/知乎/微博/IT之家/历史/抖音/贴吧 聚合 */
 (() => {
   const DAILY_TYPES = [
     { id: '60s', name: '60秒看世界' },
-    { id: 'zhihuDay', name: '知乎日报' },
     { id: 'zhihu', name: '知乎热榜' },
     { id: 'weibo', name: '微博热搜' },
     { id: 'ithome', name: 'IT之家' },
     { id: 'history', name: '历史上的今天' },
-    { id: 'ai', name: 'AI快报' },
     { id: 'douyin', name: '抖音热搜' },
     { id: 'tieba', name: '贴吧话题榜' },
-    { id: 'moyu', name: '摸鱼日历' },
   ];
 
   window.toggleDaily = (btn) => {
@@ -31,7 +28,6 @@
   });
 
   const renderDaily = (r) => {
-    if (r.image) return `<img src="${esc(r.image)}" alt="${esc(r.title)}" />`;
     const head = `<div class="daily-head"><span class="daily-title">${esc(r.title)}</span>${r.date ? `<span class="daily-date">${esc(r.date)}</span>` : ''}</div>`;
     const tip = r.tip ? `<div class="daily-tip">${esc(r.tip)}</div>` : '';
     const list = (r.items || []).map((it) => {
@@ -51,7 +47,7 @@
     if (!rec || rec.date !== day) rec = { date: day, types: [] };
     if (!rec.types.includes(type)) rec.types.push(type);
     try { localStorage.setItem('neko-daily-seen', JSON.stringify(rec)); } catch { /* 隐私模式等忽略 */ }
-    if (rec.types.length >= DAILY_TYPES.length) markEgg('newsFan', pickArr(NEWS_FAN_LINES));
+    if (DAILY_TYPES.every((t) => rec.types.includes(t.id))) markEgg('newsFan', pickArr(NEWS_FAN_LINES));
   };
 
   window.__features.daily = {
