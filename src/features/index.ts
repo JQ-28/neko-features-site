@@ -10,6 +10,7 @@ import { bing } from './bing/route';
 import { health } from './health/route';
 import { daily } from './daily/route';
 import { rollpig } from './rollpig/route';
+import { doro } from './doro/route';
 
 export const FEATURES: Feature[] = [
   crazyThursday,
@@ -23,4 +24,5 @@ export const FEATURES: Feature[] = [
   health,
   daily,
   rollpig,
+  doro,
 ];
