@@ -325,12 +325,12 @@ const getBiliCookie = async (force = false): Promise<string> => {
   return cookie;
 };
 
-const biliJson = async (res: Response): Promise<unknown> => {
+const biliJson = async (res: Response, hint = ''): Promise<unknown> => {
   const text = await res.text();
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error(`B站接口返回异常（HTTP ${res.status}，疑似风控拦截）`);
+    throw new Error(`B站接口返回异常（HTTP ${res.status}，疑似风控拦截${hint}）`);
   }
 };
 
@@ -340,6 +340,11 @@ const biliGet = async (url: string): Promise<unknown> => {
     fetch(url, { headers: { 'User-Agent': BILI_UA, Referer: 'https://www.bilibili.com/', Cookie: cookie } });
   let res = await doFetch(await getBiliCookie());
   if (res.status === 412) res = await doFetch(await getBiliCookie(true));
+  if (res.status === 412) {
+    // 诊断：区分「未配置 BILI_COOKIE」与「配置了但 Cookie 失效」
+    const hint = biliEnvCookie ? '；BILI_COOKIE 已配置但凭证可能已失效，请重新获取 Cookie' : '；未配置 BILI_COOKIE（在 Worker 设置里添加后可绕过）';
+    return biliJson(res, hint);
+  }
   return biliJson(res);
 };
 
