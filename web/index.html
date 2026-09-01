@@ -912,7 +912,7 @@ function renderMain() {
 
   const groups = cat.groups.filter((g) => list.some((f) => f.group === g));
   $('main').innerHTML = `<div class="page-counter">
-    <img src="https://count.getloli.com/@nekodayo-tools?theme=original-new&padding=6&scale=1.4&darkmode=auto" alt="访客计数器" loading="lazy" referrerpolicy="no-referrer" />
+    <img src="https://count.getloli.com/@nekodayo-tools-v2?theme=original-new&padding=6&scale=1.4&darkmode=auto" alt="访客计数器" loading="lazy" referrerpolicy="no-referrer" />
     <span>只被看过这么多次喵</span>
   </div>` + groups.map((g) => {
     const cards = list.filter((f) => f.group === g).map((f, i) =>
