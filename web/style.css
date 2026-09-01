@@ -1286,6 +1286,7 @@
   .chat-bubble .daily-link { display: inline-block; margin-top: 4px; font-size: 12px; color: var(--brand); text-decoration: none; }
   .chat-bubble .pig-name { font-size: 14px; font-weight: 700; margin-top: 4px; }
   .chat-bubble img.neko-emote { width: 120px; height: auto; margin-top: 8px; border-radius: 8px; display: block; }
+  .chat-bubble img.bababoi-img { width: 160px; height: auto; margin-top: 6px; border-radius: 8px; display: block; }
   .chat-bubble .pig-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
   .chat-bubble .pig-head .pig-name { margin-top: 0; }
   .chat-bubble .pig-desc { font-size: 12px; color: var(--sub); margin-top: 2px; }

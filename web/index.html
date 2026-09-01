@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/style.css?v=14" />
+<link rel="stylesheet" href="/style.css?v=15" />
 <body>
 <div class="topbar">
   <button class="icon-btn menu-btn" id="menu-btn"></button>
@@ -538,8 +538,9 @@ const EASTER_EGGS = [
 const tryEasterEgg = (text) => {
   if (/^(bababoi|巴巴博弈|巴巴博一)$/i.test(text)) {
     addMsg('neko', esc(pickArr(BABABOI_LINES)));
-    addMsg('neko', '<img src="/images/bababoi.jpg" alt="bababoi" loading="lazy">');
-    new Audio('/images/bababoi.mp3').play().catch(() => {});
+    addMsg('neko', '<img class="bababoi-img" src="/images/bababoi.jpg" alt="bababoi" loading="lazy">');
+    const audio = new Audio('/images/bababoi.mp3');
+    setTimeout(() => audio.play().catch(() => {}), 2000);
     markEgg('bababoi');
     return true;
   }
