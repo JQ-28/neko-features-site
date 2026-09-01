@@ -9,7 +9,7 @@ binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "REPLACE_WITH_KV_ID"
+id = "4221e3d726474d4c88a76536abd5d9f4"
 
 [[r2_buckets]]
 binding = "R2"
