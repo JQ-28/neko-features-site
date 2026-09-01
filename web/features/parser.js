@@ -80,6 +80,64 @@
     }
   };
 
+  /* B站风控拉黑服务器 IP 时扫码登录解锁（凭证存站点 KV） */
+  const loadQrLib = () => new Promise((resolve, reject) => {
+    if (window.qrcode) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('qrcode lib load failed'));
+    document.head.appendChild(s);
+  });
+
+  window.biliQrLogin = async () => {
+    let start;
+    try {
+      start = await (await fetch('/api/parse/bili/login/start')).json();
+    } catch (e) {
+      return addMsg('neko', BILI_QR_TEXTS.genFail + esc(e.message || String(e)));
+    }
+    if (start.error) return addMsg('neko', BILI_QR_TEXTS.genFail + esc(start.error));
+    try {
+      await loadQrLib();
+    } catch {
+      return addMsg('neko', BILI_QR_TEXTS.genFail + '二维码库加载失败');
+    }
+    const qr = window.qrcode(0, 'M');
+    qr.addData(start.url);
+    qr.make();
+    const statusId = `bili-qr-status-${Date.now()}`;
+    addMsg('neko', `${qr.createSvgTag({ cellSize: 4, margin: 2 })}<div class="pdesc" id="${statusId}">${esc(BILI_QR_TEXTS.waiting)}</div>`);
+    const statusEl = document.getElementById(statusId);
+    const deadline = Date.now() + 180_000;
+    const timer = setInterval(async () => {
+      if (!document.getElementById(statusId)) return clearInterval(timer);
+      if (Date.now() > deadline) {
+        clearInterval(timer);
+        statusEl.textContent = BILI_QR_TEXTS.expired;
+        return;
+      }
+      let r;
+      try {
+        r = await (await fetch(`/api/parse/bili/login/poll?key=${encodeURIComponent(start.qrcodeKey)}`)).json();
+      } catch (e) {
+        clearInterval(timer);
+        return addMsg('neko', BILI_QR_TEXTS.pollFail + esc(e.message || String(e)));
+      }
+      if (r.code === 0) {
+        clearInterval(timer);
+        statusEl.textContent = BILI_QR_TEXTS.success;
+      } else if (r.code === 860) {
+        statusEl.textContent = BILI_QR_TEXTS.scanned;
+      } else if (r.code === 86090) {
+        statusEl.textContent = BILI_QR_TEXTS.scanned;
+      } else if (r.code === -4 || r.code === -1) {
+        clearInterval(timer);
+        statusEl.textContent = BILI_QR_TEXTS.expired;
+      }
+    }, 2500);
+  };
+
   window.__features.parser = {
     platforms: true,
     renderer: () =>
@@ -101,7 +159,13 @@
       } catch (e) {
         return addMsg('neko', '呜…解析失败啦喵：' + esc(e.message || String(e)));
       }
-      if (r.error) return addMsg('neko', '这条链接拆不开呀喵…' + esc(r.error));
+      if (r.error) {
+        if (/412|风控/.test(r.error)) {
+          addMsg('neko', esc(BILI_QR_TEXTS.blocked));
+          return window.biliQrLogin();
+        }
+        return addMsg('neko', '这条链接拆不开呀喵…' + esc(r.error));
+      }
       lastParseName = `${r.platformName || r.platform || ''}-${r.title || ''}`;
       const fileBase = sanitizeName(lastParseName);
       const fmtDur = (s) => s ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : '';

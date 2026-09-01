@@ -186,6 +186,15 @@ const EMPTY_TEXT_LINES = [
   'neko等链接等到尾巴都卷起来了喵！快粘贴呀~',
   '没有链接就没法拆包裹了喵，粘一个过来嘛♪',
 ];
+const BILI_QR_TEXTS = {
+  blocked: 'B站把这个服务器的IP拦住了喵…用B站App扫下面的二维码授权一下，解析就能恢复啦（凭证只存在站点KV里）',
+  waiting: '等扫码中喵…掏出B站App扫一扫吧',
+  scanned: '扫到啦！在手机上点「确认登录」喵～',
+  success: '登录成功喵！把刚才的链接再发一遍，马上拆开它～',
+  expired: '二维码过期了喵，再触发一次解析就会重新生成',
+  genFail: '呜…二维码生成失败啦喵：',
+  pollFail: '呜…登录状态查询失败啦喵：',
+};
 const pickArr = (arr) => arr[Math.floor(Math.random() * arr.length)] ?? arr[0];
 /* ────────────────────────────────────────────────
    都翻到这里了喵？！这里是彩蛋清单和全部答案…

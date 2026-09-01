@@ -37,9 +37,29 @@ const resolveRedirect = async (url: string, headers: Record<string, string> = {}
 // ===== B站风控绕过（buvid 指纹激活，参考 nonebot-plugin-parser-lite / SocialSisterYi 文档） =====
 // Cloudflare 数据中心 IP 直接调 B站 API 会 412。必须：spi 拿 buvid3/4 → 组装指纹 payload →
 // murmur3 计算 buvid_fp → POST ExClimbWuzhi 激活，之后携带该组 Cookie 才能过风控。
+// 数据中心 IP 仍被风控标记时，需用户扫码登录（/api/parse/bili/login/*），登录态凭证存 KV。
 const BILI_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15';
 let biliCookieCache: { cookie: string; ts: number } | null = null;
 const BILI_COOKIE_TTL = 6 * 3600_000;
+const BILI_SESS_KV_KEY = 'bili:sess';
+let kvRef: KVNamespace | null = null;
+let biliSessCache: { sess: string; ts: number } | null = null;
+const BILI_SESS_TTL = 5 * 60_000;
+
+interface BiliSess {
+  sessdata?: string;
+  bili_jct?: string;
+  dedeuserid?: string;
+}
+
+const getBiliSess = async (): Promise<BiliSess> => {
+  if (biliSessCache && Date.now() - biliSessCache.ts < BILI_SESS_TTL) return JSON.parse(biliSessCache.sess) as BiliSess;
+  if (!kvRef) return {};
+  const raw = await kvRef.get(BILI_SESS_KV_KEY);
+  const sess = raw ? (JSON.parse(raw) as BiliSess) : {};
+  biliSessCache = { sess: JSON.stringify(sess), ts: Date.now() };
+  return sess;
+};
 
 const parseSetCookies = (res: Response): Record<string, string> => {
   const jar: Record<string, string> = {};
@@ -277,7 +297,12 @@ const getBiliCookie = async (force = false): Promise<string> => {
   const uuid = genUuidInfoc();
   const body = JSON.stringify({ payload: JSON.stringify(EXClimbWuzhiPayload(uuid)) });
   const buvidFp = murmur3Hex(body);
-  const cookie = `buvid3=${b3}; buvid4=${b4}; buvid_fp=${buvidFp}; _uuid=${uuid}; b_nut=${jar.b_nut ?? '100'}`;
+  const parts = [`buvid3=${b3}`, `buvid4=${b4}`, `buvid_fp=${buvidFp}`, `_uuid=${uuid}`, `b_nut=${jar.b_nut ?? '100'}`];
+  const sess = await getBiliSess();
+  if (sess.sessdata) parts.push(`SESSDATA=${sess.sessdata}`);
+  if (sess.bili_jct) parts.push(`bili_jct=${sess.bili_jct}`);
+  if (sess.dedeuserid) parts.push(`DedeUserID=${sess.dedeuserid}`);
+  const cookie = parts.join('; ');
   try {
     await fetch('https://api.bilibili.com/x/internal/gaia-gateway/ExClimbWuzhi', {
       method: 'POST',
@@ -388,7 +413,7 @@ const getDouyinTtwid = async (): Promise<string> => {
 interface DouyinAweme {
   desc?: string;
   author?: { nickname?: string };
-  music?: { play_url?: { uri?: string }; extra?: string };
+  music?: { play_url?: { uri?: string }; extra?: string; is_original_sound?: boolean };
   video?: {
     duration?: number;
     cover?: { url_list?: string[] };
@@ -1270,7 +1295,7 @@ const dispatch = async (rawUrl: string): Promise<ParseResult> => {
 
 const mediaReferer = (host: string): string | undefined => {
   if (/bilivideo\.com$|hdslb\.com$|akamaized\.net$|biliapi\.net$|szbdyd\.com$/.test(host)) return 'https://www.bilibili.com/';
-  if (/snssdk\.com$|douyinvod\.com$|douyinpic\.com$|douyin\.com$|bytecdn\.cn$|bytedance\.com$|ipdlab\.com$/.test(host)) return 'https://www.douyin.com/';
+  if (/snssdk\.com$|douyinvod\.com$|douyinpic\.com$|douyin\.com$|bytecdn\.cn$|bytedance\.com$|ipdlab\.com$|douyinstatic\.com$|oceanctrl\.com$|amemv\.com$/.test(host)) return 'https://www.douyin.com/';
   if (/xhscdn\.com$|xiaohongshu\.com$/.test(host)) return 'https://www.xiaohongshu.com/';
   if (/kuaishou\.com$|yxixy99\.com$|chenzhongtech\.com$|gifshow\.com$|yximgs\.com$/.test(host)) return 'https://www.kuaishou.com/';
   if (/weibo\.cn$|weibo\.com$|sinaimg\.cn$|miaopai\.com$/.test(host)) return 'https://weibo.com/';
@@ -1280,7 +1305,7 @@ const mediaReferer = (host: string): string | undefined => {
   return undefined;
 };
 
-const MEDIA_HOST_ALLOWLIST = /^(?:[\w-]+\.)*(?:bilivideo\.com|hdslb\.com|akamaized\.net|biliapi\.net|szbdyd\.com|snssdk\.com|douyinvod\.com|douyinpic\.com|douyin\.com|bytecdn\.cn|bytedance\.com|byteimg\.com|ipdlab\.com|xhscdn\.com|xiaohongshu\.com|kuaishou\.com|yxixy99\.com|chenzhongtech\.com|gifshow\.com|yximgs\.com|weibo\.cn|weibo\.com|sinaimg\.cn|miaopai\.com|wmpvp\.com|pwesports\.cn|miyoushe\.com|mihoyo\.com|hoyolab\.com|music\.126\.net|netease\.com|acfun\.cn|trsnh\.com|ixigua\.com|tencentvideo\.com|qq\.com|twimg\.com|tencent\.com|ksapiserv\.com|kugou\.com|5eplay\.com)$/;
+const MEDIA_HOST_ALLOWLIST = /^(?:[\w-]+\.)*(?:bilivideo\.com|hdslb\.com|akamaized\.net|biliapi\.net|szbdyd\.com|snssdk\.com|douyinvod\.com|douyinpic\.com|douyin\.com|bytecdn\.cn|bytedance\.com|byteimg\.com|ipdlab\.com|douyinstatic\.com|oceanctrl\.com|amemv\.com|xhscdn\.com|xiaohongshu\.com|kuaishou\.com|yxixy99\.com|chenzhongtech\.com|gifshow\.com|yximgs\.com|weibo\.cn|weibo\.com|sinaimg\.cn|miaopai\.com|wmpvp\.com|pwesports\.cn|miyoushe\.com|mihoyo\.com|hoyolab\.com|music\.126\.net|netease\.com|acfun\.cn|trsnh\.com|ixigua\.com|tencentvideo\.com|qq\.com|twimg\.com|tencent\.com|ksapiserv\.com|kugou\.com|5eplay\.com)$/;
 
 export const parser: Feature = {
   id: 'parser',
@@ -1291,7 +1316,51 @@ export const parser: Feature = {
   group: '媒体解析',
   basePath: '/api/parse',
   register(app: App) {
+    // B站扫码登录：数据中心 IP 被风控拉黑时，用户扫码授权后凭证存 KV，解析请求携带登录态
+    app.get('/api/parse/bili/login/start', async (c) => {
+      try {
+        const res = await fetch('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', {
+          method: 'POST',
+          headers: { 'User-Agent': BILI_UA, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/' },
+        });
+        const json = (await res.json()) as { code?: number; data?: { url?: string; qrcode_key?: string } };
+        if (json.code !== 0 || !json.data?.url || !json.data.qrcode_key) {
+          return c.json({ error: `生成二维码失败（code=${json.code}）` }, 502);
+        }
+        return c.json({ url: json.data.url, qrcodeKey: json.data.qrcode_key });
+      } catch (e) {
+        return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
+      }
+    });
+
+    app.get('/api/parse/bili/login/poll', async (c) => {
+      const key = c.req.query('key') ?? '';
+      if (!key) return c.json({ error: '缺少 key' }, 400);
+      try {
+        const res = await fetch(`https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${encodeURIComponent(key)}`, {
+          headers: { 'User-Agent': BILI_UA, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/' },
+          redirect: 'manual',
+        });
+        const cookieJar = parseSetCookies(res);
+        const json = (await res.json()) as { code?: number; data?: { code?: number; message?: string; url?: string } };
+        if (json.data?.code === 0 && cookieJar.SESSDATA) {
+          const sess: BiliSess = {
+            sessdata: cookieJar.SESSDATA,
+            bili_jct: cookieJar.bili_jct,
+            dedeuserid: cookieJar.DedeUserID,
+          };
+          await c.env.KV.put(BILI_SESS_KV_KEY, JSON.stringify(sess));
+          biliSessCache = null;
+          return c.json({ code: 0 });
+        }
+        return c.json({ code: json.data?.code ?? json.code ?? -1, message: json.data?.message ?? '' });
+      } catch (e) {
+        return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
+      }
+    });
+
     app.post('/api/parse', async (c) => {
+      kvRef = c.env.KV;
       let text = '';
       try {
         ({ text } = await c.req.json<{ text: string }>());
@@ -1334,27 +1403,51 @@ export const parser: Feature = {
       }
       if (!MEDIA_HOST_ALLOWLIST.test(host)) return c.json({ error: '该域名不在允许列表' }, 403);
 
-      const referer = mediaReferer(host);
       const range = c.req.header('range');
       const abort = new AbortController();
       const timer = setTimeout(() => abort.abort(), 15_000);
-      let upstream: Response;
-      try {
-        upstream = await fetch(upgraded, {
-          headers: {
-            'User-Agent': DESKTOP_UA,
-            ...(referer ? { Referer: referer } : {}),
-            ...(range ? { Range: range } : {}),
-          },
-          redirect: 'manual',
-          signal: abort.signal,
-        });
-      } catch (e) {
-        clearTimeout(timer);
-        return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
+      // 手动跟随重定向（抖音 aweme.snssdk.com/aweme/v1/play 302 到真实 CDN），
+      // 每一跳都重新校验白名单并按该跳 host 计算 Referer
+      let upstream: Response | null = null;
+      let current = upgraded;
+      for (let i = 0; i < 5; i++) {
+        let hopHost: string;
+        try {
+          hopHost = new URL(current).hostname;
+        } catch {
+          clearTimeout(timer);
+          return c.json({ error: 'url 无效' }, 400);
+        }
+        if (!MEDIA_HOST_ALLOWLIST.test(hopHost)) {
+          clearTimeout(timer);
+          return c.json({ error: '该域名不在允许列表' }, 403);
+        }
+        const referer = mediaReferer(hopHost);
+        try {
+          upstream = await fetch(current, {
+            headers: {
+              'User-Agent': DESKTOP_UA,
+              ...(referer ? { Referer: referer } : {}),
+              ...(range ? { Range: range } : {}),
+            },
+            redirect: 'manual',
+            signal: abort.signal,
+          });
+        } catch (e) {
+          clearTimeout(timer);
+          return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
+        }
+        const location = upstream.headers.get('location');
+        if (upstream.status >= 300 && upstream.status < 400 && location) {
+          current = new URL(location, current).href;
+          continue;
+        }
+        break;
       }
       clearTimeout(timer);
-      if (upstream.status >= 300 && upstream.status < 400) return c.json({ error: '上游重定向，已拦截' }, 403);
+      if (!upstream || upstream.status >= 300) {
+        return c.json({ error: '上游重定向次数过多' }, 403);
+      }
 
       const headers = new Headers();
       for (const key of ['content-type', 'content-length', 'content-range', 'accept-ranges', 'etag', 'last-modified']) {
