@@ -365,10 +365,67 @@ const biliGet = async (url: string): Promise<unknown> => {
   return biliJson(res);
 };
 
+// 第三方解析兜底：数据中心 IP 被风控时降级调 api.nobb.cc（返回视频信息 + 播放直链）
+interface BiliFallbackResult {
+  success?: boolean;
+  data?: {
+    video_info?: {
+      title?: string;
+      cover?: string;
+      duration?: number;
+      desc?: string;
+      owner?: { name?: string };
+    };
+    play_info?: {
+      video_info?: { url?: string; size?: number };
+    };
+  };
+}
+
+const parseBilibiliFallback = async (bv: string, page: string | undefined): Promise<ParseResult> => {
+  const res = await fetch(
+    `https://api.nobb.cc/bili_video/?bv=${bv}&p=${page ?? '1'}&q=64&format=mp4&otype=json`,
+    { headers: { 'User-Agent': BILI_UA } }
+  );
+  const json = (await biliJson(res)) as BiliFallbackResult;
+  if (!json.success || !json.data) throw new Error('B站解析失败（兜底接口异常）');
+  const v = json.data.video_info ?? {};
+  const playUrl = json.data.play_info?.video_info?.url;
+  if (!v.title) throw new Error('B站解析失败（兜底接口未返回标题）');
+  return {
+    platform: 'bilibili',
+    platformName: '哔哩哔哩',
+    title: v.title,
+    author: v.owner?.name,
+    cover: v.cover,
+    desc: v.desc?.slice(0, 200),
+    duration: v.duration,
+    videos: playUrl ? [playUrl] : [],
+  };
+};
+
 const parseBilibili = async (url: string): Promise<ParseResult> => {
   const bv = url.match(/BV[0-9A-Za-z]+/)?.[0];
   const avid = url.match(/av(\d+)/i)?.[1];
   if (!bv && !avid) throw new Error('未识别到 BV/av 号');
+  const page = url.match(/[?&]p=(\d+)/)?.[1];
+  try {
+    return await parseBilibiliDirect(url, bv, avid, page);
+  } catch (e) {
+    // 官方接口被风控拦截（412）时降级第三方解析
+    if (e instanceof Error && /412|风控/.test(e.message) && bv) {
+      return parseBilibiliFallback(bv, page);
+    }
+    throw e;
+  }
+};
+
+const parseBilibiliDirect = async (
+  url: string,
+  bv: string | undefined,
+  avid: string | undefined,
+  page: string | undefined
+): Promise<ParseResult> => {
   const json = (await biliGet(`https://api.bilibili.com/x/web-interface/view?${bv ? `bvid=${bv}` : `aid=${avid}`}`)) as {
     code?: number;
     message?: string;
@@ -386,7 +443,6 @@ const parseBilibili = async (url: string): Promise<ParseResult> => {
   };
   if (json.code !== 0 || !json.data) throw new Error(json.message ?? 'B站解析失败');
   const d = json.data;
-  const page = url.match(/[?&]p=(\d+)/)?.[1];
   const cid = page ? d.pages?.[Number(page) - 1]?.cid : (d.cid ?? d.pages?.[0]?.cid);
   if (!cid) throw new Error('未找到视频 cid');
 
