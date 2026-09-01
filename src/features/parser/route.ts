@@ -43,6 +43,7 @@ let biliCookieCache: { cookie: string; ts: number } | null = null;
 const BILI_COOKIE_TTL = 6 * 3600_000;
 const BILI_SESS_KV_KEY = 'bili:sess';
 let kvRef: KVNamespace | null = null;
+let biliEnvCookie: string | null = null;
 let biliSessCache: { sess: string; ts: number } | null = null;
 const BILI_SESS_TTL = 5 * 60_000;
 
@@ -266,6 +267,8 @@ const EXClimbWuzhiPayload = (uuid: string): Record<string, unknown> => ({
 });
 
 const getBiliCookie = async (force = false): Promise<string> => {
+  // 后台配置的完整 Cookie（含 SESSDATA）优先级最高，可直接过风控
+  if (biliEnvCookie) return biliEnvCookie;
   if (!force && biliCookieCache && Date.now() - biliCookieCache.ts < BILI_COOKIE_TTL) return biliCookieCache.cookie;
   const jar: Record<string, string> = {};
   try {
@@ -1316,34 +1319,68 @@ export const parser: Feature = {
   group: '媒体解析',
   basePath: '/api/parse',
   register(app: App) {
-    // B站登录态提交：数据中心 IP 连 passport 扫码接口都被拦，只能由用户从浏览器复制 SESSDATA 手动提交
-    app.post('/api/parse/bili/cookie', async (c) => {
+    // B站扫码登录：数据中心 IP 被风控拉黑时，用户扫码授权后凭证存 KV，解析请求携带登录态
+    app.get('/api/parse/bili/login/start', async (c) => {
       kvRef = c.env.KV;
-      let sessdata = '';
+      biliEnvCookie = c.env.BILI_COOKIE ?? null;
       try {
-        ({ sessdata } = await c.req.json<{ sessdata: string }>());
-      } catch {
-        return c.json({ error: '请求体格式错误' }, 400);
-      }
-      sessdata = sessdata.trim().replace(/^SESSDATA=/i, '').replace(/;.*$/, '').trim();
-      if (!sessdata) return c.json({ error: 'SESSDATA 不能为空' }, 400);
-      let valid = false;
-      try {
-        const res = await fetch('https://api.bilibili.com/x/web-interface/nav', {
-          headers: { 'User-Agent': BILI_UA, Referer: 'https://www.bilibili.com/', Cookie: `SESSDATA=${sessdata}` },
+        const res = await fetch('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', {
+          method: 'POST',
+          headers: {
+            'User-Agent': BILI_UA,
+            Origin: 'https://www.bilibili.com',
+            Referer: 'https://www.bilibili.com/',
+            Cookie: await getBiliCookie(),
+          },
         });
-        const json = (await biliJson(res)) as { code?: number; data?: { isLogin?: boolean } };
-        valid = json.data?.isLogin === true;
-      } catch {
-        // 校验接口本身被风控拦时跳过校验，直接保存
+        const json = (await biliJson(res)) as { code?: number; data?: { url?: string; qrcode_key?: string } };
+        if (json.code !== 0 || !json.data?.url || !json.data.qrcode_key) {
+          return c.json({ error: `生成二维码失败（code=${json.code}）` }, 502);
+        }
+        return c.json({ url: json.data.url, qrcodeKey: json.data.qrcode_key });
+      } catch (e) {
+        return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
       }
-      await c.env.KV.put(BILI_SESS_KV_KEY, JSON.stringify({ sessdata } satisfies BiliSess));
-      biliSessCache = null;
-      return c.json({ ok: true, valid });
+    });
+
+    app.get('/api/parse/bili/login/poll', async (c) => {
+      kvRef = c.env.KV;
+      biliEnvCookie = c.env.BILI_COOKIE ?? null;
+      const key = c.req.query('key') ?? '';
+      if (!key) return c.json({ error: '缺少 key' }, 400);
+      try {
+        const res = await fetch(`https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${encodeURIComponent(key)}`, {
+          headers: {
+            'User-Agent': BILI_UA,
+            Origin: 'https://www.bilibili.com',
+            Referer: 'https://www.bilibili.com/',
+            Cookie: await getBiliCookie(),
+          },
+          redirect: 'manual',
+        });
+        const cookieJar = parseSetCookies(res);
+        const json = (await biliJson(res)) as { code?: number; data?: { code?: number; message?: string; url?: string } };
+        if (json.data?.code === 0 && cookieJar.SESSDATA) {
+          const sess: BiliSess = {
+            sessdata: cookieJar.SESSDATA,
+            bili_jct: cookieJar.bili_jct,
+            dedeuserid: cookieJar.DedeUserID,
+          };
+          await c.env.KV.put(BILI_SESS_KV_KEY, JSON.stringify(sess));
+          biliSessCache = null;
+          return c.json({ code: 0 });
+        }
+        // B站 poll 未扫码时 data.code 也为 0（但无 SESSDATA），归一化为 1 避免前端误判成功
+        const code = json.data?.code === 0 ? 1 : (json.data?.code ?? json.code ?? -1);
+        return c.json({ code, message: json.data?.message ?? '' });
+      } catch (e) {
+        return c.json({ error: e instanceof Error ? e.message : String(e) }, 502);
+      }
     });
 
     app.post('/api/parse', async (c) => {
       kvRef = c.env.KV;
+      biliEnvCookie = c.env.BILI_COOKIE ?? null;
       let text = '';
       try {
         ({ text } = await c.req.json<{ text: string }>());

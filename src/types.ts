@@ -13,6 +13,7 @@ export interface Env {
   REMOVE_BG_KEY?: string;
   SAUCENAO_KEY?: string;
   EXHENTAI_COOKIE?: string;
+  BILI_COOKIE?: string;
 }
 
 export type App = Hono<{ Bindings: Env }>;
