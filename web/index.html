@@ -1088,7 +1088,7 @@ const renderEggPanel = () => {
     + Object.entries(EGGS).map(([id, name], i) => {
       const got = eggFound.has(id);
       const revealed = !got && eggRevealed.has(id);
-      return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div>${got ? '' : `<div class="egg-hint">${esc(EGG_HINTS[id] ?? '')}</div>`}</div></div>`;
+      return `<div class="egg-item${got ? '' : ' locked'}${revealed ? ' show-hint' : ''}" data-egg="${id}" style="animation-delay:${Math.min(i * 18, 360)}ms"><span class="mark ${got ? 'ok' : 'lock'}">${got ? EGG_OK_ICON : EGG_LOCK_ICON}</span><div class="egg-body"><div class="egg-name">${esc(name)}</div><div class="egg-hint${got ? ' done' : ''}">${esc(EGG_HINTS[id] ?? '')}</div></div></div>`;
     }).join('');
 };
 /* 没收集的彩蛋可以戳：1 次抖一下，2 次 neko 吐槽，3 次欲言又止，4 次揭晓答案 */

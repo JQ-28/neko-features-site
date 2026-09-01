@@ -1424,6 +1424,7 @@
     transition: max-height .25s var(--ease-out), opacity .25s var(--ease-out), margin .25s var(--ease-out);
   }
   .egg-item.show-hint .egg-hint { max-height: 60px; opacity: 1; margin-top: 3px; }
+  .egg-item .egg-hint.done { max-height: 60px; opacity: .72; margin-top: 3px; color: var(--sub); }
   .egg-item .mark { flex: none; width: 20px; height: 20px; display: flex; align-items: center; color: var(--accent-green, #2fbf71); }
   .egg-item.locked .mark { color: var(--sub); }
   .egg-item .mark svg { width: 17px; height: 17px; }
