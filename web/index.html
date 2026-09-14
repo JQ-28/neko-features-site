@@ -1306,7 +1306,7 @@ renderAccentDots();
 let themeFlips = 0;
 $('theme-toggle').onchange = (e) => {
   applyTheme(e.target.checked);
-  if (++themeFlips === EGG_THRESHOLDS.themeTen) markEgg('themeTen', pickArr(THEME_TEN_LINES));
+  if (++themeFlips >= EGG_THRESHOLDS.themeTen) markEgg('themeTen', pickArr(THEME_TEN_LINES));
 };
 
 /* 节日彩蛋（公历节日 + 近两年农历节日硬编码） */
