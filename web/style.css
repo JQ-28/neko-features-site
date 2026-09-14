@@ -1846,21 +1846,28 @@
     opacity: 0; transition: opacity .24s var(--ease-out), transform .24s var(--ease-out);
   }
   .voice-hint.show { opacity: 1; transform: translate(-50%, 0); }
-  .voice-orb { position: relative; display: grid; place-items: center; width: 104px; height: 104px; }
+  .voice-orb {
+    position: relative; display: grid; place-items: center; width: 104px; height: 104px;
+    padding: 0; border: 0; border-radius: 50%; background: none;
+    pointer-events: auto; cursor: pointer;
+    animation: neko-voice-breathe 1.4s var(--ease-out) infinite;
+  }
   .voice-ring {
-    position: absolute; inset: 0; border: 2px solid rgba(255, 95, 143, .7); border-radius: 50%;
+    position: absolute; inset: 0; border-radius: 50%;
+    background: linear-gradient(135deg, #ff9ec8, #7cc4ff);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
     animation: neko-voice-ripple 2s var(--ease-out) infinite;
   }
   .voice-ring.slow { animation-delay: 1s; }
   @keyframes neko-voice-ripple {
-    0% { opacity: .75; transform: scale(1); }
+    0% { opacity: .8; transform: scale(1); }
     100% { opacity: 0; transform: scale(1.9); }
   }
   .voice-ico {
     position: relative; z-index: 1; display: flex; align-items: center; justify-content: center;
-    width: 104px; height: 104px; border: 2px solid rgba(255, 95, 143, .45); border-radius: 50%;
-    background: var(--card); color: #ff5f8f; box-shadow: 0 12px 32px rgba(255, 95, 143, .28);
-    animation: neko-voice-breathe 1.4s var(--ease-out) infinite;
+    width: 100%; height: 100%; border-radius: 50%;
+    background: var(--card); box-shadow: 0 12px 32px rgba(255, 158, 200, .32);
   }
   .voice-ico svg { display: block; width: 42px; height: 42px; }
   @keyframes neko-voice-breathe {
@@ -1869,11 +1876,16 @@
   }
   .voice-text {
     margin: 0; padding: 5px 16px; border-radius: 999px;
-    background: var(--card); box-shadow: 0 4px 14px rgba(255, 95, 143, .22);
-    color: #ff5f8f; font-size: 13px; font-weight: 600; letter-spacing: .08em;
+    background: var(--card); box-shadow: 0 4px 14px rgba(255, 158, 200, .24);
+    font-size: 13px; font-weight: 600; letter-spacing: .08em;
   }
-  html.dark .voice-ico { border-color: rgba(255, 143, 180, .5); box-shadow: 0 12px 32px rgba(0, 0, 0, .45); }
-  html.dark .voice-text { color: #ff8fb4; }
+  .voice-text span {
+    background-image: linear-gradient(135deg, #ff9ec8, #7cc4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  html.dark .voice-ico { box-shadow: 0 12px 32px rgba(0, 0, 0, .45); }
 
   .chat-bubble .neko-card {
     margin-top: 10px; padding: 10px 12px;
@@ -1914,7 +1926,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .qq-footer #qq-voice.listening { animation: none; }
-    .voice-ico { animation: none; }
+    .voice-orb { animation: none; }
     .voice-ring { animation: none; opacity: .35; }
     .sw-ready { transition: none; transform: translate(-50%, 0); }
   }
