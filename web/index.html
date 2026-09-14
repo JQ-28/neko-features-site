@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/style.css?v=16" />
+<link rel="stylesheet" href="/style.css?v=17" />
 <body>
 <div class="topbar">
   <button class="icon-btn menu-btn" id="menu-btn"></button>
@@ -152,7 +152,7 @@
     </div>
     <div class="panel" id="m-body"></div>
     <div class="qq-footer">
-      <div><svg viewBox="0 0 384 512"><path fill="currentColor" d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"/></svg></div>
+      <div id="qq-voice" role="button" tabindex="0" title="语音输入" aria-label="语音输入"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M192 0C139 0 96 43 96 96V256c0 53 43 96 96 96s96-43 96-96V96c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 70.7-57.3 128-128 128s-128-57.3-128-128V216z"/></svg></div>
       <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg></div>
       <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/></svg></div>
       <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V192c0-35.3-28.7-64-64-64H80c-8.8 0-16-7.2-16-16s7.2-16 16-16H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H64zM416 272a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg></div>
@@ -161,25 +161,6 @@
     </div>
   </div>
 </div>
-
-<button class="neko-fab" id="neko-fab" type="button" title="问问neko喵" aria-label="问问neko"></button>
-<section class="neko-dock" id="neko-dock" hidden aria-label="问问neko">
-  <header class="neko-dock-head">
-    <span class="neko-dock-avatar"></span>
-    <h2>问问neko</h2>
-    <button class="neko-dock-btn" id="neko-dock-clear" type="button" title="清空聊天记录"></button>
-    <button class="neko-dock-btn" id="neko-dock-close" type="button" title="收起"></button>
-  </header>
-  <div class="neko-dock-chat" id="neko-dock-chat"></div>
-  <div class="neko-dock-panel">
-    <input id="neko-dock-input" type="text" autocomplete="off" spellcheck="false" placeholder="问点什么都行喵～比如：怎么解析B站链接" />
-    <button class="act" id="neko-dock-send" type="button">发送</button>
-  </div>
-  <div class="neko-dock-foot">
-    <button class="neko-dock-tool" id="neko-dock-voice" type="button" title="语音输入" aria-label="语音输入"></button>
-    <span class="neko-dock-tip" id="neko-dock-tip">按回车发送，也可以点麦克风说话喵</span>
-  </div>
-</section>
 
 <div class="sw-ready" id="sw-ready" hidden>
   <span>新版本就绪喵～</span>
@@ -310,7 +291,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=21"></script>
+<script src="/texts.js?v=22"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -509,7 +490,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v14'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v15'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -1412,7 +1393,7 @@ document.addEventListener('pointermove', (e) => {
   }
 }, { passive: true });
 
-/* 全按钮巡礼彩蛋：把功能窗口底部那排 6 个工具按钮（麦克风/图片/相机等）挨个点一遍 */
+/* 全按钮巡礼彩蛋：把功能窗口底部那排工具按钮（图片/相机等，麦克风已改作语音输入）挨个点一遍 */
 const footerTapped = new Set(
   (() => { try { return JSON.parse(localStorage.getItem('neko-footer-tour') || '[]'); } catch { return []; } })()
 );
@@ -1422,8 +1403,8 @@ document.querySelector('.qq-footer')?.addEventListener('click', (e) => {
   if (footerTapped.has(idx)) { toast(FOOTER_TAP_LINES[idx]); return; }
   footerTapped.add(idx);
   try { localStorage.setItem('neko-footer-tour', JSON.stringify([...footerTapped])); } catch { /* 隐私模式忽略 */ }
-  if (footerTapped.size >= 6) markEgg('footerTour', pickArr(FOOTER_TOUR_LINES));
-  else toast(`${FOOTER_TAP_LINES[idx]}（${footerTapped.size}/6 喵）`);
+  if (footerTapped.size >= 5) markEgg('footerTour', pickArr(FOOTER_TOUR_LINES));
+  else toast(`${FOOTER_TAP_LINES[idx]}（${footerTapped.size}/5 喵）`);
 });
 
 /* 控制台召唤：输入 neko 看猫叫动画（彩蛋之外的小乐趣，手机端不依赖） */
@@ -1953,51 +1934,26 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   });
 }
 
-/* ─────────────── neko 悬浮窗：全站 AI 闲聊 + 指令路由 + 语音输入 ─────────────── */
+/* ─────────────── neko 助手：各功能聊天窗共用的 AI 问答 + 语音输入 ─────────────── */
 {
   const ROUTE_API = 'https://docs.nekodayo.top/api/command-route';
+  const ASR_API = 'https://docs.nekodayo.top/api/asr';
   const DOCS_ORIGIN = 'https://docs.nekodayo.top';
-  const HIST_KEY = 'neko-dock-history';
-  const HIST_MAX = 40;
   const QUERY_MAX = 50;
   const LONG_TEXT_MAX = 500;
-  const VOICE_SILENCE_MS = 1600;
-  const VOICE_START_TIMEOUT_MS = 3000;
-  const GREETING = '你好喵~ 我是 neko！说说你想做什么，我来帮你找到对应的功能或指令。';
+  const HIST_MAX = 12;
   const BUSY = 'neko 现在有点忙喵，稍后再试试吧~';
-  const DEFAULT_TIP = '按回车发送，也可以点麦克风说话喵';
   const HIT_REPLIES = ['找到啦喵！下面这些应该能帮到你～', '喵！这几个可能就是你想要的～', '按这个来喵，点一下就能用！'];
   const MISS_REPLIES = ['唔…neko 没找到特别合适的喵，换个说法再试试？', '没匹配到指令喵，说具体一点我再来找～', '这条 neko 拿不准喵，可以去文档站翻翻看～'];
 
-  const fab = $('neko-fab');
-  const dock = $('neko-dock');
-  const chatBox = $('neko-dock-chat');
-  const prompt = $('neko-dock-input');
-  const tip = $('neko-dock-tip');
-  const voiceBtn = $('neko-dock-voice');
-  const clearBtn = $('neko-dock-clear');
-
-  $('neko-dock-close').innerHTML = svg('x-lg', 16);
-  clearBtn.innerHTML = svg('trash', 16);
-  voiceBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>';
-
-  const readLocal = (key, fallback) => {
-    try {
-      const list = JSON.parse(localStorage.getItem(key) || 'null');
-      return Array.isArray(list) ? list : fallback;
-    } catch { return fallback; }
-  };
-  let messages = readLocal(HIST_KEY, []).filter((m) => m && typeof m.text === 'string');
-  const persist = () => {
-    try { localStorage.setItem(HIST_KEY, JSON.stringify(messages.slice(-HIST_MAX))); } catch { /* 隐私模式忽略 */ }
-  };
+  const chatOf = (box) => box ?? $('m-chat');
 
   const cardHTML = (results) => results.map((r) => {
     const cmd = r.command
       ? `<code class="neko-card-cmd">${esc(r.command)}</code>${copyBtn(r.command)}`
       : '';
     const open = r.openId
-      ? `<button type="button" class="cp-btn" onclick="nekoDockOpen('${esc(r.openId)}')">打开功能</button>`
+      ? `<button type="button" class="cp-btn" onclick="nekoOpenFeature('${esc(r.openId)}')">打开功能</button>`
       : '';
     const link = r.link
       ? `<a class="cp-btn" href="${DOCS_ORIGIN}${esc(r.link)}" target="_blank" rel="noopener">去文档看看</a>`
@@ -2006,18 +1962,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     return `<div class="neko-card"><div class="neko-card-title">${esc(r.title)}</div>${hint}<div class="neko-card-foot">${cmd}${open}${link}</div></div>`;
   }).join('');
 
-  const paint = (msg) => {
-    if (msg.role === 'user') return addMsg('user', esc(msg.text), chatBox);
-    const el = addMsg('neko', esc(msg.text) + (msg.results?.length ? cardHTML(msg.results) : ''), chatBox);
-    const emote = msg.emote ?? emoteForText(msg.text);
-    if (emote) addEmote(el, emote);
-    return el;
-  };
-  const pushMessage = (msg) => {
-    paint(msg);
-    messages.push(msg);
-    persist();
-  };
+  window.nekoOpenFeature = (id) => void openFeature(id);
 
   /* AI 不可用时的兜底：按关键词在功能站自己的功能列表里找 */
   const localResults = (query) => {
@@ -2029,39 +1974,41 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       return grams.some((g) => hay.includes(g));
     }).slice(0, 3).map((f) => ({ title: f.name, hint: f.desc ?? '', openId: f.id }));
   };
-  const historyPayload = () => messages.slice(-6).map((m) => ({
-    role: m.role === 'user' ? 'user' : 'assistant',
-    text: m.results?.length ? `${m.text}（推荐：${m.results.map((r) => r.title).join('、')}）` : m.text,
-  }));
 
-  let dockBusy = false;
-  const submit = async (rawInput) => {
-    const raw = (rawInput ?? prompt.value).trim();
-    if (!raw || dockBusy) return;
-    prompt.value = '';
-    stopVoice(false);
-    const history = historyPayload();
+  const history = [];
+  const remember = (role, text) => {
+    history.push({ role, text });
+    if (history.length > HIST_MAX) history.splice(0, history.length - HIST_MAX);
+  };
+
+  let askBusy = false;
+  /* 功能窗里输入的内容不符合本功能格式时，交给 neko 用 AI 回答 */
+  window.nekoAsk = async (rawInput, box) => {
+    const raw = (rawInput || '').trim();
+    if (!raw || askBusy) return;
+    const target = chatOf(box);
 
     if (raw.length > LONG_TEXT_MAX) {
-      addEmote(addMsg('neko', esc(pickArr(LONG_TEXT_LINES)), chatBox), 'daze');
       markEgg('longText');
-      return;
+      return addEmote(addMsg('neko', esc(pickArr(LONG_TEXT_LINES)), target), 'daze');
     }
-    if (tryEggInChat(raw, chatBox)) return;
+    if (tryEggInChat(raw, target)) return;
     if (raw.length > QUERY_MAX) {
-      addMsg('user', esc(raw), chatBox);
-      addMsg('neko', `这条有点长喵（超过 ${QUERY_MAX} 字啦），挑个关键词再说一次吧～`, chatBox);
+      addMsg('user', esc(raw), target);
+      addMsg('neko', `这条有点长喵（超过 ${QUERY_MAX} 字啦），挑个关键词再说一次吧～`, target);
       return;
     }
 
-    pushMessage({ role: 'user', text: raw });
-    dockBusy = true;
-    const typing = addTyping(chatBox);
+    const payloadHistory = history.slice(-6);
+    remember('user', raw);
+    addMsg('user', esc(raw), target);
+    askBusy = true;
+    const typing = target.querySelector('.chat-msg.typing') ? null : addTyping(target);
     try {
       const resp = await fetch(ROUTE_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: raw, history }),
+        body: JSON.stringify({ query: raw, history: payloadHistory }),
       });
       if (!resp.ok) throw new Error(String(resp.status));
       const data = await resp.json();
@@ -2071,95 +2018,86 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
         link: m.link ?? '',
         hint: (m.keywords ?? []).slice(0, 3).join('、'),
       }));
-      if (results.length) pushMessage({ role: 'neko', text: data.reply || pickArr(HIT_REPLIES), results });
-      else pushMessage({ role: 'neko', text: data.reply || pickArr(MISS_REPLIES) });
+      const reply = data.reply || pickArr(results.length ? HIT_REPLIES : MISS_REPLIES);
+      const el = addMsg('neko', esc(reply) + cardHTML(results), target);
+      const emote = emoteForText(reply);
+      if (emote) addEmote(el, emote);
+      remember('assistant', results.length ? `${reply}（推荐：${results.map((r) => r.title).join('、')}）` : reply);
     } catch {
       const local = localResults(raw);
-      if (local.length) pushMessage({ role: 'neko', text: 'AI 那边没连上喵，不过功能站里倒是有这些～', results: local });
-      else pushMessage({ role: 'neko', text: BUSY });
+      if (local.length) addMsg('neko', 'AI 那边没连上喵，不过功能站里倒是有这些～' + cardHTML(local), target);
+      else addMsg('neko', BUSY, target);
     } finally {
-      typing.remove();
-      dockBusy = false;
+      typing?.remove();
+      askBusy = false;
     }
   };
 
-  let closeTimer = 0;
-  const openDock = () => {
-    clearTimeout(closeTimer);
-    dock.hidden = false;
-    requestAnimationFrame(() => dock.classList.add('open'));
-    if (!chatBox.children.length) {
-      if (messages.length) messages.forEach(paint);
-      else pushMessage({ role: 'neko', text: GREETING });
-    }
-    if (window.matchMedia('(min-width: 781px)').matches) setTimeout(() => prompt.focus(), 120);
-  };
-  const closeDock = () => {
-    stopVoice(false);
-    dock.classList.remove('open');
-    closeTimer = setTimeout(() => { dock.hidden = true; }, 220);
-  };
-  fab.onclick = () => { if (dock.classList.contains('open')) closeDock(); else openDock(); };
-  $('neko-dock-close').onclick = closeDock;
-  $('neko-dock-send').onclick = () => void submit();
-  prompt.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); void submit(); }
-  });
-  window.nekoDockOpen = (id) => { closeDock(); void openFeature(id); };
+  /* ── 语音输入：电脑边说边出字，手机录音上传转写；结果写进当前功能窗的输入框并自动提交 ── */
+  const VOICE_SILENCE_MS = 1600;
+  const VOICE_RECORD_MAX_MS = 30_000;
+  const VOICE_START_TIMEOUT_MS = 3000;
+  const RECORD_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
 
-  let clearArmed = false;
-  let clearTimer = 0;
-  clearBtn.onclick = () => {
-    if (!clearArmed) {
-      clearArmed = true;
-      tip.textContent = '再点一次就清空聊天记录喵';
-      clearTimer = setTimeout(() => { clearArmed = false; tip.textContent = DEFAULT_TIP; }, 4000);
-      return;
-    }
-    clearTimeout(clearTimer);
-    clearArmed = false;
-    tip.textContent = DEFAULT_TIP;
-    messages = [];
-    persist();
-    chatBox.innerHTML = '';
-    pushMessage({ role: 'neko', text: GREETING });
-  };
+  const voiceBtn = $('qq-voice');
+  const voiceTarget = () => $('m-body').querySelector('textarea, input[type="text"]:not([disabled]), input:not([type]):not([disabled])');
+  const setListening = (on) => voiceBtn.classList.toggle('listening', on);
+  const setTip = (text) => toast(text);
 
-  const hasModalOpen = () =>
-    $('cmd-mask').classList.contains('open')
-    || $('pref-mask').classList.contains('open')
-    || $('egg-panel-mask').classList.contains('open')
-    || $('lightbox').classList.contains('open')
-    || $('mask').classList.contains('open')
-    || (!$('weather-mask').hidden && $('weather-mask').classList.contains('open'));
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape' || !dock.classList.contains('open') || hasModalOpen()) return;
-    closeDock();
-    e.stopPropagation();
-  }, true);
-
-  /* ── 语音输入：Web Speech API，静音后自动发送 ── */
-  const SpeechCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
-  let listening = false;
-  let voiceFinal = '';
-  let voiceInterim = '';
+  let recorder = null;
+  let recordStream = null;
+  let recordChunks = [];
+  let finalText = '';
+  let interimText = '';
+  let mode = null;
+  let pendingSubmit = false;
   let silenceTimer = 0;
   let startTimer = 0;
+  let recordTimer = 0;
 
-  const voiceText = () => `${voiceFinal}${voiceInterim}`.trim();
-  const setTip = (text) => { tip.textContent = text || DEFAULT_TIP; };
+  const voiceText = () => `${finalText}${interimText}`.trim();
+  const resetVoiceText = () => { finalText = ''; interimText = ''; };
   const scheduleVoiceSubmit = () => {
     clearTimeout(silenceTimer);
-    silenceTimer = setTimeout(() => stopVoice(Boolean(voiceText())), VOICE_SILENCE_MS);
+    silenceTimer = setTimeout(() => { if (voiceText()) stopVoice(true); }, VOICE_SILENCE_MS);
   };
+  const pickRecordMime = () => RECORD_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
+  const releaseRecordStream = () => {
+    recordStream?.getTracks().forEach((track) => track.stop());
+    recordStream = null;
+  };
+  const toBase64 = (bytes) => {
+    let binary = '';
+    for (let offset = 0; offset < bytes.length; offset += 8192) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+    }
+    return btoa(binary);
+  };
+  const sendVoiceText = (text) => {
+    const input = voiceTarget();
+    if (!input || !currentFeatureId) return;
+    input.value = text;
+    void window.__run(currentFeatureId);
+  };
+
   function stopVoice(submitText = false) {
     clearTimeout(silenceTimer);
     clearTimeout(startTimer);
+    clearTimeout(recordTimer);
+    const currentRecorder = recorder;
+    if (currentRecorder && currentRecorder.state !== 'inactive') {
+      pendingSubmit = submitText;
+      currentRecorder.stop();
+      return;
+    }
+    releaseRecordStream();
+    const text = voiceText();
+    resetVoiceText();
+    mode = null;
+    setListening(false);
     const current = recognition;
     recognition = null;
-    listening = false;
-    voiceBtn.classList.remove('listening');
     if (current) {
       current.onstart = null;
       current.onresult = null;
@@ -2167,79 +2105,152 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       current.onend = null;
       try { current.abort(); } catch { /* 已经结束了 */ }
     }
-    const text = voiceText();
-    voiceFinal = '';
-    voiceInterim = '';
-    if (submitText || prompt.value === text) prompt.value = '';
-    setTip(DEFAULT_TIP);
-    if (submitText && text) void submit(text);
+    if (submitText && text) sendVoiceText(text);
   }
-  const startVoice = () => {
-    if (!SpeechCtor) return setTip('这个浏览器不支持语音喵，试试 Chrome 或 Edge，或者直接用键盘打字吧～');
-    voiceFinal = '';
-    voiceInterim = '';
+
+  async function finishRecording() {
+    const shouldSubmit = pendingSubmit;
+    pendingSubmit = false;
+    recorder = null;
+    releaseRecordStream();
+    const blob = new Blob(recordChunks, { type: recordChunks[0]?.type || 'audio/webm' });
+    recordChunks = [];
+    if (!shouldSubmit || !blob.size) {
+      setListening(false);
+      return;
+    }
+    setTip('转写中喵…');
+    try {
+      const resp = await fetch(ASR_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio: toBase64(new Uint8Array(await blob.arrayBuffer())) }),
+      });
+      if (!resp.ok) throw new Error(String(resp.status));
+      const text = ((await resp.json()).text ?? '').trim();
+      if (!text) setTip('没听清喵，再说一次试试？');
+      else sendVoiceText(text);
+    } catch {
+      setTip('语音识别服务连不上喵，稍后再试，或者用键盘打字吧～');
+    } finally {
+      setListening(false);
+    }
+  }
+
+  function startRecording() {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      return setTip('这个浏览器录不了音喵，试试 Chrome 或 Edge，或者直接用键盘打字吧～');
+    }
+    mode = 'record';
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      if (mode !== 'record') {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      recordStream = stream;
+      recordChunks = [];
+      const mime = pickRecordMime();
+      const current = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      recorder = current;
+      current.ondataavailable = (event) => { if (event.data.size > 0) recordChunks.push(event.data); };
+      current.onstop = () => { void finishRecording(); };
+      current.start();
+      setListening(true);
+      setTip('在录了喵…说完再点一下麦克风～');
+      recordTimer = setTimeout(() => { if (mode === 'record') stopVoice(true); }, VOICE_RECORD_MAX_MS);
+    }).catch(() => {
+      mode = null;
+      releaseRecordStream();
+      setTip('麦克风权限被拒绝了喵，去浏览器设置里允许一下～');
+    });
+  }
+
+  function startSpeech(SpeechCtor) {
+    // SpeechRecognition 实例 start 后不可复用，每次重新创建，避免二次 start 抛 InvalidStateError
     const current = new SpeechCtor();
+    recognition = current;
+    mode = 'speech';
+    resetVoiceText();
     current.lang = 'zh-CN';
     current.continuous = true;
     current.interimResults = true;
     current.maxAlternatives = 1;
-    recognition = current;
-    startTimer = setTimeout(() => {
-      if (listening) return;
-      stopVoice(false);
-      setTip('语音好像没启动成功，检查一下麦克风权限喵～');
-    }, VOICE_START_TIMEOUT_MS);
     current.onstart = () => {
       clearTimeout(startTimer);
-      listening = true;
-      voiceBtn.classList.add('listening');
-      setTip('在听了喵…说完停顿一下就会自动发送～');
+      setListening(true);
+      setTip('在听了喵…说完停顿一下就自动发送～');
     };
     current.onresult = (event) => {
-      voiceFinal = '';
-      voiceInterim = '';
-      for (let i = 0; i < event.results.length; i += 1) {
-        const result = event.results[i];
-        if (result.isFinal) voiceFinal += result[0].transcript;
-        else voiceInterim += result[0].transcript;
+      let interim = '';
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results.item(index);
+        if (result.isFinal) finalText += result.item(0).transcript;
+        else interim += result.item(0).transcript;
       }
-      prompt.value = voiceText();
+      interimText = interim;
+      const input = voiceTarget();
+      if (input) input.value = voiceText();
       scheduleVoiceSubmit();
     };
     current.onerror = (event) => {
-      const reason = event.error;
-      listening = false;
-      voiceBtn.classList.remove('listening');
-      if (reason === 'aborted') return;
-      if (reason === 'no-speech') return setTip('没听到声音喵，再点一次麦克风试试～');
-      if (reason === 'not-allowed' || reason === 'service-not-allowed') return setTip('麦克风权限被拒绝了喵，去浏览器设置里允许一下～');
-      if (reason === 'network') return setTip('连不上语音识别服务喵，换 Edge 试试，或者直接用键盘打字吧～');
-      setTip('语音识别断开了喵，再点一次麦克风试试～');
+      if (event.error === 'aborted') return;
+      const heard = voiceText();
+      if (event.error === 'no-speech') {
+        if (heard) return stopVoice(true);
+        stopVoice(false);
+        return setTip('没听到声音喵，再点一次麦克风试试～');
+      }
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        stopVoice(false);
+        return setTip('麦克风权限被拒绝了喵，去浏览器设置里允许一下～');
+      }
+      // 识别服务连不上（Chrome 走的是谷歌服务器）时，改走录音上传转写
+      if (event.error === 'network') {
+        stopVoice(false);
+        setTip('网络语音识别连不上喵，换成录音识别再试一次～');
+        startRecording();
+        return;
+      }
+      if (heard) return stopVoice(true);
+      stopVoice(false);
+      setTip('没听清喵，再说一次试试？');
     };
     current.onend = () => {
-      clearTimeout(startTimer);
-      recognition = null;
-      const wasListening = listening;
-      listening = false;
-      voiceBtn.classList.remove('listening');
-      if (!wasListening) return;
-      const text = voiceText();
-      voiceFinal = '';
-      voiceInterim = '';
-      if (text) { setTip(DEFAULT_TIP); void submit(text); }
-      else setTip('没听清喵，再说一次试试？');
+      if (mode !== 'speech') return;
+      if (voiceText()) return stopVoice(true);
+      stopVoice(false);
+      setTip('语音识别断开了喵，再点一次麦克风试试～');
     };
     try {
       current.start();
     } catch {
       stopVoice(false);
-      setTip('语音识别起不来喵，再点一次麦克风试试～');
+      startRecording();
+      return;
     }
+    // 3 秒内 onstart 未触发（安卓 WebView 常见：start 不报错但静默失败）→ 判定 Web Speech 不可用，改走录音
+    startTimer = setTimeout(() => {
+      if (mode !== 'speech') return;
+      stopVoice(false);
+      startRecording();
+    }, VOICE_START_TIMEOUT_MS);
+  }
+
+  const startVoice = () => {
+    if (!voiceTarget()) return setTip('这个功能没有输入框喵，用不上语音～');
+    if (mode) return stopVoice(true);
+    const SpeechCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // 触屏设备（微信/QQ 内置浏览器、安卓 WebView、iOS Safari）里 Web Speech 基本不出字，直接走录音转写
+    if (!SpeechCtor || window.matchMedia('(pointer: coarse)').matches) return startRecording();
+    startSpeech(SpeechCtor);
   };
-  voiceBtn.onclick = () => {
-    if (!recognition) return startVoice();
-    stopVoice(Boolean(voiceText()));
-  };
+
+  voiceBtn.onclick = startVoice;
+  voiceBtn.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    startVoice();
+  });
 }
 
 /* ─────────────── 新版本就绪：Service Worker 更新提示 ─────────────── */

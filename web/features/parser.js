@@ -150,9 +150,9 @@
         markEgg('longText');
         return addEmote(addMsg('neko', pickArr(LONG_TEXT_LINES)), 'daze');
       }
-      addMsg('user', esc(text));
       $('ps-text').value = '';
-      if (!/https?:\/\//i.test(text) && tryEasterEgg(text)) return;
+      if (!/https?:\/\//i.test(text)) return window.nekoAsk(text);
+      addMsg('user', esc(text));
       addMsg('neko', pickLine('parser'));
       let r;
       try {

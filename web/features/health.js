@@ -52,9 +52,12 @@
        <button class="act" onclick="__run('health')">分析</button>`,
     run: () => guard('health', async () => {
       const raw = $('health-input').value.trim();
-      if (tryEggInChat(raw)) { $('health-input').value = ''; return; }
+      if (!raw) return addMsg('neko', '格式不对呀喵～按「身高 体重 年龄 性别」填哦，例如：176 60 24 男');
       const nums = (raw.match(/\d+(?:\.\d+)?/g) || []).map(Number);
-      if (!raw || nums.length < 3) return addMsg('neko', '格式不对呀喵～按「身高 体重 年龄 性别」填哦，例如：176 60 24 男');
+      if (nums.length < 3) {
+        $('health-input').value = '';
+        return window.nekoAsk(raw);
+      }
       let [height, weight, age] = nums;
       if (height < 50 || height > 300) [height, age] = [age, height];
       if (height <= 30 || height >= 290 || weight <= 15 || weight >= 420) {
