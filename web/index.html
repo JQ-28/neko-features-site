@@ -2025,7 +2025,10 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
 
   const voiceBtn = $('qq-voice');
   const voiceTarget = () => $('m-body').querySelector('textarea, input[type="text"]:not([disabled]), input:not([type]):not([disabled])');
-  const setListening = (on) => voiceBtn.classList.toggle('listening', on);
+  const setListening = (on) => {
+    voiceBtn.classList.toggle('listening', on);
+    voiceBtn.setAttribute('aria-label', on ? '正在聆听，点按结束' : '语音输入');
+  };
   const setTip = (text) => toast(text);
 
   let recognition = null;
@@ -2035,6 +2038,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   let finalText = '';
   let interimText = '';
   let mode = null;
+  let transcribing = false;
   let pendingSubmit = false;
   let silenceTimer = 0;
   let startTimer = 0;
@@ -2139,6 +2143,8 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       return;
     }
     setTip('转写中喵…');
+    transcribing = true;
+    setListening(true);
     try {
       const text = await transcribeBlob(blob);
       if (!text) setTip('没听清喵，再说一次试试？');
@@ -2146,6 +2152,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     } catch {
       setTip('语音识别服务连不上喵，稍后再试，或者用键盘打字吧～');
     } finally {
+      transcribing = false;
       setListening(false);
     }
   }
@@ -2254,8 +2261,11 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   }
 
   const startVoice = () => {
+    // 取消优先：正在聆听时点按即结束（不受转写/忙碌状态限制）
+    if (voiceBtn.classList.contains('listening')) return stopVoice(true);
+    // 转写中或正在等麦克风授权时别重复触发
+    if (transcribing || askBusy || mode === 'record') return;
     if (!voiceTarget()) return setTip('这个功能没有输入框喵，用不上语音～');
-    if (mode) return stopVoice(true);
     const SpeechCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     // 触屏设备（微信/QQ 内置浏览器、安卓 WebView、iOS Safari）里 Web Speech 基本不出字，直接走录音转写
     if (!SpeechCtor || window.matchMedia('(pointer: coarse)').matches) return startRecording();
