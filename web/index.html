@@ -1954,9 +1954,10 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
 
 /* ─────────────── neko 助手：各功能聊天窗共用的 AI 问答 + 语音输入 ─────────────── */
 {
-  const ROUTE_API = 'https://docs.nekodayo.top/api/command-route';
-  const ASR_API = 'https://docs.nekodayo.top/api/asr';
-  const DOCS_ORIGIN = 'https://docs.nekodayo.top';
+  const BACKEND_ORIGIN = 'https://docs.nekodayo.top';
+  const ROUTE_API = `${BACKEND_ORIGIN}/api/command-route`;
+  const ASR_API = `${BACKEND_ORIGIN}/api/asr`;
+  const DOCS_ORIGIN = BACKEND_ORIGIN;
   const HIST_MAX = 12;
 
   const chatOf = (box) => box ?? $('m-chat');
