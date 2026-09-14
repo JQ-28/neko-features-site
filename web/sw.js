@@ -1,4 +1,4 @@
-const CACHE = 'neko-features-v1'; /* 发布新版时递增，脚本一变浏览器才会提示「新版本就绪」 */
+const CACHE = 'neko-features-v2'; /* 发布新版时递增，脚本一变浏览器才会提示「新版本就绪」 */
 const PRECACHE = ['/', '/images/neko.webp'];
 
 self.addEventListener('install', (event) => {
