@@ -310,7 +310,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=20"></script>
+<script src="/texts.js?v=21"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -951,8 +951,8 @@ const renderCmd = () => {
   else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
   else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
   else if (q === 'miao' || q === '喵') { markEgg('sMiao', pickArr(SMIAO_LINES)); miaoBurst(); }
-  else if (q === 'neko' || q === '猫') markEgg('nekoSearch');
-  else if (q === '彩蛋' || q === 'eggs') { closeCmd(); openEggPanel(); return; }
+  else if (q === 'neko' || q === '猫') { markEgg('nekoSearch'); markEgg('docsSearchNeko'); }
+  else if (q === '彩蛋' || q === 'eggs') { markEgg('docsEggsSearch'); closeCmd(); openEggPanel(); return; }
   cmdFiltered = FEATURES.filter((f) => !q || (f.name + f.desc).toLowerCase().includes(q));
   cmdIndex = 0;
   cmdList.innerHTML = cmdFiltered.length
