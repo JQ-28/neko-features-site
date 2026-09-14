@@ -1828,3 +1828,147 @@
     .panel { flex: none; }
     .qq-footer { padding-bottom: calc(.5rem + env(safe-area-inset-bottom)); }
   }
+
+  /* ─────────────── neko 悬浮窗：全站 AI 闲聊 + 语音输入 ─────────────── */
+  .neko-fab {
+    position: fixed; right: 22px; bottom: 22px; z-index: 60;
+    width: 54px; height: 54px; padding: 0; border: 2px solid #fff; border-radius: 50%;
+    background: url("/images/neko.webp") 50% center / cover no-repeat #f0e6f6;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .22); cursor: pointer;
+    transition: transform .18s var(--ease-out), opacity .18s ease-out, visibility .18s;
+  }
+  html.dark .neko-fab { border-color: rgba(255, 255, 255, .25); }
+  .neko-fab:hover { transform: translateY(-2px) scale(1.05); }
+  .neko-fab:active { transform: scale(.94); }
+  .mask.open ~ .neko-fab { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .neko-dock {
+    position: fixed; right: 22px; bottom: 88px; z-index: 60;
+    width: min(88vw, 360px); height: min(70vh, 520px);
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow-hover);
+    opacity: 0; visibility: hidden; transform: translateY(10px) scale(.98);
+    transition: opacity .2s ease-out, visibility .2s, transform .22s var(--ease-out);
+  }
+  .neko-dock[hidden] { display: none; }
+  .neko-dock.open { opacity: 1; visibility: visible; transform: none; }
+  .neko-dock-head {
+    display: flex; align-items: center; gap: 8px; flex: none;
+    padding: 10px 12px; color: #2b2b2b;
+    background: linear-gradient(135deg, #f9bdeb, #c5d8f8);
+  }
+  html.dark .neko-dock-head { background: linear-gradient(135deg, #4a3a5c, #2f3d55); color: #eee; }
+  .neko-dock-avatar {
+    width: 28px; height: 28px; flex: none; border-radius: 50%;
+    background: url("/images/neko.webp") 50% center / cover no-repeat #fff;
+    border: 2px solid rgba(255, 255, 255, .7);
+  }
+  .neko-dock-head h2 { flex: 1; margin: 0; font-size: 15px; font-weight: 700; }
+  .neko-dock-btn {
+    width: 28px; height: 28px; flex: none; padding: 0; border: 0; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background: rgba(255, 255, 255, .45); color: inherit;
+    transition: background .2s, transform .15s var(--ease-out);
+  }
+  .neko-dock-btn:hover { background: rgba(255, 255, 255, .8); }
+  .neko-dock-btn:active { transform: scale(.92); }
+  .neko-dock-btn svg { width: 16px; height: 16px; }
+  .neko-dock-chat {
+    flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 10px; padding: 14px 12px;
+    background: var(--bg-soft);
+  }
+  .neko-dock-chat .chat-avatar { width: 34px; height: 34px; margin: 0 8px; }
+  .neko-dock-chat .chat-bubble { max-width: 78%; font-size: 13px; }
+  .neko-dock-chat .chat-msg.user::after { right: 46px; }
+  .neko-dock-chat .chat-msg.neko::after { left: 46px; }
+  .neko-dock-panel {
+    flex: none; display: flex; align-items: center; gap: 8px; padding: 10px;
+    background: var(--card); border-top: 1px solid var(--line);
+  }
+  .neko-dock-panel input {
+    flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg-soft); color: var(--fg); font-family: inherit; font-size: 13px;
+    transition: border-color .2s;
+  }
+  .neko-dock-panel input:focus { outline: none; border-color: var(--brand-light); }
+  .neko-dock-panel button.act { flex: none; padding: 9px 16px; font-size: 13px; }
+  .neko-dock-foot {
+    flex: none; display: flex; align-items: center; gap: 8px;
+    padding: 0 10px 10px; background: var(--card);
+  }
+  .neko-dock-tool {
+    width: 32px; height: 32px; flex: none; padding: 0; border: 1px solid var(--line); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background: var(--bg-soft); color: var(--brand);
+    transition: transform .18s var(--ease-out), background .2s, color .2s, border-color .2s;
+  }
+  .neko-dock-tool:hover { border-color: var(--brand-light); }
+  .neko-dock-tool:active { transform: scale(.92); }
+  .neko-dock-tool svg { width: 16px; height: 16px; }
+  .neko-dock-tool.listening {
+    background: var(--brand); border-color: var(--brand); color: #fff;
+    animation: neko-listen 1.1s ease-in-out infinite;
+  }
+  @keyframes neko-listen {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .neko-dock-tip { flex: 1; min-width: 0; font-size: 11.5px; line-height: 1.4; color: var(--sub); }
+
+  .chat-bubble .neko-card {
+    margin-top: 10px; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--bg-soft);
+  }
+  .chat-bubble .neko-card-title { font-size: 13px; font-weight: 700; color: var(--fg); }
+  .chat-bubble .neko-card-hint { margin-top: 3px; font-size: 11.5px; color: var(--sub); }
+  .chat-bubble .neko-card-foot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px;
+  }
+  .chat-bubble .neko-card-cmd {
+    padding: 3px 8px; border-radius: 6px; font-family: inherit; font-size: 12px;
+    background: rgba(58, 191, 248, .14); color: var(--brand);
+  }
+  html.dark .chat-bubble .neko-card-cmd { background: rgba(77, 163, 255, .18); }
+  .chat-bubble .neko-card-foot .cp-btn { margin: 0; text-decoration: none; }
+
+  /* ─────────────── 新版本就绪提示 ─────────────── */
+  .sw-ready {
+    position: fixed; left: 50%; bottom: 22px; z-index: 120;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px 10px 16px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card); color: var(--fg); font-size: 13px;
+    box-shadow: var(--shadow-hover);
+    opacity: 0; transform: translate(-50%, 10px);
+    transition: opacity .2s ease-out, transform .22s var(--ease-out);
+  }
+  .sw-ready[hidden] { display: none; }
+  .sw-ready.show { opacity: 1; transform: translate(-50%, 0); }
+  .sw-ready button {
+    padding: 6px 12px; border: 0; border-radius: 999px; cursor: pointer;
+    background: #3abff8; color: #fff; font-family: inherit; font-size: 12px; font-weight: 600;
+    box-shadow: 0 2px 0 #2da8e0;
+    transition: filter .2s, transform .15s var(--ease-out), box-shadow .15s var(--ease-out);
+  }
+  .sw-ready button:hover { filter: brightness(1.1); }
+  .sw-ready button:active { transform: translateY(2px); box-shadow: 0 0 0 #2da8e0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .neko-fab, .neko-dock, .neko-dock-btn, .neko-dock-tool, .sw-ready { transition: none; }
+    .neko-fab:hover, .neko-fab:active, .neko-dock-btn:active, .neko-dock-tool:active { transform: none; }
+    .neko-dock-tool.listening { animation: none; }
+    .neko-dock { transform: none; }
+    .sw-ready { transform: translate(-50%, 0); }
+  }
+
+  @media (max-width: 780px) {
+    .neko-fab { right: 14px; bottom: 14px; width: 50px; height: 50px; }
+    .neko-dock {
+      right: 12px; left: 12px; bottom: 76px; width: auto;
+      height: min(64vh, 460px);
+    }
+    .neko-dock-chat { padding: 12px 10px; }
+    .neko-dock-chat .chat-bubble { max-width: 82%; }
+    .sw-ready { bottom: 14px; max-width: calc(100vw - 28px); }
+  }

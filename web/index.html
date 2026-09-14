@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/style.css?v=15" />
+<link rel="stylesheet" href="/style.css?v=16" />
 <body>
 <div class="topbar">
   <button class="icon-btn menu-btn" id="menu-btn"></button>
@@ -160,6 +160,30 @@
       <div><svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg></div>
     </div>
   </div>
+</div>
+
+<button class="neko-fab" id="neko-fab" type="button" title="问问neko喵" aria-label="问问neko"></button>
+<section class="neko-dock" id="neko-dock" hidden aria-label="问问neko">
+  <header class="neko-dock-head">
+    <span class="neko-dock-avatar"></span>
+    <h2>问问neko</h2>
+    <button class="neko-dock-btn" id="neko-dock-clear" type="button" title="清空聊天记录"></button>
+    <button class="neko-dock-btn" id="neko-dock-close" type="button" title="收起"></button>
+  </header>
+  <div class="neko-dock-chat" id="neko-dock-chat"></div>
+  <div class="neko-dock-panel">
+    <input id="neko-dock-input" type="text" autocomplete="off" spellcheck="false" placeholder="问点什么都行喵～比如：怎么解析B站链接" />
+    <button class="act" id="neko-dock-send" type="button">发送</button>
+  </div>
+  <div class="neko-dock-foot">
+    <button class="neko-dock-tool" id="neko-dock-voice" type="button" title="语音输入" aria-label="语音输入"></button>
+    <span class="neko-dock-tip" id="neko-dock-tip">按回车发送，也可以点麦克风说话喵</span>
+  </div>
+</section>
+
+<div class="sw-ready" id="sw-ready" hidden>
+  <span>新版本就绪喵～</span>
+  <button type="button" id="sw-ready-btn">点一下刷新</button>
 </div>
 
 <div class="weather-mask" id="weather-mask" hidden>
@@ -331,30 +355,33 @@ const copyBtn = (text) =>
 const AVATAR_NEKO = '/images/neko.webp';
 const AVATAR_USER = '/images/neko11.jpg';
 const fmtTime = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-const addMsg = (role, html) => {
+const addMsg = (role, html, box) => {
   const el = document.createElement('div');
   el.className = 'chat-msg ' + role;
   el.dataset.time = fmtTime(new Date());
   el.innerHTML = role === 'user'
     ? `<div class="chat-bubble">${html}</div><div class="chat-avatar user"></div>`
     : `<div class="chat-avatar neko"></div><div class="chat-bubble">${html}</div>`;
-  const box = $('m-chat');
-  const stick = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
-  box.appendChild(el);
-  if (stick) box.scrollTop = box.scrollHeight;
-  else $('to-bottom').classList.add('show');
-  $('m-clear').style.display = '';
-  if (currentFeatureId) saveChatHistory();
+  const isMain = !box;
+  const target = box ?? $('m-chat');
+  const stick = target.scrollHeight - target.scrollTop - target.clientHeight < 40;
+  target.appendChild(el);
+  if (stick) target.scrollTop = target.scrollHeight;
+  else if (isMain) $('to-bottom').classList.add('show');
+  if (isMain) {
+    $('m-clear').style.display = '';
+    if (currentFeatureId) saveChatHistory();
+  }
   return el;
 };
 /* 打字指示气泡：neko 处理请求时三点跳动 */
-const addTyping = () => {
+const addTyping = (box) => {
   const el = document.createElement('div');
   el.className = 'chat-msg neko typing';
   el.innerHTML = `<div class="chat-avatar neko"></div><div class="chat-bubble typing-bubble"><span></span><span></span><span></span></div>`;
-  const box = $('m-chat');
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
+  const target = box ?? $('m-chat');
+  target.appendChild(el);
+  target.scrollTop = target.scrollHeight;
   return el;
 };
 $('m-chat').addEventListener('scroll', () => {
@@ -535,10 +562,10 @@ const EASTER_EGGS = [
   { test: /^🐟+$/, lines: FISH_EMOJI_LINES, emote: 'nod', egg: 'fishFood' },
   { test: /^(67|六七)$/, lines: SIX_SEVEN_LINES, emote: 'sixseven', egg: 'sixSeven' },
 ];
-const tryEasterEgg = (text) => {
+const tryEasterEgg = (text, box) => {
   if (/^(bababoi|巴巴博弈|巴巴博一)$/i.test(text)) {
-    addMsg('neko', esc(pickArr(BABABOI_LINES)));
-    addMsg('neko', '<img class="bababoi-img" src="/images/bababoi.jpg" alt="bababoi" loading="lazy">');
+    addMsg('neko', esc(pickArr(BABABOI_LINES)), box);
+    addMsg('neko', '<img class="bababoi-img" src="/images/bababoi.jpg" alt="bababoi" loading="lazy">', box);
     const audio = new Audio('/images/bababoi.mp3');
     setTimeout(() => audio.play().catch(() => {}), 2000);
     markEgg('bababoi');
@@ -546,14 +573,14 @@ const tryEasterEgg = (text) => {
   }
   if (/(在吗|在不在)/.test(text)) {
     const [first, second] = pickArr(STILL_HERE_LINES);
-    addEmote(addMsg('neko', esc(first)), 'question');
-    setTimeout(() => addMsg('neko', esc(second)), 2000);
+    addEmote(addMsg('neko', esc(first), box), 'question');
+    setTimeout(() => addMsg('neko', esc(second), box), 2000);
     markEgg('stillHere');
     return true;
   }
   const hit = EASTER_EGGS.find((e) => e.test.test(text));
   if (!hit) return false;
-  const el = addMsg('neko', esc(pickArr(hit.lines)));
+  const el = addMsg('neko', esc(pickArr(hit.lines)), box);
   if (hit.emote) addEmote(el, hit.emote);
   if (hit.egg) markEgg(hit.egg);
   if (/(晚安|好梦)/.test(text) && isNight()) markEgg('nightGreet');
@@ -565,11 +592,11 @@ const hitsEasterEgg = (text) =>
   || /(在吗|在不在)/.test(text)
   || EASTER_EGGS.some((e) => e.test.test(text));
 /* 所有可输入文本的聊天框共用入口：命中就回显这条输入并就地回复，返回 true 表示本轮已处理完 */
-const tryEggInChat = (text) => {
+const tryEggInChat = (text, box) => {
   const t = (text || '').trim();
   if (!hitsEasterEgg(t)) return false;
-  addMsg('user', esc(t));
-  tryEasterEgg(t);
+  addMsg('user', esc(t), box);
+  tryEasterEgg(t, box);
   return true;
 };
 const pickLine = (key) => {
@@ -582,8 +609,8 @@ const emoteImg = (id) => `<img class="neko-emote" src="/emotes/${id}.gif" alt="$
 const addEmote = (el, id) => {
   if (!el?.querySelector?.('.chat-bubble')) return;
   el.querySelector('.chat-bubble').insertAdjacentHTML('beforeend', emoteImg(id));
-  const box = $('m-chat');
-  box.scrollTop = box.scrollHeight;
+  const box = el.parentElement;
+  if (box) box.scrollTop = box.scrollHeight;
 };
 /* 回复文本 → 情绪表情映射（命中即挂，可被调用方显式覆盖） */
 const EMOTE_BY_TEXT = [
@@ -1924,6 +1951,318 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.search-inner')) panel.hidden = true;
   });
+}
+
+/* ─────────────── neko 悬浮窗：全站 AI 闲聊 + 指令路由 + 语音输入 ─────────────── */
+{
+  const ROUTE_API = 'https://docs.nekodayo.top/api/command-route';
+  const DOCS_ORIGIN = 'https://docs.nekodayo.top';
+  const HIST_KEY = 'neko-dock-history';
+  const HIST_MAX = 40;
+  const QUERY_MAX = 50;
+  const LONG_TEXT_MAX = 500;
+  const VOICE_SILENCE_MS = 1600;
+  const VOICE_START_TIMEOUT_MS = 3000;
+  const GREETING = '你好喵~ 我是 neko！说说你想做什么，我来帮你找到对应的功能或指令。';
+  const BUSY = 'neko 现在有点忙喵，稍后再试试吧~';
+  const DEFAULT_TIP = '按回车发送，也可以点麦克风说话喵';
+  const HIT_REPLIES = ['找到啦喵！下面这些应该能帮到你～', '喵！这几个可能就是你想要的～', '按这个来喵，点一下就能用！'];
+  const MISS_REPLIES = ['唔…neko 没找到特别合适的喵，换个说法再试试？', '没匹配到指令喵，说具体一点我再来找～', '这条 neko 拿不准喵，可以去文档站翻翻看～'];
+
+  const fab = $('neko-fab');
+  const dock = $('neko-dock');
+  const chatBox = $('neko-dock-chat');
+  const prompt = $('neko-dock-input');
+  const tip = $('neko-dock-tip');
+  const voiceBtn = $('neko-dock-voice');
+  const clearBtn = $('neko-dock-clear');
+
+  $('neko-dock-close').innerHTML = svg('x-lg', 16);
+  clearBtn.innerHTML = svg('trash', 16);
+  voiceBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg>';
+
+  const readLocal = (key, fallback) => {
+    try {
+      const list = JSON.parse(localStorage.getItem(key) || 'null');
+      return Array.isArray(list) ? list : fallback;
+    } catch { return fallback; }
+  };
+  let messages = readLocal(HIST_KEY, []).filter((m) => m && typeof m.text === 'string');
+  const persist = () => {
+    try { localStorage.setItem(HIST_KEY, JSON.stringify(messages.slice(-HIST_MAX))); } catch { /* 隐私模式忽略 */ }
+  };
+
+  const cardHTML = (results) => results.map((r) => {
+    const cmd = r.command
+      ? `<code class="neko-card-cmd">${esc(r.command)}</code>${copyBtn(r.command)}`
+      : '';
+    const open = r.openId
+      ? `<button type="button" class="cp-btn" onclick="nekoDockOpen('${esc(r.openId)}')">打开功能</button>`
+      : '';
+    const link = r.link
+      ? `<a class="cp-btn" href="${DOCS_ORIGIN}${esc(r.link)}" target="_blank" rel="noopener">去文档看看</a>`
+      : '';
+    const hint = r.hint ? `<div class="neko-card-hint">${esc(r.hint)}</div>` : '';
+    return `<div class="neko-card"><div class="neko-card-title">${esc(r.title)}</div>${hint}<div class="neko-card-foot">${cmd}${open}${link}</div></div>`;
+  }).join('');
+
+  const paint = (msg) => {
+    if (msg.role === 'user') return addMsg('user', esc(msg.text), chatBox);
+    const el = addMsg('neko', esc(msg.text) + (msg.results?.length ? cardHTML(msg.results) : ''), chatBox);
+    const emote = msg.emote ?? emoteForText(msg.text);
+    if (emote) addEmote(el, emote);
+    return el;
+  };
+  const pushMessage = (msg) => {
+    paint(msg);
+    messages.push(msg);
+    persist();
+  };
+
+  /* AI 不可用时的兜底：按关键词在功能站自己的功能列表里找 */
+  const localResults = (query) => {
+    const text = query.toLowerCase();
+    if (text.length < 2) return [];
+    const grams = [...new Set(Array.from({ length: text.length - 1 }, (_, i) => text.slice(i, i + 2)))];
+    return FEATURES.filter((f) => {
+      const hay = `${f.name}${f.desc ?? ''}${f.id}`.toLowerCase();
+      return grams.some((g) => hay.includes(g));
+    }).slice(0, 3).map((f) => ({ title: f.name, hint: f.desc ?? '', openId: f.id }));
+  };
+  const historyPayload = () => messages.slice(-6).map((m) => ({
+    role: m.role === 'user' ? 'user' : 'assistant',
+    text: m.results?.length ? `${m.text}（推荐：${m.results.map((r) => r.title).join('、')}）` : m.text,
+  }));
+
+  let dockBusy = false;
+  const submit = async (rawInput) => {
+    const raw = (rawInput ?? prompt.value).trim();
+    if (!raw || dockBusy) return;
+    prompt.value = '';
+    stopVoice(false);
+    const history = historyPayload();
+
+    if (raw.length > LONG_TEXT_MAX) {
+      addEmote(addMsg('neko', esc(pickArr(LONG_TEXT_LINES)), chatBox), 'daze');
+      markEgg('longText');
+      return;
+    }
+    if (tryEggInChat(raw, chatBox)) return;
+    if (raw.length > QUERY_MAX) {
+      addMsg('user', esc(raw), chatBox);
+      addMsg('neko', `这条有点长喵（超过 ${QUERY_MAX} 字啦），挑个关键词再说一次吧～`, chatBox);
+      return;
+    }
+
+    pushMessage({ role: 'user', text: raw });
+    dockBusy = true;
+    const typing = addTyping(chatBox);
+    try {
+      const resp = await fetch(ROUTE_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: raw, history }),
+      });
+      if (!resp.ok) throw new Error(String(resp.status));
+      const data = await resp.json();
+      const results = (data.matches ?? []).map((m) => ({
+        title: m.title,
+        command: m.command ?? '',
+        link: m.link ?? '',
+        hint: (m.keywords ?? []).slice(0, 3).join('、'),
+      }));
+      if (results.length) pushMessage({ role: 'neko', text: data.reply || pickArr(HIT_REPLIES), results });
+      else pushMessage({ role: 'neko', text: data.reply || pickArr(MISS_REPLIES) });
+    } catch {
+      const local = localResults(raw);
+      if (local.length) pushMessage({ role: 'neko', text: 'AI 那边没连上喵，不过功能站里倒是有这些～', results: local });
+      else pushMessage({ role: 'neko', text: BUSY });
+    } finally {
+      typing.remove();
+      dockBusy = false;
+    }
+  };
+
+  let closeTimer = 0;
+  const openDock = () => {
+    clearTimeout(closeTimer);
+    dock.hidden = false;
+    requestAnimationFrame(() => dock.classList.add('open'));
+    if (!chatBox.children.length) {
+      if (messages.length) messages.forEach(paint);
+      else pushMessage({ role: 'neko', text: GREETING });
+    }
+    if (window.matchMedia('(min-width: 781px)').matches) setTimeout(() => prompt.focus(), 120);
+  };
+  const closeDock = () => {
+    stopVoice(false);
+    dock.classList.remove('open');
+    closeTimer = setTimeout(() => { dock.hidden = true; }, 220);
+  };
+  fab.onclick = () => { if (dock.classList.contains('open')) closeDock(); else openDock(); };
+  $('neko-dock-close').onclick = closeDock;
+  $('neko-dock-send').onclick = () => void submit();
+  prompt.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); void submit(); }
+  });
+  window.nekoDockOpen = (id) => { closeDock(); void openFeature(id); };
+
+  let clearArmed = false;
+  let clearTimer = 0;
+  clearBtn.onclick = () => {
+    if (!clearArmed) {
+      clearArmed = true;
+      tip.textContent = '再点一次就清空聊天记录喵';
+      clearTimer = setTimeout(() => { clearArmed = false; tip.textContent = DEFAULT_TIP; }, 4000);
+      return;
+    }
+    clearTimeout(clearTimer);
+    clearArmed = false;
+    tip.textContent = DEFAULT_TIP;
+    messages = [];
+    persist();
+    chatBox.innerHTML = '';
+    pushMessage({ role: 'neko', text: GREETING });
+  };
+
+  const hasModalOpen = () =>
+    $('cmd-mask').classList.contains('open')
+    || $('pref-mask').classList.contains('open')
+    || $('egg-panel-mask').classList.contains('open')
+    || $('lightbox').classList.contains('open')
+    || $('mask').classList.contains('open')
+    || (!$('weather-mask').hidden && $('weather-mask').classList.contains('open'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !dock.classList.contains('open') || hasModalOpen()) return;
+    closeDock();
+    e.stopPropagation();
+  }, true);
+
+  /* ── 语音输入：Web Speech API，静音后自动发送 ── */
+  const SpeechCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let listening = false;
+  let voiceFinal = '';
+  let voiceInterim = '';
+  let silenceTimer = 0;
+  let startTimer = 0;
+
+  const voiceText = () => `${voiceFinal}${voiceInterim}`.trim();
+  const setTip = (text) => { tip.textContent = text || DEFAULT_TIP; };
+  const scheduleVoiceSubmit = () => {
+    clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => stopVoice(Boolean(voiceText())), VOICE_SILENCE_MS);
+  };
+  function stopVoice(submitText = false) {
+    clearTimeout(silenceTimer);
+    clearTimeout(startTimer);
+    const current = recognition;
+    recognition = null;
+    listening = false;
+    voiceBtn.classList.remove('listening');
+    if (current) {
+      current.onstart = null;
+      current.onresult = null;
+      current.onerror = null;
+      current.onend = null;
+      try { current.abort(); } catch { /* 已经结束了 */ }
+    }
+    const text = voiceText();
+    voiceFinal = '';
+    voiceInterim = '';
+    if (submitText || prompt.value === text) prompt.value = '';
+    setTip(DEFAULT_TIP);
+    if (submitText && text) void submit(text);
+  }
+  const startVoice = () => {
+    if (!SpeechCtor) return setTip('这个浏览器不支持语音喵，试试 Chrome 或 Edge，或者直接用键盘打字吧～');
+    voiceFinal = '';
+    voiceInterim = '';
+    const current = new SpeechCtor();
+    current.lang = 'zh-CN';
+    current.continuous = true;
+    current.interimResults = true;
+    current.maxAlternatives = 1;
+    recognition = current;
+    startTimer = setTimeout(() => {
+      if (listening) return;
+      stopVoice(false);
+      setTip('语音好像没启动成功，检查一下麦克风权限喵～');
+    }, VOICE_START_TIMEOUT_MS);
+    current.onstart = () => {
+      clearTimeout(startTimer);
+      listening = true;
+      voiceBtn.classList.add('listening');
+      setTip('在听了喵…说完停顿一下就会自动发送～');
+    };
+    current.onresult = (event) => {
+      voiceFinal = '';
+      voiceInterim = '';
+      for (let i = 0; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        if (result.isFinal) voiceFinal += result[0].transcript;
+        else voiceInterim += result[0].transcript;
+      }
+      prompt.value = voiceText();
+      scheduleVoiceSubmit();
+    };
+    current.onerror = (event) => {
+      const reason = event.error;
+      listening = false;
+      voiceBtn.classList.remove('listening');
+      if (reason === 'aborted') return;
+      if (reason === 'no-speech') return setTip('没听到声音喵，再点一次麦克风试试～');
+      if (reason === 'not-allowed' || reason === 'service-not-allowed') return setTip('麦克风权限被拒绝了喵，去浏览器设置里允许一下～');
+      if (reason === 'network') return setTip('连不上语音识别服务喵，换 Edge 试试，或者直接用键盘打字吧～');
+      setTip('语音识别断开了喵，再点一次麦克风试试～');
+    };
+    current.onend = () => {
+      clearTimeout(startTimer);
+      recognition = null;
+      const wasListening = listening;
+      listening = false;
+      voiceBtn.classList.remove('listening');
+      if (!wasListening) return;
+      const text = voiceText();
+      voiceFinal = '';
+      voiceInterim = '';
+      if (text) { setTip(DEFAULT_TIP); void submit(text); }
+      else setTip('没听清喵，再说一次试试？');
+    };
+    try {
+      current.start();
+    } catch {
+      stopVoice(false);
+      setTip('语音识别起不来喵，再点一次麦克风试试～');
+    }
+  };
+  voiceBtn.onclick = () => {
+    if (!recognition) return startVoice();
+    stopVoice(Boolean(voiceText()));
+  };
+}
+
+/* ─────────────── 新版本就绪：Service Worker 更新提示 ─────────────── */
+if ('serviceWorker' in navigator) {
+  const readyBox = $('sw-ready');
+  const showReady = () => {
+    if (!readyBox.hidden) return;
+    readyBox.hidden = false;
+    requestAnimationFrame(() => readyBox.classList.add('show'));
+  };
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      if (reg.waiting && navigator.serviceWorker.controller) showReady();
+      reg.addEventListener('updatefound', () => {
+        const installing = reg.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) showReady();
+        });
+      });
+    }).catch(() => { /* 注册失败不影响正常使用 */ });
+  });
+  $('sw-ready-btn').onclick = () => location.reload();
 }
 </script>
 </body>

@@ -48,7 +48,7 @@ app.notFound((c) => {
     const headers = new Headers(res.headers);
     if (c.req.path.startsWith('/images/')) {
       headers.set('Cache-Control', 'public, max-age=2592000, immutable');
-    } else if (c.req.path === '/' || c.req.path.endsWith('.html')) {
+    } else if (c.req.path === '/' || c.req.path === '/sw.js' || c.req.path.endsWith('.html')) {
       headers.set('Cache-Control', 'no-cache');
     } else {
       headers.set('Cache-Control', 'public, max-age=86400');
