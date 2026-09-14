@@ -2028,6 +2028,8 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   const VOICE_SILENCE_MS = 1600;
   const VOICE_RECORD_MAX_MS = 30_000;
   const VOICE_SEGMENT_MS = 4000;
+  /* 第一段短一点，开口后很快就能看到字，确认已经在录了 */
+  const VOICE_FIRST_SEGMENT_MS = 2000;
   const VOICE_START_TIMEOUT_MS = 3000;
   const RECORD_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
 
@@ -2055,6 +2057,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   let startTimer = 0;
   let recordTimer = 0;
   let recordSegmentTimer = 0;
+  let recordSegmentIndex = 0;
   let recordDrain = Promise.resolve();
   let recordQueue = [];
   let recordText = '';
@@ -2088,6 +2091,14 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     if (!resp.ok) throw new Error(String(resp.status));
     return (((await resp.json()).text) ?? '').trim();
   };
+  const CJK_CHAR = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/;
+  /* 中文直接接上，英文和数字之间补个空格，免得两段粘成一坨 */
+  const mergeSegmentText = (accumulated, segment) => {
+    if (!accumulated || CJK_CHAR.test(accumulated.slice(-1)) || CJK_CHAR.test(segment.slice(0, 1))) {
+      return accumulated + segment;
+    }
+    return `${accumulated} ${segment}`;
+  };
   /* 每段封口后进队列，串行转写并按顺序拼起来，输入框里就能随说随出字 */
   async function transcribeQueuedSegments() {
     while (recordQueue.length) {
@@ -2095,7 +2106,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       try {
         const text = await transcribeBlob(blob);
         if (!text) continue;
-        recordText += text;
+        recordText = mergeSegmentText(recordText, text);
         const input = voiceTarget();
         if (recordActive && input) input.value = recordText;
       } catch {
@@ -2132,11 +2143,13 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       if (mode === 'record') startSegment();
       else void finishRecording();
     };
-    try { current.start(); } catch { return stopVoice(true); }
+    try { current.start(); } catch { recorder = null; return stopVoice(true); }
+    const segmentMs = recordSegmentIndex === 0 ? VOICE_FIRST_SEGMENT_MS : VOICE_SEGMENT_MS;
+    recordSegmentIndex += 1;
     clearTimeout(recordSegmentTimer);
     recordSegmentTimer = setTimeout(() => {
       if (mode === 'record' && current.state === 'recording') current.stop();
-    }, VOICE_SEGMENT_MS);
+    }, segmentMs);
   }
   const sendVoiceText = (text) => {
     const input = voiceTarget();
@@ -2156,8 +2169,9 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       mode = null;
       pendingSubmit = submitText;
       const currentRecorder = recorder;
-      if (currentRecorder && currentRecorder.state !== 'inactive') {
-        currentRecorder.stop();
+      // stop 事件是异步的：片段还在就一律交给 onstop 收尾，否则会漏掉刚录满的那一段
+      if (currentRecorder) {
+        if (currentRecorder.state !== 'inactive') currentRecorder.stop();
         return;
       }
       void finishRecording();
@@ -2220,6 +2234,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       recordText = '';
       recordFailed = false;
       recordActive = true;
+      recordSegmentIndex = 0;
       setListening(true);
       setTip('在录了喵…说完再点一下麦克风～');
       startSegment();
