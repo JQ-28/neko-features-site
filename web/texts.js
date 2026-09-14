@@ -324,6 +324,8 @@ const markEgg = (id, line) => {
     ? `${line}（彩蛋 ${eggFound.size}/${total} 喵！✨）`
     : `彩蛋发现：${EGGS[id] ?? id}（${eggFound.size}/${total}）喵！✨`, 4200);
 };
+/* 开局就把本机进度与父域 cookie 合一次并回写，否则老进度只躺在 localStorage 里，文档站看不到 */
+persistEggs();
 const NIGHT_GREET_LINES = [
   '这个点的晚安最真诚了喵…快去睡，做个好梦哦 🌙',
   '深夜晚安收到喵！neko会守着页面等你明天回来的～',
