@@ -1038,6 +1038,10 @@ const onFullscreenChange = () => {
 };
 document.addEventListener('fullscreenchange', onFullscreenChange);
 document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+/* F11 走的是浏览器 UI 全屏，不派发 fullscreenchange，得单独听按键 */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'F11') markEgg('cinema', '影院模式，贴贴时间喵！');
+});
 
 /* 断网彩蛋：neko 是云端猫，没网要消失了 */
 window.addEventListener('offline', () => {
@@ -1266,7 +1270,8 @@ $('m-clear').onclick = () => {
   $('m-clear').style.display = 'none';
 };
 
-$('search').addEventListener('mousedown', (e) => { e.preventDefault(); openCmd(); });
+/* pointerdown 鼠标和触屏都会派发，只挂 mousedown 手机端点不动 */
+$('search').addEventListener('pointerdown', (e) => { e.preventDefault(); openCmd(); });
 $('menu-btn').onclick = () => $('side').classList.toggle('open');
 
 /* 主题色：明/暗各一套品牌色，覆盖 --brand / --brand-light */
@@ -1332,6 +1337,10 @@ try {
   }
 } catch { /* 隐私模式等存储异常时静默跳过 */ }
 
+/* 深夜 / 周一这类"来了就算"的彩蛋，进站当下就得判定，不能等用户点开功能窗 */
+if (isNight()) { markEgg('night'); markEgg('docsNight'); }
+if (new Date().getDay() === 1) markEgg('monday');
+
 /* 整点报时 / 11:45 好臭时间 */
 const checkOnTime = () => {
   const now = new Date();
@@ -1363,6 +1372,15 @@ idleTimer = setTimeout(sleepLogo, EGG_THRESHOLDS.idleSleepMs);
 /* 摇一摇彩蛋：手机端 devicemotion；电脑端快速左右甩鼠标 7 个来回 */
 let lastShake = 0;
 const SHAKE_LINES = ['别摇了别摇了喵！neko要被摇晕了！', '摇出什么了吗喵？只有猫毛…喵。', '停停停！尾巴打结了喵！！'];
+/* iOS 13+ 默认不给运动数据，必须先申请，而申请又只能在用户手势里发起 */
+let motionAsked = false;
+const requestMotionPermission = () => {
+  if (motionAsked || typeof DeviceMotionEvent.requestPermission !== 'function') return;
+  motionAsked = true;
+  DeviceMotionEvent.requestPermission().catch(() => { /* 用户拒绝就拉倒喵 */ });
+};
+['pointerdown', 'touchstart'].forEach((ev) =>
+  document.addEventListener(ev, requestMotionPermission, { passive: true }));
 window.addEventListener('devicemotion', (e) => {
   const a = e.accelerationIncludingGravity;
   if (!a || a.x == null) return;
