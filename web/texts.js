@@ -218,26 +218,11 @@ const pickArr = (arr) => arr[Math.floor(Math.random() * arr.length)] ?? arr[0];
 
 
 /* 进度双向互通：本站在 localStorage，文档站在父域 cookie，取并集后双写 */
-const EGG_COOKIE_ROOT_DOMAIN = 'nekodayo.top';
-const readEggLocal = () => {
-  try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; }
-};
-const readEggCookie = () => {
-  const prefix = 'neko-eggs=';
-  const raw = document.cookie.split('; ').find((item) => item.startsWith(prefix))?.slice(prefix.length);
-  if (!raw) return [];
-  try { return decodeURIComponent(raw).split(',').map((id) => id.trim()).filter(Boolean); } catch { return []; }
-};
-const writeEggCookie = (ids) => {
-  const domain = location.hostname.endsWith(`.${EGG_COOKIE_ROOT_DOMAIN}`) ? `;domain=.${EGG_COOKIE_ROOT_DOMAIN}` : '';
-  document.cookie = `neko-eggs=${encodeURIComponent(ids.join(','))};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax${domain}`;
-};
-let allEggIds = [...new Set([...readEggLocal(), ...readEggCookie()])];
-const eggFound = new Set(allEggIds.filter((id) => Object.prototype.hasOwnProperty.call(EGGS, id)));
+let allEggIds = readEggIdUnion();
+const eggFound = new Set(allEggIds.filter((id) => isKnownEgg(EGGS, id)));
 const persistEggs = () => {
   allEggIds = [...new Set([...allEggIds, ...eggFound])];
-  try { localStorage.setItem('neko-eggs', JSON.stringify(allEggIds)); } catch { /* 隐私模式等忽略 */ }
-  writeEggCookie(allEggIds);
+  writeEggIds(allEggIds);
 };
 const markEgg = (id, line) => {
   if (eggFound.has(id)) return;
@@ -250,11 +235,10 @@ const markEgg = (id, line) => {
 };
 /* 另一端（文档站）刚触发时只写进了 cookie，翻开册子前重新合一次并集，进度即刻对齐 */
 const syncEggs = () => {
-  const shared = [...new Set([...readEggLocal(), ...readEggCookie()])]
-    .filter((id) => Object.prototype.hasOwnProperty.call(EGGS, id));
-  let changed = false;
-  shared.forEach((id) => { if (!eggFound.has(id)) { eggFound.add(id); changed = true; } });
-  if (changed) persistEggs();
+  const added = readEggIdUnion().filter((id) => isKnownEgg(EGGS, id) && !eggFound.has(id));
+  if (added.length === 0) return;
+  added.forEach((id) => eggFound.add(id));
+  persistEggs();
 };
 /* 开局就把本机进度与父域 cookie 合一次并回写，否则老进度只躺在 localStorage 里，文档站看不到 */
 persistEggs();
@@ -304,36 +288,16 @@ const ACCENT_TEN_LINES = [
   '彩虹收藏家达成喵！neko都被你染成彩色猫了！🌈',
   '十次换色喵！再换下去neko要变成彩虹猫啦！🌈',
 ];
-const S666_LINES = [
-  'neko收到崇拜，尾巴都翘起来了喵～✨',
-  '666！夸得neko都不好意思了喵！',
-  '这么多6，是要送neko去六号猫星球吗喵？',
-];
-const MONDAY_LINES = [
-  '周一综合征检测：neko尾巴耷拉中…周一也要加油呀喵！',
-  '又是周一喵…neko的闹钟响了八遍才起来的（心虚）',
-  '周一打开工具站，是工作没做完还是想摸鱼呀喵？',
-];
 const NIGHT_PROMPTS = [
   '都几点了还不睡呀喵…被neko抓到了吧！用完记得去睡觉哦～',
   '这么晚还在忙吗喵？弄完这个就乖乖去睡哦～',
   '深夜营业中喵…neko都困了，你也早点休息呀～',
   '夜猫子检测到喵！事情做完就快去睡觉，明天还要早起呢～',
 ];
-const S404_LINES = [
-  '404？带你去看看什么叫真的404喵！',
-  '哪里404了喵！行，这就带你去看404页面！',
-  '想看404是吧喵，那边刚好有一只睡着的neko哦～',
-];
 const SMIAO_LINES = [
   '搜索框也喵喵叫，你是neko的同类吗喵？',
   '喵？在搜索框里叫两声，neko就冒出来了喵！',
   '同类识别成功喵！欢迎加入猫星球～🐾',
-];
-const IDLE_LINES = [
-  '页面安静下来了喵…neko先睡一会儿，呼噜呼噜～',
-  '两分钟没动静了喵？neko抱着尾巴打个盹哦～',
-  '没声音了喵…neko去梦里吃小鱼干了，戳一下就能叫醒！',
 ];
 const FESTIVALS = {
   '1-1': ['新年快乐喵～新的一年也请多关照呀！🎉', '元旦快乐喵！neko的新年愿望是无限量小鱼干！'],
@@ -343,16 +307,9 @@ const FESTIVALS = {
   '10-1': ['国庆快乐喵！假期记得来看看neko呀～', '国庆长假喵～出去看人海还是宅家撸猫？'],
   '12-24': ['平安夜快乐喵～袜子挂好了吗？neko可不钻哦！'],
   '12-25': ['圣诞快乐喵！礼物是小鱼干味的呀～🎄', 'Merry 喵-mas！圣诞老人今晚加班送小鱼干！'],
-  '2026-02-17': ['春节快乐喵！新的一年大吉大利，今晚吃鸡喵！🧨', '过年好喵～红包记得分neko一点鱼干钱！'],
-  '2026-09-25': ['中秋快乐喵！月饼要豆沙馅的，neko挑食～🥮', '今晚月亮好圆喵～neko想蹲在月亮上打盹！'],
+  '2026-2-17': ['春节快乐喵！新的一年大吉大利，今晚吃鸡喵！🧨', '过年好喵～红包记得分neko一点鱼干钱！'],
+  '2026-9-25': ['中秋快乐喵！月饼要豆沙馅的，neko挑食～🥮', '今晚月亮好圆喵～neko想蹲在月亮上打盹！'],
 };
-
-/* 到处逛逛：一次会话里打开 3 个不同功能 */
-const VISIT3_LINES = [
-  '逛了 3 个功能了喵！neko的家被你逛了个遍～',
-  '到处逛逛达成喵！还有别的房间也要看看吗？',
-  '3 个功能窗口打卡完成喵～你是来串门的吗？',
-];
 
 /* 主题色：名称 + 明/暗两套品牌色（覆盖 --brand / --brand-light） */
 const ACCENTS = {

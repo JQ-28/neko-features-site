@@ -291,9 +291,11 @@
   </div>
 </div>
 
-<script src="/shared/neko-shared-eggs.js?v=1"></script>
+<script src="/shared/neko-shared-eggs.js?v=2"></script>
+<script src="/shared/neko-shared-egg-sync.js?v=1"></script>
+<script src="/shared/neko-shared-search-eggs.js?v=1"></script>
 <script src="/shared/neko-shared-chat.js?v=1"></script>
-<script src="/texts.js?v=23"></script>
+<script src="/texts.js?v=24"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -640,6 +642,7 @@ async function openFeature(id) {
     el.dataset.welcome = '1';
     $('m-clear').style.display = 'none';
     markEgg('night');
+    markEgg('docsNight');
   } else {
     const el = addMsg('neko', esc(pickArr(PROMPTS[f.id] ?? getTimeBasedPrompts())));
     el.dataset.welcome = '1';
@@ -911,12 +914,13 @@ const cmdMask = $('cmd-mask'), cmdInput = $('cmd-input'), cmdList = $('cmd-list'
 let cmdIndex = 0, cmdFiltered = [];
 const renderCmd = () => {
   const q = cmdInput.value.trim().toLowerCase();
-  if (q === '666') { markEgg('s666'); sixRain(); }
-  else if (q === '摸鱼' || q === '上班') { toast(moyerLine()); markEgg('moyer'); }
-  else if (q === '404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
-  else if (q === 'miao' || q === '喵') { markEgg('sMiao', pickArr(SMIAO_LINES)); miaoBurst(); }
-  else if (q === 'neko' || q === '猫') { markEgg('nekoSearch'); markEgg('docsSearchNeko'); }
-  else if (q === '彩蛋' || q === 'eggs') { markEgg('docsEggsSearch'); closeCmd(); openEggPanel(); return; }
+  const eggId = matchSearchEgg(q);
+  if (eggId === 's666') { markEgg('s666'); sixRain(); }
+  else if (eggId === 'moyer') { toast(moyerLine()); markEgg('moyer'); }
+  else if (eggId === 's404') { markEgg('s404'); setTimeout(() => { location.href = '/404-neko'; }, 1200); }
+  else if (eggId === 'sMiao') { markEgg('sMiao', pickArr(SMIAO_LINES)); miaoBurst(); }
+  else if (eggId === 'docsSearchNeko') { markEgg(eggId); SEARCH_MIRROR_EGGS[eggId].forEach((id) => markEgg(id)); }
+  else if (eggId === 'docsEggsSearch') { markEgg('docsEggsSearch'); closeCmd(); openEggPanel(); return; }
   cmdFiltered = FEATURES.filter((f) => !q || (f.name + f.desc).toLowerCase().includes(q));
   cmdIndex = 0;
   cmdList.innerHTML = cmdFiltered.length
@@ -1296,14 +1300,13 @@ renderAccentDots();
 let themeFlips = 0;
 $('theme-toggle').onchange = (e) => {
   applyTheme(e.target.checked);
-  if (++themeFlips === 10) markEgg('themeTen', pickArr(THEME_TEN_LINES));
+  if (++themeFlips === EGG_THRESHOLDS.themeTen) markEgg('themeTen', pickArr(THEME_TEN_LINES));
 };
 
 /* 节日彩蛋（公历节日 + 近两年农历节日硬编码） */
 {
-  const now = new Date();
-  const fest = FESTIVALS[`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`] ?? FESTIVALS[`${now.getMonth() + 1}-${now.getDate()}`];
-  if (fest) markEgg('festival', pickArr(fest));
+  const festKey = matchFestival(new Date());
+  if (festKey) markEgg('festival', pickArr(FESTIVALS[festKey]));
 }
 
 /* 深夜提醒：23 点后（含凌晨）每次会话首次打开时问候一次 */
@@ -1337,11 +1340,11 @@ const sleepLogo = () => {
 const wakeLogo = () => {
   $('brand-logo').style.backgroundImage = '';
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(sleepLogo, 120_000);
+  idleTimer = setTimeout(sleepLogo, EGG_THRESHOLDS.idleSleepMs);
 };
 ['pointermove', 'pointerdown', 'keydown', 'wheel'].forEach((ev) =>
   document.addEventListener(ev, wakeLogo, { passive: true }));
-idleTimer = setTimeout(sleepLogo, 120_000);
+idleTimer = setTimeout(sleepLogo, EGG_THRESHOLDS.idleSleepMs);
 
 /* 摇一摇彩蛋：手机端 devicemotion；电脑端快速左右甩鼠标 7 个来回 */
 let lastShake = 0;
@@ -1433,7 +1436,7 @@ try {
     visit.streak = visit.last === yesterday ? visit.streak + 1 : 1;
     visit.last = today;
     localStorage.setItem('neko-visits', JSON.stringify(visit));
-    if (visit.streak >= 3) markEgg('visit3', `第 ${visit.streak} 天都来了喵！neko每天都在等你哦～`);
+    if (visit.streak >= EGG_THRESHOLDS.visitGoal) markEgg('visit3', `第 ${visit.streak} 天都来了喵！neko每天都在等你哦～`);
   }
 } catch { /* 隐私模式等存储异常时静默跳过 */ }
 
@@ -1441,7 +1444,7 @@ const seenFeatures = new Set();
 const trackExplorer = (id) => {
   if (seenFeatures.has(id)) return;
   seenFeatures.add(id);
-  if (seenFeatures.size >= 3) markEgg('explorer');
+  if (seenFeatures.size >= EGG_THRESHOLDS.exploreGoal) markEgg('explorer');
 };
 
 (async () => {
