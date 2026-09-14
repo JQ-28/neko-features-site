@@ -132,7 +132,8 @@ npx.cmd wrangler deploy
 - 前端动画只用 transform/opacity、时长 <300ms、保留 `prefers-reduced-motion` 回退。
 - 聊天文案走随机文案池（`PROMPTS` / `LOADING_LINES`），保持猫娘语气。
 - 前端静态资源有版本参数（`FEAT_VER` / texts.js 的 `?v=`），改前端文件记得递增版本破缓存。
-- 新彩蛋在 `web/texts.js` 的 `EGGS` / `EGG_HINTS` 注册，触发用 `markEgg(id)`。
+- 彩蛋的蛋表 / 提示 / 阈值 / 对话彩蛋 / 表情规则都在共享库 `neko-shared/src/`，改完跑 `node neko-shared/sync.mjs` 生成到 `web/shared/`；触发点写在 `web/index.html` 或 `web/features/*.js`，调用 `markEgg(id)` 点亮。
+- `web/index.html` 里共享层 4 个脚本必须排在 `texts.js` 前面，因为 `texts.js` 初始化时要读它们的全局。
 
 ## 参考项目
 
