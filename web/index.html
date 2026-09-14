@@ -318,12 +318,18 @@ const toast = (msg, dur = 1800) => {
     if (toastQueue.length) { const next = toastQueue.shift(); setTimeout(() => toast(next[0], next[1]), 200); }
   }, dur);
 };
+/* 复制狂魔：与文档站的复制按钮共用同一颗彩蛋，任一端连复制 10 次都点亮 */
+let copyTenCount = 0;
+const bumpCopyTen = () => {
+  if (++copyTenCount >= EGG_THRESHOLDS.copyTen) markEgg('copyTen', pickArr(COPY_TEN_LINES));
+};
 const copyText = (btn, text) => {
   const done = () => {
     const old = btn.innerHTML;
     btn.innerHTML = '已复制喵✓';
     btn.classList.add('ok');
     setTimeout(() => { btn.innerHTML = old; btn.classList.remove('ok'); }, 1400);
+    bumpCopyTen();
   };
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(text).then(done, () => toast('复制失败了呀喵…'));
