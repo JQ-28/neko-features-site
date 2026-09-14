@@ -216,7 +216,7 @@ const pickArr = (arr) => arr[Math.floor(Math.random() * arr.length)] ?? arr[0];
    （不过既然都看到了，帮忙别剧透给别人哦喵～）
    ──────────────────────────────────────────────── */
 /* 彩蛋统计 */
-const EGGS = {
+const TOOLS_EGGS = {
   night: '深夜来访', logoTap: '连点 logo', nekoSearch: '搜索 neko', clearTwice: '清空撒娇', thursday: '疯四正日子',
   idleSleep: '打瞌睡的neko', themeTen: '换装狂魔', dlTen: '下载达人', logo22: '戳穿 logo',
   monday: '周一综合征', onTime: '整点报时', festival: '节日问候', s666: '搜索 666', moyer: '摸鱼倒计时', nightGreet: '深夜晚安',
@@ -227,10 +227,13 @@ const EGGS = {
   numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
   longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失', footerTour: '全按钮巡礼',
   copyNeko: '偷学台词', multiTab: '猫界捉奸', printNeko: 'neko海报', cinema: '影院模式', bababoi: 'bababoi!',
-  /* 文档站（docs.nekodayo.top）专属彩蛋，注册在这里以参与跨站互通 */
-  docExplore: '文档站巡礼', docCopyCmd: '复制小能手', docAskNeko: '搭话成功', docVoice: '开口说话',
-  docCheat: '速查见闻', docStatus: '关心状态', docGallery: '画廊巡礼', docHome: '常回首页看看',
 };
+/* 文档站（docs.nekodayo.top）的彩蛋，进度通过父域 cookie 与本站互通 */
+const DOCS_EGGS = {
+  docsNight: '文档站夜读', docsSearchNeko: '搜索框喊猫', docsEggsSearch: '抽屉里的册子',
+  docsThemeTen: '换装狂魔·文档版', docsCopyTen: '复制狂魔·文档版',
+};
+const EGGS = { ...TOOLS_EGGS, ...DOCS_EGGS };
 const BABABOI_LINES = [
   'bababoi bababoi～neko也会跳喵！',
   '你居然也懂 bababoi 喵？！接招！',
@@ -284,39 +287,38 @@ const EGG_HINTS = {
   multiTab: '同时打开两个 neko 网站标签页，两只猫会互相发现喵',
   printNeko: '在网站上按 Ctrl+P（或浏览器菜单里的打印）',
   cinema: '让网页进入全屏（F11 或视频全屏都可以喵）',
-  docExplore: '在文档站逛 5 个不同的页面',
-  docCopyCmd: '在文档站复制 3 次指令',
-  docAskNeko: '在文档站问 neko 小助手一句话',
-  docVoice: '在文档站用语音向 neko 提问',
-  docCheat: '打开文档站的指令速查页',
-  docStatus: '打开文档站的状态页看看 neko 活得好不好',
-  docGallery: '打开文档站的画作长廊',
-  docHome: '在文档站连续 3 天回首页看看',
+  docsNight: '凌晨 0 点到 5 点之间打开文档站',
+  docsSearchNeko: '在文档站搜索框里输入 neko 或 猫',
+  docsEggsSearch: '在文档站搜索框里输入 彩蛋 或 eggs（会直接翻开这本册子）',
+  docsThemeTen: '在文档站来回切换深色/浅色主题 10 次',
+  docsCopyTen: '在文档站连续复制指令 10 次',
 };
-const eggFound = new Set(
-  (() => {
-    const local = (() => { try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; } })();
-    // 文档站（docs.nekodayo.top）通过父域 Cookie 写入的彩蛋，这里合并进来实现互通
-    const bridge = (() => {
-      try {
-        const m = document.cookie.match(/(?:^|;\s*)neko-eggs=([^;]*)/);
-        return m ? JSON.parse(decodeURIComponent(m[1])) : [];
-      } catch { return []; }
-    })();
-    return [...new Set([...local, ...bridge])];
-  })()
-    .filter((id) => Object.prototype.hasOwnProperty.call(EGGS, id))
-);
-const writeEggsBridge = () => {
-  try {
-    document.cookie = `neko-eggs=${encodeURIComponent(JSON.stringify([...eggFound]))}; domain=.nekodayo.top; path=/; max-age=31536000; SameSite=Lax`;
-  } catch { /* 隐私模式等忽略 */ }
+/* 进度双向互通：本站在 localStorage，文档站在父域 cookie，取并集后双写 */
+const EGG_COOKIE_ROOT_DOMAIN = 'nekodayo.top';
+const readEggLocal = () => {
+  try { return JSON.parse(localStorage.getItem('neko-eggs') || '[]'); } catch { return []; }
+};
+const readEggCookie = () => {
+  const prefix = 'neko-eggs=';
+  const raw = document.cookie.split('; ').find((item) => item.startsWith(prefix))?.slice(prefix.length);
+  if (!raw) return [];
+  try { return decodeURIComponent(raw).split(',').map((id) => id.trim()).filter(Boolean); } catch { return []; }
+};
+const writeEggCookie = (ids) => {
+  const domain = location.hostname.endsWith(`.${EGG_COOKIE_ROOT_DOMAIN}`) ? `;domain=.${EGG_COOKIE_ROOT_DOMAIN}` : '';
+  document.cookie = `neko-eggs=${encodeURIComponent(ids.join(','))};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax${domain}`;
+};
+let allEggIds = [...new Set([...readEggLocal(), ...readEggCookie()])];
+const eggFound = new Set(allEggIds.filter((id) => Object.prototype.hasOwnProperty.call(EGGS, id)));
+const persistEggs = () => {
+  allEggIds = [...new Set([...allEggIds, ...eggFound])];
+  try { localStorage.setItem('neko-eggs', JSON.stringify(allEggIds)); } catch { /* 隐私模式等忽略 */ }
+  writeEggCookie(allEggIds);
 };
 const markEgg = (id, line) => {
   if (eggFound.has(id)) return;
   eggFound.add(id);
-  try { localStorage.setItem('neko-eggs', JSON.stringify([...eggFound])); } catch { /* 隐私模式等忽略 */ }
-  writeEggsBridge();
+  persistEggs();
   const total = Object.keys(EGGS).length;
   toast(line
     ? `${line}（彩蛋 ${eggFound.size}/${total} 喵！✨）`
