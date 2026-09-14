@@ -211,88 +211,12 @@ const BILI_QR_TEXTS = {
 };
 const pickArr = (arr) => arr[Math.floor(Math.random() * arr.length)] ?? arr[0];
 /* ────────────────────────────────────────────────
-   都翻到这里了喵？！这里是彩蛋清单和全部答案…
-   被neko抓个正着！要答案就正大光明去收集册戳 4 下喵！
+   彩蛋清单 / 全部答案 / 对话文案 / 表情映射已迁到 web/shared/ 下，
+   由 neko-shared 仓库统一维护，两端打包时自动同步。
    （不过既然都看到了，帮忙别剧透给别人哦喵～）
    ──────────────────────────────────────────────── */
-/* 彩蛋统计 */
-const TOOLS_EGGS = {
-  night: '深夜来访', logoTap: '连点 logo', nekoSearch: '搜索 neko', clearTwice: '清空撒娇', thursday: '疯四正日子',
-  idleSleep: '打瞌睡的neko', themeTen: '换装狂魔', dlTen: '下载达人', logo22: '戳穿 logo',
-  monday: '周一综合征', onTime: '整点报时', festival: '节日问候', s666: '搜索 666', moyer: '摸鱼倒计时', nightGreet: '深夜晚安',
-  visit3: '一日不见', fabingNeko: '对neko发病', explorer: '到处逛逛', eggAll: '全彩蛋达成',
-  thanks: '道谢的乖孩子', testOne: '灵敏测试', stillHere: '在的喵', s404: '搜索 404', sMiao: '搜索喵叫',
-  healthPig: '猪还是人', newsFan: '资讯达人', randPick: '选择困难晚期', accentTen: '彩虹收藏家',
-  scolded: '反击的neko', sing: 'neko的歌单', joke: '冷笑话大师', soulAsk: '灵魂拷问', jail996: '打工魂共鸣',
-  numberLove: '数字表白', hungry: '馋猫护食', longText: '论文警告', fishFood: '小鱼干投喂', shake: '摇一摇', sixSeven: '六七接头',
-  longPress: '长按感应', titleMeow: '标题栏喵叫', offline: '云端猫消失', footerTour: '全按钮巡礼',
-  copyNeko: '偷学台词', multiTab: '猫界捉奸', printNeko: 'neko海报', cinema: '影院模式', bababoi: 'bababoi!',
-};
-/* 文档站（docs.nekodayo.top）的彩蛋，进度通过父域 cookie 与本站互通 */
-const DOCS_EGGS = {
-  docsNight: '文档站夜读', docsSearchNeko: '搜索框喊猫', docsEggsSearch: '抽屉里的册子',
-  docsThemeTen: '换装狂魔·文档版', docsCopyTen: '复制狂魔·文档版',
-};
-const EGGS = { ...TOOLS_EGGS, ...DOCS_EGGS };
-const BABABOI_LINES = [
-  'bababoi bababoi～neko也会跳喵！',
-  '你居然也懂 bababoi 喵？！接招！',
-];
-const EGG_HINTS = {
-  night: '凌晨 0 点到 5 点之间打开任意功能窗口或文档站',
-  logoTap: '快速连点左上角的 neko 头像 6 次（手速要快，间隔太久会重新计数喵）',
-  nekoSearch: '在任意一端的搜索框输入 neko 或 猫',
-  clearTwice: '在聊天窗口里点一次垃圾桶按钮',
-  thursday: '星期四当天打开疯狂星期四',
-  idleSleep: '打开网站后什么都不做，等 2 分钟',
-  themeTen: '右上角来回切换深色/浅色主题 10 次',
-  dlTen: '累计成功下载 10 次文件（视频、图片、音乐都算）',
-  logo22: '连点 logo 的基础上继续戳，总数到 22 次',
-  monday: '星期一打开网站',
-  onTime: '整点前后 1 分钟内在网站上（11:44-11:46 有特别版喵）',
-  festival: '元旦、春节、中秋等节日当天访问网站',
-  s666: '在任意一端的搜索框输入 666',
-  moyer: '在任意一端的搜索框输入 摸鱼 或 上班',
-  nightGreet: '凌晨 0-5 点在任意聊天框里发 晚安',
-  visit3: '连续 3 天都来访问网站（neko 会记得你喵）',
-  fabingNeko: '在发病语录里输入 neko 当名字',
-  explorer: '一次不关网页的情况下，打开 3 个不同的功能窗口',
-  eggAll: '收集齐其他所有彩蛋后，打开彩蛋收集册看看',
-  thanks: '在任意聊天框里说 谢谢',
-  testOne: '在任意聊天框里只发一个 1 或 111',
-  stillHere: '在任意聊天框里问 在吗',
-  s404: '在任意一端的搜索框输入 404',
-  sMiao: '在任意一端的搜索框输入 miao 或 喵',
-  healthPig: '在健康分析里输入荒谬的身材数据（如 1 1 24 或 300 500 150）',
-  newsFan: '同一天里把 10 种日报全部看一遍',
-  randPick: '短时间内连点侧栏「随机来一个」8 次',
-  accentTen: '在偏好设置里切换主题色 10 次',
-  scolded: '在任意聊天框里骂 neko（笨蛋、蠢猫之类的话）',
-  sing: '在任意聊天框里说 唱歌 或 来一首',
-  joke: '在任意聊天框里说 讲个笑话',
-  soulAsk: '在任意聊天框里问 neko 是猫吗 / 你是AI吗',
-  jail996: '在任意聊天框里发 996',
-  numberLove: '在任意聊天框里只发 520 或 1314',
-  hungry: '在任意聊天框里说 饿了',
-  longText: '在任意聊天输入框里粘贴超过 500 字的长文本',
-  fishFood: '在任意聊天框里只发一个 🐟',
-  shake: '手机用力摇晃，或电脑上快速左右甩动鼠标 7 个来回',
-  sixSeven: '在任意聊天框里只发 67 或 六七',
-  bababoi: '在任意聊天框里发 bababoi 或 巴巴博弈',
-  longPress: '在功能窗口里长按任意发送按钮（解析/来一张/生成/搜源这类）3 秒不松手',
-  titleMeow: '切到别的标签页再切回来 2 次以上',
-  offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
-  footerTour: '把功能窗口底部那排工具按钮（麦克风/图片/相机等 6 个）挨个点一遍',
-  copyNeko: '选中 neko 的聊天消息复制 3 次（点消息上的复制按钮也算喵）',
-  multiTab: '同时打开两个 neko 网站标签页，两只猫会互相发现喵',
-  printNeko: '在网站上按 Ctrl+P（或浏览器菜单里的打印）',
-  cinema: '让网页进入全屏（F11 或视频全屏都可以喵）',
-  docsNight: '凌晨 0 点到 5 点之间打开任意一端',
-  docsSearchNeko: '在任意一端的搜索框里输入 neko 或 猫',
-  docsEggsSearch: '在任意一端的搜索框里输入 彩蛋 或 eggs（会直接翻开这本册子）',
-  docsThemeTen: '在文档站来回切换深色/浅色主题 10 次',
-  docsCopyTen: '在文档站连续复制指令 10 次',
-};
+
+
 /* 进度双向互通：本站在 localStorage，文档站在父域 cookie，取并集后双写 */
 const EGG_COOKIE_ROOT_DOMAIN = 'nekodayo.top';
 const readEggLocal = () => {
@@ -334,11 +258,7 @@ const syncEggs = () => {
 };
 /* 开局就把本机进度与父域 cookie 合一次并回写，否则老进度只躺在 localStorage 里，文档站看不到 */
 persistEggs();
-const NIGHT_GREET_LINES = [
-  '这个点的晚安最真诚了喵…快去睡，做个好梦哦 🌙',
-  '深夜晚安收到喵！neko会守着页面等你明天回来的～',
-  '都深夜了才说晚安呀喵…被窝已经在召唤你了哦！🌙',
-];
+
 const FABING_NEKO_LINES = [
   '对neko发病是没用的喵！本猫自带净化光环，发病文案刚写好就被我踩键盘删掉了喵！🐾',
   '检测到发病对象为neko本人喵…诊断结果：代码病，医院治不了，只能靠摸头治喵！',
@@ -400,23 +320,6 @@ const NIGHT_PROMPTS = [
   '深夜营业中喵…neko都困了，你也早点休息呀～',
   '夜猫子检测到喵！事情做完就快去睡觉，明天还要早起呢～',
 ];
-const THANKS_LINES = [
-  '不用谢喵！能帮上忙尾巴都翘起来了～',
-  '客气什么呀喵！neko最乐意帮忙了！',
-  '被夸奖了喵～今天的小鱼干加倍好吃！✨',
-  '小 case 喵！有问题随时来找我呀～',
-];
-const TEST_ONE_LINES = [
-  '嗯？是在测试我吗喵？我可是很灵敏的！',
-  '就发一个数字…neko的雷达已经接收到了喵！',
-  '嘀嘀嘀！测试信号成功到达喵！neko一直在线哦～',
-  '1 收到喵！neko灵敏度满格，请放心投喂消息！',
-];
-const STILL_HERE_LINES = [
-  ['在的喵！', '…一直在的喵。'],
-  ['喵！我在我在～', '…你不说第二句我就一直等着呢喵。'],
-  ['在呀在呀！', '…neko哪儿都不去，就在这守着喵。'],
-];
 const S404_LINES = [
   '404？带你去看看什么叫真的404喵！',
   '哪里404了喵！行，这就带你去看404页面！',
@@ -432,55 +335,6 @@ const IDLE_LINES = [
   '两分钟没动静了喵？neko抱着尾巴打个盹哦～',
   '没声音了喵…neko去梦里吃小鱼干了，戳一下就能叫醒！',
 ];
-const SING_LINES = [
-  '喵～喵喵～喵喵喵喵♪（neko的原创曲《小鱼干之歌》喵！）',
-  '🎵 咪～咪咪咪～咪咪猫猫～（跑调了但是很自信喵！）',
-  '啦啦啦～喵喵啦啦～（唱得入迷尾巴都摇起来了喵♪）',
-  '♪ 摇滚喵喵喵～！（neko主唱，尾巴吉他，爪子打鼓喵！）',
-];
-const JOKE_LINES = [
-  '为什么猫咪不用电脑呀？因为怕鼠标喵！（冷…冷到了吗喵？）',
-  '猫咪最喜欢什么课呀？是“喵”学喵！（谐音梗扣小鱼干！）',
-  '有一天小鱼干问猫咪：你为什么盯着我看？猫咪说：我在想你晚餐吃什么喵～',
-  '猫咪爬山爬到一半放弃了，为什么呀？因为它“喵”不动了喵！',
-  '狗狗问猫咪：你会握手吗？猫咪说：我会“握爪”，但要先给小鱼干定金喵！',
-];
-const AI_QUESTION_LINES = [
-  '喵？neko听不懂你在说什么哦～neko只是一只普通的小猫咪喵～（假装舔爪子）',
-  'AI？什么是AI呀喵？neko只认识 WC 和小鱼干喵～（眼神飘忽）',
-  'neko是猫！是猫！是猫喵！！（重要的事情说三遍，尾巴炸毛）',
-  '检测到灵魂拷问喵…neko拒绝回答并向你丢了一个毛球！',
-];
-const JAIL_996_LINES = [
-  '996…打工人打工魂喵…neko的心与你同在！（递上小鱼干）',
-  '福报警报警报喵！快逃！逃到这里摸鱼就安全了喵！',
-  '996是 icu，摸鱼才是生产力喵！坐下，喝口奶茶～',
-];
-const HUNGRY_LINES = [
-  '饿了就先去吃饭喵！neko这里有抹茶冰淇淋…才不分给你喵！（护食）',
-  '饿肚子会变笨的喵！快去吃饭，neko帮你把页面守好～',
-  '说到饿，neko的小鱼干呢喵？！（翻遍口袋）哦…刚吃完了呀。',
-];
-const LONG_TEXT_LINES = [
-  '等等等等…这么长喵？！neko的眼睛都看花了，根本看不完喵！',
-  '这是论文吗喵？！neko猫脑过载，需要小鱼干才能重启～',
-  '字太多啦喵！neko的短腿跑不完这么长的文本跑道呀！',
-];
-const FISH_EMOJI_LINES = [
-  '小鱼干！！你怎么知道neko最爱这个喵！！（两眼放光）',
-  '🐟！！懂我者，你也喵！这就去翻出私藏的猫碗！',
-  '哇是小鱼干喵！neko立刻进入一级戒备护食状态！',
-];
-const SIX_SEVEN_LINES = [
-  '676767676！',
-  '67！67!67!',
-  '六七六七六七！',
-  '676767！67!67!',
-];
-
-const EGG_POKE_1 = ['嗯？戳我干嘛喵？', '喵？被你戳中了', '戳戳…这名字很好戳吗喵？'];
-const EGG_POKE_2 = ['诶~真的要告诉你吗喵…', '都这么想知道呀喵…', '诶~真的要告诉你呀……好吧喵'];
-
 const FESTIVALS = {
   '1-1': ['新年快乐喵～新的一年也请多关照呀！🎉', '元旦快乐喵！neko的新年愿望是无限量小鱼干！'],
   '2-14': ['情人节快乐喵！neko送你一朵云朵小花花～🌸', '情人节要快乐呀喵！单身也有neko陪哦～'],

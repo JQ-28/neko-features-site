@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "sync": "node neko-shared/sync.mjs",
+    "dev": "npm run sync && wrangler dev",
+    "deploy": "npm run sync && wrangler deploy",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
