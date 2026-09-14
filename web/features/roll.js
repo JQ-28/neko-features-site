@@ -43,6 +43,7 @@
       const input = $('roll-input');
       const raw = input.value || '';
       input.value = '';
+      if (tryEggInChat(raw)) return;
       const result = resolve(raw);
       addMsg('user', esc(raw || 'roll'));
       addMsg('neko', esc(result) + copyBtn(result));

@@ -258,24 +258,24 @@ const EGG_HINTS = {
   fabingNeko: '在发病语录里输入 neko 当名字',
   explorer: '一次不关网页的情况下，打开 3 个不同的功能窗口',
   eggAll: '收集齐其他所有彩蛋后，打开彩蛋收集册看看',
-  thanks: '在链接解析聊天里说 谢谢',
-  testOne: '在链接解析聊天里只发一个 1 或 111',
-  stillHere: '在链接解析聊天里问 在吗',
+  thanks: '在任意聊天框里说 谢谢',
+  testOne: '在任意聊天框里只发一个 1 或 111',
+  stillHere: '在任意聊天框里问 在吗',
   s404: '在搜索框输入 404',
   sMiao: '在搜索框输入 miao 或 喵',
   healthPig: '在健康分析里输入荒谬的身材数据（如 1 1 24 或 300 500 150）',
   newsFan: '同一天里把 10 种日报全部看一遍',
   randPick: '短时间内连点侧栏「随机来一个」8 次',
   accentTen: '在偏好设置里切换主题色 10 次',
-  scolded: '在链接解析聊天里骂 neko（笨蛋、蠢猫之类的话）',
-  sing: '在链接解析聊天里说 唱歌 或 来一首',
-  joke: '在链接解析聊天里说 讲个笑话',
-  soulAsk: '在链接解析聊天里问 neko 是猫吗 / 你是AI吗',
-  jail996: '在链接解析聊天里发 996',
-  numberLove: '在链接解析聊天里只发 520 或 1314',
-  hungry: '在链接解析聊天里说 饿了',
-  longText: '在链接解析输入框里粘贴超过 500 字的长文本',
-  fishFood: '在链接解析聊天里只发一个 🐟',
+  scolded: '在任意聊天框里骂 neko（笨蛋、蠢猫之类的话）',
+  sing: '在任意聊天框里说 唱歌 或 来一首',
+  joke: '在任意聊天框里说 讲个笑话',
+  soulAsk: '在任意聊天框里问 neko 是猫吗 / 你是AI吗',
+  jail996: '在任意聊天框里发 996',
+  numberLove: '在任意聊天框里只发 520 或 1314',
+  hungry: '在任意聊天框里说 饿了',
+  longText: '在任意聊天输入框里粘贴超过 500 字的长文本',
+  fishFood: '在任意聊天框里只发一个 🐟',
   shake: '手机用力摇晃，或电脑上快速左右甩动鼠标 7 个来回',
   sixSeven: '在链接解析聊天里只发 67 或 六七',
   bababoi: '在链接解析聊天里发 bababoi 或 巴巴博弈',
@@ -323,6 +323,14 @@ const markEgg = (id, line) => {
   toast(line
     ? `${line}（彩蛋 ${eggFound.size}/${total} 喵！✨）`
     : `彩蛋发现：${EGGS[id] ?? id}（${eggFound.size}/${total}）喵！✨`, 4200);
+};
+/* 另一端（文档站）刚触发时只写进了 cookie，翻开册子前重新合一次并集，进度即刻对齐 */
+const syncEggs = () => {
+  const shared = [...new Set([...readEggLocal(), ...readEggCookie()])]
+    .filter((id) => Object.prototype.hasOwnProperty.call(EGGS, id));
+  let changed = false;
+  shared.forEach((id) => { if (!eggFound.has(id)) { eggFound.add(id); changed = true; } });
+  if (changed) persistEggs();
 };
 /* 开局就把本机进度与父域 cookie 合一次并回写，否则老进度只躺在 localStorage 里，文档站看不到 */
 persistEggs();

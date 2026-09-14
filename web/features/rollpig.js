@@ -70,6 +70,7 @@
     const kw = $('pig-kw').value.trim();
     if (!kw) return addMsg('neko', '要输入关键词才能找猪哦喵～比如「野猪」「红烧」「苹果」…');
     $('pig-kw').value = '';
+    if (tryEggInChat(kw)) return;
     addMsg('user', '找猪：' + kw);
     addMsg('neko', pickLine('rollpig'));
     try {

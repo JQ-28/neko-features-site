@@ -6,6 +6,7 @@
        <button class="act" onclick="__run('fabing')">生成</button>`,
     run: () => guard('fabing', async () => {
       const name = ($('fb-name').value || '你').trim() || '你';
+      if (tryEggInChat(name)) return;
       addMsg('user', esc(name));
       if (/^(neko|猫娘|nekodayo)$/i.test(name)) {
         $('fb-name').value = '';

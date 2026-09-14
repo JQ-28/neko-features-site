@@ -286,7 +286,7 @@
   </div>
 </div>
 
-<script src="/texts.js?v=18"></script>
+<script src="/texts.js?v=19"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -482,7 +482,7 @@ window.__features = {};
 window.__run = (id) => window.__features[id]?.run();
 const featureImpls = {};
 const featurePromises = {};
-const FEAT_VER = 'v13'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
+const FEAT_VER = 'v14'; /* 前端资源版本：改动 web/ 下 JS 时递增，破坏浏览器缓存 */
 const loadFeatureModule = (id) =>
   new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -557,6 +557,19 @@ const tryEasterEgg = (text) => {
   if (hit.emote) addEmote(el, hit.emote);
   if (hit.egg) markEgg(hit.egg);
   if (/(晚安|好梦)/.test(text) && isNight()) markEgg('nightGreet');
+  return true;
+};
+/* 预判文本是否命中对话彩蛋（只判断，不产生任何回复） */
+const hitsEasterEgg = (text) =>
+  /^(bababoi|巴巴博弈|巴巴博一)$/i.test(text)
+  || /(在吗|在不在)/.test(text)
+  || EASTER_EGGS.some((e) => e.test.test(text));
+/* 所有可输入文本的聊天框共用入口：命中就回显这条输入并就地回复，返回 true 表示本轮已处理完 */
+const tryEggInChat = (text) => {
+  const t = (text || '').trim();
+  if (!hitsEasterEgg(t)) return false;
+  addMsg('user', esc(t));
+  tryEasterEgg(t);
   return true;
 };
 const pickLine = (key) => {
@@ -1196,6 +1209,7 @@ $('egg-list').addEventListener('click', (e) => {
   }
 });
 const openEggPanel = () => {
+  syncEggs();
   renderEggPanel();
   $('egg-panel-mask').classList.add('open');
   $('search').value = '';
