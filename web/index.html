@@ -2027,7 +2027,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   /* ── 语音输入：电脑边说边出字，手机录音上传转写；结果写进当前功能窗的输入框并自动提交 ── */
   const VOICE_SILENCE_MS = 1600;
   const VOICE_RECORD_MAX_MS = 30_000;
-  const VOICE_STREAM_MS = 2500;
+  const VOICE_SEGMENT_MS = 4000;
   const VOICE_START_TIMEOUT_MS = 3000;
   const RECORD_MIME_TYPES = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
 
@@ -2054,8 +2054,12 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
   let silenceTimer = 0;
   let startTimer = 0;
   let recordTimer = 0;
-  let voiceStreamTimer = 0;
-  let voiceStreamBusy = false;
+  let recordSegmentTimer = 0;
+  let recordDrain = Promise.resolve();
+  let recordQueue = [];
+  let recordText = '';
+  let recordActive = false;
+  let recordFailed = false;
 
   const voiceText = () => `${finalText}${interimText}`.trim();
   const resetVoiceText = () => { finalText = ''; interimText = ''; };
@@ -2075,8 +2079,6 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     }
     return btoa(binary);
   };
-  const snapshotRecording = () =>
-    (recordChunks.length ? new Blob(recordChunks, { type: recordChunks[0]?.type || 'audio/webm' }) : null);
   const transcribeBlob = async (blob) => {
     const resp = await fetch(ASR_API, {
       method: 'POST',
@@ -2086,23 +2088,56 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     if (!resp.ok) throw new Error(String(resp.status));
     return (((await resp.json()).text) ?? '').trim();
   };
-  /* 边录边转：定时把这段录到的音频整段重转一次，输入框里就能随说随出字 */
-  const streamRecording = async () => {
-    if (voiceStreamBusy || mode !== 'record') return;
-    const blob = snapshotRecording();
-    if (!blob?.size) return;
-    voiceStreamBusy = true;
-    try {
-      const text = await transcribeBlob(blob);
-      const input = voiceTarget();
-      // 片段可能不完整、也可能已经停止录音，只在仍处于录音态时回填
-      if (text && mode === 'record' && input) input.value = text;
-    } catch {
-      // 单次片段转写失败不影响整体，等下一轮音频更长时再试
-    } finally {
-      voiceStreamBusy = false;
+  /* 每段封口后进队列，串行转写并按顺序拼起来，输入框里就能随说随出字 */
+  async function transcribeQueuedSegments() {
+    while (recordQueue.length) {
+      const blob = recordQueue.shift();
+      try {
+        const text = await transcribeBlob(blob);
+        if (!text) continue;
+        recordText += text;
+        const input = voiceTarget();
+        if (recordActive && input) input.value = recordText;
+      } catch {
+        // 单段转写失败不影响整句，记下来方便最后给个准确提示
+        recordFailed = true;
+      }
     }
+  }
+  /* 转写串成一条链，await 它就能等到队里最后一段也拼完 */
+  function drainRecordQueue() {
+    recordDrain = recordDrain.then(transcribeQueuedSegments);
+    return recordDrain;
+  }
+  const takeSegment = () => {
+    const chunks = recordChunks;
+    recordChunks = [];
+    return new Blob(chunks, { type: chunks[0]?.type || 'audio/webm' });
   };
+  /* 一段录满就 stop() 封口成完整音频：半截的 webm/mp4 容器 Whisper 认不出来，只有整段才转得出字 */
+  function startSegment() {
+    if (!recordStream || mode !== 'record') return;
+    recordChunks = [];
+    const mime = pickRecordMime();
+    const current = mime ? new MediaRecorder(recordStream, { mimeType: mime }) : new MediaRecorder(recordStream);
+    recorder = current;
+    current.ondataavailable = (event) => { if (event.data.size > 0) recordChunks.push(event.data); };
+    current.onstop = () => {
+      const blob = takeSegment();
+      if (blob.size) {
+        recordQueue.push(blob);
+        void drainRecordQueue();
+      }
+      // 用户还没喊停就接着录下一段；喊停了就把最后一段转完再收尾
+      if (mode === 'record') startSegment();
+      else void finishRecording();
+    };
+    try { current.start(); } catch { return stopVoice(true); }
+    clearTimeout(recordSegmentTimer);
+    recordSegmentTimer = setTimeout(() => {
+      if (mode === 'record' && current.state === 'recording') current.stop();
+    }, VOICE_SEGMENT_MS);
+  }
   const sendVoiceText = (text) => {
     const input = voiceTarget();
     if (!input || !currentFeatureId) return;
@@ -2114,15 +2149,21 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     clearTimeout(silenceTimer);
     clearTimeout(startTimer);
     clearTimeout(recordTimer);
-    clearInterval(voiceStreamTimer);
-    voiceStreamTimer = 0;
-    mode = null;
-    const currentRecorder = recorder;
-    if (currentRecorder && currentRecorder.state !== 'inactive') {
+    clearTimeout(recordSegmentTimer);
+    recordSegmentTimer = 0;
+    // 录音模式：交给 onstop 收尾，把最后一段也转写完再决定发不发
+    if (mode === 'record') {
+      mode = null;
       pendingSubmit = submitText;
-      currentRecorder.stop();
+      const currentRecorder = recorder;
+      if (currentRecorder && currentRecorder.state !== 'inactive') {
+        currentRecorder.stop();
+        return;
+      }
+      void finishRecording();
       return;
     }
+    mode = null;
     releaseRecordStream();
     const text = voiceText();
     resetVoiceText();
@@ -2144,28 +2185,25 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     pendingSubmit = false;
     recorder = null;
     releaseRecordStream();
-    clearInterval(voiceStreamTimer);
-    voiceStreamTimer = 0;
-    voiceStreamBusy = false;
-    const blob = new Blob(recordChunks, { type: recordChunks[0]?.type || 'audio/webm' });
-    recordChunks = [];
-    if (!shouldSubmit || !blob.size) {
-      setListening(false);
-      return;
-    }
+    clearTimeout(recordSegmentTimer);
+    recordSegmentTimer = 0;
     setTip('转写中喵…');
     transcribing = true;
     setListening(true);
-    try {
-      const text = await transcribeBlob(blob);
-      if (!text) setTip('没听清喵，再说一次试试？');
-      else sendVoiceText(text);
-    } catch {
-      setTip('语音识别服务连不上喵，稍后再试，或者用键盘打字吧～');
-    } finally {
-      transcribing = false;
-      setListening(false);
+    // 录音期间已经边转边拼，这里只等最后一段也转完再决定发不发
+    await drainRecordQueue();
+    transcribing = false;
+    setListening(false);
+    recordActive = false;
+    const text = recordText.trim();
+    const failed = recordFailed;
+    recordText = '';
+    recordFailed = false;
+    if (!shouldSubmit) return;
+    if (!text) {
+      return setTip(failed ? '语音识别服务连不上喵，稍后再试，或者用键盘打字吧～' : '没听清喵，再说一次试试？');
     }
+    sendVoiceText(text);
   }
 
   function startRecording() {
@@ -2179,22 +2217,17 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
         return;
       }
       recordStream = stream;
-      recordChunks = [];
-      const mime = pickRecordMime();
-      const current = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
-      recorder = current;
-      current.ondataavailable = (event) => { if (event.data.size > 0) recordChunks.push(event.data); };
-      current.onstop = () => { void finishRecording(); };
-      // 传 timeslice 让 MediaRecorder 分片回调，配合定时重转实现边说边出字
-      current.start(VOICE_STREAM_MS);
+      recordText = '';
+      recordFailed = false;
+      recordActive = true;
       setListening(true);
       setTip('在录了喵…说完再点一下麦克风～');
-      clearInterval(voiceStreamTimer);
-      voiceStreamTimer = setInterval(() => void streamRecording(), VOICE_STREAM_MS);
+      startSegment();
       clearTimeout(recordTimer);
       recordTimer = setTimeout(() => { if (mode === 'record') stopVoice(true); }, VOICE_RECORD_MAX_MS);
     }).catch(() => {
       mode = null;
+      recordActive = false;
       releaseRecordStream();
       setTip('麦克风权限被拒绝了喵，去浏览器设置里允许一下～');
     });
