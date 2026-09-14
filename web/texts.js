@@ -239,7 +239,7 @@ const BABABOI_LINES = [
   '你居然也懂 bababoi 喵？！接招！',
 ];
 const EGG_HINTS = {
-  night: '凌晨 0 点到 5 点之间打开任意功能窗口',
+  night: '凌晨 0 点到 5 点之间打开任意功能窗口或文档站',
   logoTap: '快速连点左上角的 neko 头像 6 次（手速要快，间隔太久会重新计数喵）',
   nekoSearch: '在顶部搜索框输入 neko 或 猫',
   clearTwice: '在聊天窗口里点一次垃圾桶按钮',
@@ -253,7 +253,7 @@ const EGG_HINTS = {
   festival: '元旦、春节、中秋等节日当天访问网站',
   s666: '在搜索框输入 666',
   moyer: '在搜索框输入 摸鱼 或 上班',
-  nightGreet: '凌晨 0-5 点在链接解析聊天里发 晚安',
+  nightGreet: '凌晨 0-5 点在任意聊天框里发 晚安',
   visit3: '连续 3 天都来访问网站（neko 会记得你喵）',
   fabingNeko: '在发病语录里输入 neko 当名字',
   explorer: '一次不关网页的情况下，打开 3 个不同的功能窗口',
@@ -277,8 +277,8 @@ const EGG_HINTS = {
   longText: '在任意聊天输入框里粘贴超过 500 字的长文本',
   fishFood: '在任意聊天框里只发一个 🐟',
   shake: '手机用力摇晃，或电脑上快速左右甩动鼠标 7 个来回',
-  sixSeven: '在链接解析聊天里只发 67 或 六七',
-  bababoi: '在链接解析聊天里发 bababoi 或 巴巴博弈',
+  sixSeven: '在任意聊天框里只发 67 或 六七',
+  bababoi: '在任意聊天框里发 bababoi 或 巴巴博弈',
   longPress: '在功能窗口里长按任意发送按钮（解析/来一张/生成/搜源这类）3 秒不松手',
   titleMeow: '切到别的标签页再切回来 2 次以上',
   offline: '把网络断掉（拔网线/关 WiFi）让 neko 消失一次',
