@@ -258,6 +258,14 @@
       </div>
     </div>
     <div class="pref-card">
+      <div class="pref-card-ico" id="pref-ico-miao"></div>
+      <div class="pref-card-body">
+        <h3>喵语模式</h3>
+        <p>开启后全站文字尾巴都会加上一只喵，代码指令除外，关闭立即恢复喵</p>
+        <label class="miao-switch"><input type="checkbox" id="miao-switch" /><span></span></label>
+      </div>
+    </div>
+    <div class="pref-card">
       <div class="pref-card-ico" id="pref-ico-weather"></div>
       <div class="pref-card-body">
         <h3>天气城市</h3>
@@ -1306,6 +1314,7 @@ const renderAccentDots = () => {
   }
 };
 $('pref-ico-accent').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
+$('pref-ico-miao').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.38-.58 4.72.27 6.5 2.26A10.04 10.04 0 0 1 12 5Z"/><path d="M8 14v.5"/><path d="M16 14v.5"/><path d="M11.25 16.5h1.5"/></svg>';
 
 const applyTheme = (dark) => {
   document.documentElement.classList.toggle('dark', dark);
@@ -2356,6 +2365,63 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     e.preventDefault();
     startVoice();
   });
+}
+
+/* ─────────────── 喵语模式：全站文字尾巴加喵 ─────────────── */
+{
+  const MIAO_EXCLUDED_TAGS = new Set(['CODE', 'PRE', 'KBD', 'SAMP', 'SCRIPT', 'STYLE', 'TEXTAREA']);
+  /* neko-card-cmd 是可点击复制的命令本体，不能长尾巴 */
+  const MIAO_EXCLUDED_CLASSES = ['neko-card-cmd'];
+  const miaoOriginal = new WeakMap();
+  let miaoOn = (() => { try { return localStorage.getItem('neko-miao') === '1'; } catch { return false; } })();
+
+  const skipMiao = (textNode) => {
+    let node = textNode.parentNode;
+    while (node && node.nodeType === Node.ELEMENT_NODE) {
+      if (MIAO_EXCLUDED_TAGS.has(node.tagName)) return true;
+      if (MIAO_EXCLUDED_CLASSES.some((name) => node.classList.contains(name))) return true;
+      node = node.parentNode;
+    }
+    return false;
+  };
+  const applyMiaoText = () => {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    for (const textNode of nodes) {
+      const value = textNode.nodeValue ?? '';
+      if (!value.trim() || skipMiao(textNode)) continue;
+      if (miaoOn) {
+        if (miaoOriginal.get(textNode) === value) continue;
+        miaoOriginal.set(textNode, value);
+        textNode.nodeValue = value.includes('喵') ? value : value + '喵';
+      } else {
+        const original = miaoOriginal.get(textNode);
+        if (original !== undefined) {
+          textNode.nodeValue = original;
+          miaoOriginal.delete(textNode);
+        }
+      }
+    }
+  };
+  const toggleMiao = () => {
+    miaoOn = !miaoOn;
+    try { localStorage.setItem('neko-miao', miaoOn ? '1' : '0'); } catch { /* 存储不可用时仅本次会话生效 */ }
+    applyMiaoText();
+    if (miaoOn) markEgg('miaoMode');
+    toast(miaoOn ? '喵语模式开启！全站都喵起来了喵～' : '喵语模式关闭，恢复普通话喵～');
+  };
+  /* toast、天气时钟、面板等动态出现的新文本，处于喵语模式时自动补尾巴（rAF 去抖） */
+  let miaoRaf = 0;
+  new MutationObserver(() => {
+    if (!miaoOn || miaoRaf) return;
+    miaoRaf = requestAnimationFrame(() => { miaoRaf = 0; applyMiaoText(); });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  $('miao-switch').checked = miaoOn;
+  if (miaoOn) applyMiaoText();
+  $('miao-switch').addEventListener('change', toggleMiao);
 }
 
 /* ─────────────── 新版本就绪：Service Worker 更新提示 ─────────────── */
