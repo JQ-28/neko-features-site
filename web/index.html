@@ -2384,6 +2384,7 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
     }
     return false;
   };
+  /* 自产守卫：rAF 去抖重跑时节点值已是「缓存原文+喵」，这份喵文绝不能覆盖缓存，否则关闭时就还原不回去了 */
   const applyMiaoText = () => {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
@@ -2393,7 +2394,9 @@ $('weather-mask').addEventListener('click', (e) => { if (e.target === $('weather
       const value = textNode.nodeValue ?? '';
       if (!value.trim() || skipMiao(textNode)) continue;
       if (miaoOn) {
-        if (miaoOriginal.get(textNode) === value) continue;
+        const cached = miaoOriginal.get(textNode);
+        if (cached === value) continue;
+        if (cached !== undefined && value === cached + '喵') continue;
         miaoOriginal.set(textNode, value);
         textNode.nodeValue = value.includes('喵') ? value : value + '喵';
       } else {
